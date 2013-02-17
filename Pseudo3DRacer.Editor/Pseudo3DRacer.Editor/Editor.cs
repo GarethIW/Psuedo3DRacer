@@ -1,0 +1,361 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Psuedo3DRacer.Common;
+
+namespace Pseudo3DRacer
+{
+    public enum EditorMode
+    {
+        Construction,
+        Painting,
+        Testing
+    }
+
+
+    /// <summary>
+    /// This is the main type for your game
+    /// </summary>
+    public class Editor : Microsoft.Xna.Framework.Game
+    {
+        GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
+
+        EditorMode Mode = EditorMode.Construction;
+        Camera Camera = new Camera();
+        Track Track;
+
+        BasicEffect drawEffect;
+
+        List<Vector3> ControlPoints = new List<Vector3> { new Vector3(0, 0, 20), new Vector3(-20, 0, 0), new Vector3(0, 0, -20), new Vector3(20, 0, 0) };
+
+        KeyboardState lks;
+        MouseState lms;
+
+        SpriteFont spriteFont;
+        Texture2D texGrid;
+        Model handleSphere;
+
+        int selectedPoint = 0;
+        int currentTrackPos = 0;
+        int paintPos = 0;
+
+        Matrix[] sphereTransforms;
+
+        SceneryBrush LeftBrush = SceneryBrush.None;
+        SceneryBrush RightBrush = SceneryBrush.None;
+        RoadBrush RoadBrush = RoadBrush.Road;
+
+        public Editor()
+        {
+            graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
+            graphics.ApplyChanges();
+            Content.RootDirectory = "Psuedo3DRacer.Content";
+        }
+
+        /// <summary>
+        /// Allows the game to perform any initialization it needs to before starting to run.
+        /// This is where it can query for any required services and load any non-graphic
+        /// related content.  Calling base.Initialize will enumerate through any components
+        /// and initialize them as well.
+        /// </summary>
+        protected override void Initialize()
+        {
+            Mode = EditorMode.Construction;
+
+            lks = Keyboard.GetState();
+            lms = Mouse.GetState();
+
+            base.Initialize();
+        }
+
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent()
+        {
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            texGrid = Content.Load<Texture2D>("grid");
+            handleSphere = Content.Load<Model>("spherelowpoly");
+            spriteFont = Content.Load<SpriteFont>("gamefont");
+
+            sphereTransforms = new Matrix[handleSphere.Bones.Count];
+            handleSphere.CopyAbsoluteBoneTransformsTo(sphereTransforms);
+
+            drawEffect = new BasicEffect(GraphicsDevice)
+            {
+                World = Camera.worldMatrix,
+                View = Camera.viewMatrix,
+                Projection = Camera.projectionMatrix,
+                TextureEnabled = true
+            };
+
+            Track = Track.BuildFromControlPoints(ControlPoints);
+            Track.LoadContent(Content);
+        }
+
+        /// <summary>
+        /// UnloadContent will be called once per game and is the place to unload
+        /// all content.
+        /// </summary>
+        protected override void UnloadContent()
+        {
+            // TODO: Unload any non ContentManager content here
+        }
+
+        /// <summary>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Update(GameTime gameTime)
+        {
+            // Allows the game to exit
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                this.Exit();
+
+            KeyboardState cks = Keyboard.GetState();
+            MouseState cms = Mouse.GetState();
+            Vector2 mousePos = new Vector2(cms.X, cms.Y);
+            Vector2 mousedelta = mousePos - new Vector2(lms.X, lms.Y);
+            int wheelDelta = cms.ScrollWheelValue - lms.ScrollWheelValue;
+
+            //Mode select
+            if (cks.IsKeyDown(Keys.F1) && !lks.IsKeyDown(Keys.F1))
+            {
+                Mode = EditorMode.Construction;
+            }
+            if (cks.IsKeyDown(Keys.F2) && !lks.IsKeyDown(Keys.F2))
+            {
+                Mode = EditorMode.Painting;
+                currentTrackPos = 0;
+                paintPos = 0;
+            }
+            if (cks.IsKeyDown(Keys.F3) && !lks.IsKeyDown(Keys.F3))
+            {
+                Mode = EditorMode.Testing;
+            }
+
+            if (Mode == EditorMode.Construction)
+            {
+                if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp))
+                {
+                    selectedPoint++;
+                    if (selectedPoint == ControlPoints.Count) selectedPoint = 0;
+                }
+                if (cks.IsKeyDown(Keys.PageDown) && !lks.IsKeyDown(Keys.PageDown))
+                {
+                    selectedPoint--;
+                    if (selectedPoint == -1) selectedPoint = ControlPoints.Count - 1;
+                }
+                if (cks.IsKeyDown(Keys.Space) && !lks.IsKeyDown(Keys.Space))
+                {
+                    int pos = selectedPoint;
+                    int nextpos = selectedPoint + 1;
+                    if (pos >= ControlPoints.Count) pos = pos - (ControlPoints.Count);
+                    if (nextpos >= ControlPoints.Count) nextpos = nextpos - ControlPoints.Count;
+                    Vector3 delta = (ControlPoints[nextpos] - ControlPoints[pos]);
+                    delta.X = delta.X / 2;
+                    delta.Z = delta.Z / 2;
+                    ControlPoints.Insert(selectedPoint + 1, ControlPoints[pos] + delta);
+                    selectedPoint++;
+                    Track.Rebuild(ControlPoints);
+                }
+
+                Vector3 moveVector = new Vector3(0, 0, 0);
+                if (cks.IsKeyDown(Keys.Up) || cks.IsKeyDown(Keys.W))
+                    moveVector += new Vector3(0, 0, -1);
+                if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
+                    moveVector += new Vector3(0, 0, 1);
+                if (cks.IsKeyDown(Keys.Right) || cks.IsKeyDown(Keys.D))
+                    moveVector += new Vector3(1, 0, 0);
+                if (cks.IsKeyDown(Keys.Left) || cks.IsKeyDown(Keys.A))
+                    moveVector += new Vector3(-1, 0, 0);
+                Camera.AddToPosition(moveVector);
+
+                if (cms.RightButton == ButtonState.Pressed)
+                {
+                    Vector3 pos = ControlPoints[selectedPoint];
+                    pos.X += mousedelta.X * 0.05f;
+                    pos.Z += mousedelta.Y * 0.05f;
+                    ControlPoints[selectedPoint] = pos;
+
+                    if (wheelDelta != 0)
+                    {
+                        if (wheelDelta > 0)
+                            pos.Y += 1;
+                        else
+                            pos.Y -= 1;
+                        ControlPoints[selectedPoint] = pos;
+                    }
+                    Track.Rebuild(ControlPoints);
+                }
+                else
+                {
+                    if (wheelDelta != 0)
+                    {
+                        if (wheelDelta > 0)
+                        {
+                            selectedPoint++;
+                            if (selectedPoint == ControlPoints.Count) selectedPoint = 0;
+                        }
+                        else
+                        {
+                            selectedPoint--;
+                            if (selectedPoint == -1) selectedPoint = ControlPoints.Count - 1;
+                        }
+                    }
+                }
+
+                if (cms.LeftButton == ButtonState.Pressed)
+                {
+                    Camera.Rotate(mousedelta.X, mousedelta.Y);
+                }
+            }
+
+            if (Mode == EditorMode.Painting)
+            {
+                if (cks.IsKeyDown(Keys.Up) || cks.IsKeyDown(Keys.W))
+                {
+                    currentTrackPos++;
+                    paintPos = currentTrackPos;
+                }
+                if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
+                {
+                    currentTrackPos--;
+                    paintPos = currentTrackPos;
+                }
+                if (cks.IsKeyDown(Keys.Insert) && !lks.IsKeyDown(Keys.Insert))
+                {
+                    LeftBrush++;
+                    if((int)LeftBrush > Enum.GetValues(typeof(SceneryBrush)).Length-1) LeftBrush = 0;
+                }
+                if (cks.IsKeyDown(Keys.Delete) && !lks.IsKeyDown(Keys.Delete))
+                {
+                    LeftBrush--;
+                    if ((int)LeftBrush < 0) LeftBrush = (SceneryBrush)Enum.GetValues(typeof(SceneryBrush)).Length - 1;
+                }
+                if (cks.IsKeyDown(Keys.Home) && !lks.IsKeyDown(Keys.Home))
+                {
+                    RoadBrush++;
+                    if ((int)RoadBrush > Enum.GetValues(typeof(RoadBrush)).Length - 1) RoadBrush = 0;
+                }
+                if (cks.IsKeyDown(Keys.End) && !lks.IsKeyDown(Keys.End))
+                {
+                    RoadBrush--;
+                    if ((int)RoadBrush < 0) RoadBrush = (RoadBrush)Enum.GetValues(typeof(RoadBrush)).Length - 1;
+                }
+                if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp))
+                {
+                    RightBrush++;
+                    if ((int)RightBrush > Enum.GetValues(typeof(SceneryBrush)).Length - 1) RightBrush = 0;
+                }
+                if (cks.IsKeyDown(Keys.PageDown) && !lks.IsKeyDown(Keys.PageDown))
+                {
+                    RightBrush--;
+                    if ((int)RightBrush < 0) RightBrush = (SceneryBrush)Enum.GetValues(typeof(SceneryBrush)).Length - 1;
+                }
+
+                if (currentTrackPos == Track.Length) currentTrackPos = 0;
+                if (currentTrackPos == -1) currentTrackPos = Track.Length - 1;
+
+                if (cks.IsKeyDown(Keys.Space))
+                {
+                    Track.TrackSegments[paintPos].Paint(paintPos, RoadBrush, LeftBrush, RightBrush);
+                    paintPos++;
+                    if (paintPos > Track.TrackSegments.Count - 1) paintPos = 0;
+                }
+
+                int nextpos = (currentTrackPos + 1);
+                if (nextpos >= Track.TrackSegments.Count) nextpos = nextpos - Track.TrackSegments.Count;
+                Camera.viewMatrix = Matrix.CreateLookAt(Track.TrackSegments[currentTrackPos].Position + new Vector3(0, 0.5f, 0),
+                                                        Track.TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0),
+                                                        Vector3.Up);
+            }
+
+            lks = cks;
+            lms = cms;
+
+            drawEffect.View = Camera.viewMatrix;
+
+            base.Update(gameTime);
+        }
+
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+
+            // Draw grid
+            drawEffect.Texture = texGrid;
+            drawEffect.DiffuseColor = Color.White.ToVector3();
+            Quad quad = new Quad(Vector3.Zero, Vector3.Up, Vector3.Forward, 100f, 100f);
+            Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
+
+            // Draw track
+            if(Mode == EditorMode.Construction)
+                Track.Draw(GraphicsDevice, drawEffect, 0, Track.Length);
+            if (Mode == EditorMode.Painting || Mode==EditorMode.Testing)
+                Track.Draw(GraphicsDevice, drawEffect, currentTrackPos, 400);
+
+            // Control point Handles
+            foreach (Vector3 p in ControlPoints)
+            {
+                foreach (ModelMesh mesh in handleSphere.Meshes)
+                {
+                    foreach (BasicEffect eff in mesh.Effects)
+                    {
+                        eff.EnableDefaultLighting();
+
+                        if (ControlPoints.IndexOf(p) == selectedPoint)
+                            eff.DiffuseColor = new Vector3(0, 255, 0);
+                        else
+                            eff.DiffuseColor = new Vector3(255, 0, 0);
+
+                        eff.View = Camera.viewMatrix;
+                        eff.Projection = Camera.projectionMatrix;
+                        eff.World = Camera.worldMatrix *
+                            sphereTransforms[mesh.ParentBone.Index] *
+                            Matrix.CreateScale(0.1f) *
+                            Matrix.CreateTranslation(p + new Vector3(0, 0.75f, 0));
+                    }
+                    mesh.Draw();
+                }
+            }
+
+            spriteBatch.Begin();
+            spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(EditorMode), Mode), new Vector2(10, 5), Color.White);
+
+            if(Mode == EditorMode.Construction)
+                spriteBatch.DrawString(spriteFont, ControlPoints[selectedPoint].X.ToString("0.00") + "," + ControlPoints[selectedPoint].Y.ToString("0.00") + "," + ControlPoints[selectedPoint].Z.ToString("0.00"), new Vector2(10,25), Color.White);
+
+            if (Mode == EditorMode.Painting)
+            {
+                spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(SceneryBrush), LeftBrush) + " | " + Enum.GetName(typeof(RoadBrush), RoadBrush) + " | " + Enum.GetName(typeof(SceneryBrush), RightBrush), new Vector2(10, 25), Color.White);
+            }
+
+            spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+    }
+}
