@@ -41,6 +41,7 @@ namespace Pseudo3DRacer
 
         SpriteFont spriteFont;
         Texture2D texGrid;
+        Texture2D texBlank;
         Model handleSphere;
 
         int selectedPoint = 0;
@@ -52,6 +53,7 @@ namespace Pseudo3DRacer
         SceneryBrush LeftBrush = SceneryBrush.None;
         SceneryBrush RightBrush = SceneryBrush.None;
         RoadBrush RoadBrush = RoadBrush.Road;
+        AboveBrush AboveBrush = AboveBrush.None;
 
         public Editor()
         {
@@ -88,6 +90,7 @@ namespace Pseudo3DRacer
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             texGrid = Content.Load<Texture2D>("grid");
+            texBlank = Content.Load<Texture2D>("blank");
             handleSphere = Content.Load<Model>("spherelowpoly");
             spriteFont = Content.Load<SpriteFont>("gamefont");
 
@@ -267,22 +270,35 @@ namespace Pseudo3DRacer
                     RightBrush--;
                     if ((int)RightBrush < 0) RightBrush = (SceneryBrush)Enum.GetValues(typeof(SceneryBrush)).Length - 1;
                 }
+                if (cks.IsKeyDown(Keys.NumPad7) && !lks.IsKeyDown(Keys.NumPad7))
+                {
+                    AboveBrush++;
+                    if ((int)AboveBrush > Enum.GetValues(typeof(AboveBrush)).Length - 1) AboveBrush = 0;
+                }
+                if (cks.IsKeyDown(Keys.NumPad4) && !lks.IsKeyDown(Keys.NumPad4))
+                {
+                    AboveBrush--;
+                    if ((int)AboveBrush < 0) AboveBrush = (AboveBrush)Enum.GetValues(typeof(AboveBrush)).Length - 1;
+                }
 
                 if (currentTrackPos == Track.Length) currentTrackPos = 0;
                 if (currentTrackPos == -1) currentTrackPos = Track.Length - 1;
 
                 if (cks.IsKeyDown(Keys.Space))
                 {
-                    Track.TrackSegments[paintPos].Paint(paintPos, RoadBrush, LeftBrush, RightBrush);
+                    Track.TrackSegments[paintPos].Paint(paintPos, RoadBrush, AboveBrush, LeftBrush, RightBrush);
                     paintPos++;
                     if (paintPos > Track.TrackSegments.Count - 1) paintPos = 0;
                 }
 
                 int nextpos = (currentTrackPos + 1);
                 if (nextpos >= Track.TrackSegments.Count) nextpos = nextpos - Track.TrackSegments.Count;
-                Camera.viewMatrix = Matrix.CreateLookAt(Track.TrackSegments[currentTrackPos].Position + new Vector3(0, 0.5f, 0),
-                                                        Track.TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0),
-                                                        Vector3.Up);
+                //Camera.viewMatrix = Matrix.CreateLookAt(Track.TrackSegments[currentTrackPos].Position + new Vector3(0, 0.5f, 0),
+                //                                        Track.TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0),
+                //                                        Vector3.Up);
+                Camera.Position = Track.TrackSegments[currentTrackPos].Position + new Vector3(0, 0.5f, 0);
+                Camera.LookAt(Track.TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0));
+
             }
 
             lks = cks;
@@ -301,44 +317,57 @@ namespace Pseudo3DRacer
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            // Draw horizon, yo
+            Vector3 horizV = new Vector3(0, 0, -200);
+            Vector3 horiz = GraphicsDevice.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
+            float horizHeight = horiz.Y;
+            spriteBatch.Begin();
+            spriteBatch.Draw(texBlank, new Rectangle(0, (int)horizHeight, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - (int)horizHeight), Color.Green);
+            spriteBatch.End();
+
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-
-            // Draw grid
-            drawEffect.Texture = texGrid;
-            drawEffect.DiffuseColor = Color.White.ToVector3();
-            Quad quad = new Quad(Vector3.Zero, Vector3.Up, Vector3.Forward, 100f, 100f);
-            Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
 
             // Draw track
             if(Mode == EditorMode.Construction)
                 Track.Draw(GraphicsDevice, drawEffect, 0, Track.Length);
             if (Mode == EditorMode.Painting || Mode==EditorMode.Testing)
-                Track.Draw(GraphicsDevice, drawEffect, currentTrackPos, 400);
+                Track.Draw(GraphicsDevice, drawEffect, currentTrackPos, Track.Length);
 
-            // Control point Handles
-            foreach (Vector3 p in ControlPoints)
+            if (Mode == EditorMode.Construction)
             {
-                foreach (ModelMesh mesh in handleSphere.Meshes)
+                // Draw grid
+                drawEffect.Texture = texGrid;
+                drawEffect.DiffuseColor = Color.White.ToVector3();
+                Quad quad = new Quad(Vector3.Zero, Vector3.Up, Vector3.Forward, 200f, 200f);
+                Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
+                quad = new Quad(Vector3.Zero, Vector3.Down, Vector3.Forward, 200f, 200f);
+                Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
+
+                // Control point Handles
+                foreach (Vector3 p in ControlPoints)
                 {
-                    foreach (BasicEffect eff in mesh.Effects)
+                    foreach (ModelMesh mesh in handleSphere.Meshes)
                     {
-                        eff.EnableDefaultLighting();
+                        foreach (BasicEffect eff in mesh.Effects)
+                        {
+                            eff.EnableDefaultLighting();
 
-                        if (ControlPoints.IndexOf(p) == selectedPoint)
-                            eff.DiffuseColor = new Vector3(0, 255, 0);
-                        else
-                            eff.DiffuseColor = new Vector3(255, 0, 0);
+                            if (ControlPoints.IndexOf(p) == selectedPoint)
+                                eff.DiffuseColor = new Vector3(0, 255, 0);
+                            else
+                                eff.DiffuseColor = new Vector3(255, 0, 0);
 
-                        eff.View = Camera.viewMatrix;
-                        eff.Projection = Camera.projectionMatrix;
-                        eff.World = Camera.worldMatrix *
-                            sphereTransforms[mesh.ParentBone.Index] *
-                            Matrix.CreateScale(0.1f) *
-                            Matrix.CreateTranslation(p + new Vector3(0, 0.75f, 0));
+                            eff.View = Camera.viewMatrix;
+                            eff.Projection = Camera.projectionMatrix;
+                            eff.World = Camera.worldMatrix *
+                                sphereTransforms[mesh.ParentBone.Index] *
+                                Matrix.CreateScale(0.1f) *
+                                Matrix.CreateTranslation(p + new Vector3(0, 0.75f, 0));
+                        }
+                        mesh.Draw();
                     }
-                    mesh.Draw();
                 }
             }
 
@@ -350,7 +379,7 @@ namespace Pseudo3DRacer
 
             if (Mode == EditorMode.Painting)
             {
-                spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(SceneryBrush), LeftBrush) + " | " + Enum.GetName(typeof(RoadBrush), RoadBrush) + " | " + Enum.GetName(typeof(SceneryBrush), RightBrush), new Vector2(10, 25), Color.White);
+                spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(SceneryBrush), LeftBrush) + " | " + Enum.GetName(typeof(RoadBrush), RoadBrush) + " | " + Enum.GetName(typeof(AboveBrush), AboveBrush) + " | " + Enum.GetName(typeof(SceneryBrush), RightBrush), new Vector2(10, 25), Color.White);
             }
 
             spriteBatch.End();
