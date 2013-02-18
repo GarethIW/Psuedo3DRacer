@@ -107,6 +107,15 @@ namespace Psuedo3DRacer.Common
                     if (trackPos % 4 == 0) AboveTint = Color.DarkGray.ToVector3();
                     else AboveTint = Color.White.ToVector3();
                     break;
+                case AboveBrush.StartGrid:
+                    if (trackPos % 10 == 0)
+                    {
+                        AboveOffset = new Vector3(0f, 0.45f, 0f);
+                        AboveSize = new Vector2(1.5f, 1f);
+                        AboveTextureName = "start";
+                        AboveTint = Color.White.ToVector3();
+                    }
+                    break;
                 case AboveBrush.Erase:
                     AboveTextureName = "";
                     break;
@@ -127,7 +136,7 @@ namespace Psuedo3DRacer.Common
                     break;
                 case SceneryBrush.SignLeft:
                 case SceneryBrush.SignRight:
-                    if (trackPos % 10 == 0)
+                    if (trackPos % 20 == 0)
                     {
                         LeftOffset = (leftV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
                         LeftSize = new Vector2(0.5f, 1f);
@@ -164,7 +173,7 @@ namespace Psuedo3DRacer.Common
                     break;
                 case SceneryBrush.SignLeft:
                 case SceneryBrush.SignRight:
-                    if (trackPos % 10 == 0)
+                    if (trackPos % 20 == 0)
                     {
                         RightOffset = (rightV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
                         RightSize = new Vector2(0.5f, 1f);

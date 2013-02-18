@@ -329,12 +329,6 @@ namespace Pseudo3DRacer
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 
-            // Draw track
-            if(Mode == EditorMode.Construction)
-                Track.Draw(GraphicsDevice, drawEffect, 0, Track.Length);
-            if (Mode == EditorMode.Painting || Mode==EditorMode.Testing)
-                Track.Draw(GraphicsDevice, drawEffect, currentTrackPos, Track.Length);
-
             if (Mode == EditorMode.Construction)
             {
                 // Draw grid
@@ -344,7 +338,16 @@ namespace Pseudo3DRacer
                 Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
                 quad = new Quad(Vector3.Zero, Vector3.Down, Vector3.Forward, 200f, 200f);
                 Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
+            }
 
+            // Draw track
+            if(Mode == EditorMode.Construction)
+                Track.Draw(GraphicsDevice, drawEffect, 0, Track.Length);
+            if (Mode == EditorMode.Painting || Mode==EditorMode.Testing)
+                Track.Draw(GraphicsDevice, drawEffect, currentTrackPos, Track.Length);
+
+            if (Mode == EditorMode.Construction)
+            {
                 // Control point Handles
                 foreach (Vector3 p in ControlPoints)
                 {

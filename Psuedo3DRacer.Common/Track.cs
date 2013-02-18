@@ -27,6 +27,7 @@ namespace Psuedo3DRacer.Common
             textDict.Add("girder", content.Load<Texture2D>("girder"));
             textDict.Add("sign-left", content.Load<Texture2D>("sign-left"));
             textDict.Add("sign-right", content.Load<Texture2D>("sign-right"));
+            textDict.Add("start", content.Load<Texture2D>("start"));
 
 
         }
@@ -195,6 +196,7 @@ namespace Psuedo3DRacer.Common
 
                 TrackSegments[i].Paint(i, RoadBrush.Road, AboveBrush.None, SceneryBrush.None, SceneryBrush.None);
             }
+            TrackSegments[0].Paint(0, RoadBrush.Road, AboveBrush.StartGrid, SceneryBrush.None, SceneryBrush.None);
 
             Length = TrackSegments.Count;
         }
