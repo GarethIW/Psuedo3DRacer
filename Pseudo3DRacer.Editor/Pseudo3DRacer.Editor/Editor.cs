@@ -19,7 +19,6 @@ namespace Pseudo3DRacer
         Testing
     }
 
-
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -29,10 +28,12 @@ namespace Pseudo3DRacer
         SpriteBatch spriteBatch;
 
         EditorMode Mode = EditorMode.Construction;
+        bool lockCameraToCar = true;
         Camera Camera = new Camera();
         Track Track;
 
         BasicEffect drawEffect;
+        AlphaTestEffect drawAlphaEffect;
 
         List<Vector3> ControlPoints = new List<Vector3> { new Vector3(0, 0, 20), new Vector3(-20, 0, 0), new Vector3(0, 0, -20), new Vector3(20, 0, 0) };
 
@@ -54,6 +55,8 @@ namespace Pseudo3DRacer
         SceneryBrush RightBrush = SceneryBrush.None;
         RoadBrush RoadBrush = RoadBrush.Road;
         AboveBrush AboveBrush = AboveBrush.None;
+
+        Car car;
 
         public Editor()
         {
@@ -105,8 +108,21 @@ namespace Pseudo3DRacer
                 TextureEnabled = true
             };
 
+            drawAlphaEffect = new AlphaTestEffect(GraphicsDevice)
+            {
+                World = Camera.worldMatrix,
+                View = Camera.viewMatrix,
+                Projection = Camera.projectionMatrix,
+                 ReferenceAlpha = 254,
+                   AlphaFunction = CompareFunction.Greater
+                 
+            };
+
             Track = Track.BuildFromControlPoints(ControlPoints);
             Track.LoadContent(Content);
+
+            car = new Car(0, Track);
+            car.LoadContent(Content, 1);
         }
 
         /// <summary>
@@ -149,9 +165,10 @@ namespace Pseudo3DRacer
             if (cks.IsKeyDown(Keys.F3) && !lks.IsKeyDown(Keys.F3))
             {
                 Mode = EditorMode.Testing;
+                //car = new car(0, Track);
             }
 
-            if (Mode == EditorMode.Construction)
+            if (Mode == EditorMode.Construction)// || Mode == EditorMode.Testing)
             {
                 if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp))
                 {
@@ -301,10 +318,48 @@ namespace Pseudo3DRacer
 
             }
 
+            if (Mode == EditorMode.Testing)
+            {
+                if (!lockCameraToCar)
+                {
+                    Vector3 moveVector = new Vector3(0, 0, 0);
+                    if (cks.IsKeyDown(Keys.Up) || cks.IsKeyDown(Keys.W))
+                        moveVector += new Vector3(0, 0, -1);
+                    if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
+                        moveVector += new Vector3(0, 0, 1);
+                    if (cks.IsKeyDown(Keys.Right) || cks.IsKeyDown(Keys.D))
+                        moveVector += new Vector3(1, 0, 0);
+                    if (cks.IsKeyDown(Keys.Left) || cks.IsKeyDown(Keys.A))
+                        moveVector += new Vector3(-1, 0, 0);
+                    Camera.AddToPosition(moveVector);
+
+                    if (cms.LeftButton == ButtonState.Pressed)
+                    {
+                        Camera.Rotate(mousedelta.X, mousedelta.Y);
+                    }
+                }
+
+                if (cks.IsKeyDown(Keys.Space) && !lks.IsKeyDown(Keys.Space))
+                {
+                    lockCameraToCar = !lockCameraToCar;
+                }
+            }
+
             lks = cks;
             lms = cms;
 
+            if (Mode == EditorMode.Testing)
+            {
+                car.Update(gameTime, Track);
+                if (lockCameraToCar)
+                {
+                    Camera.Position = car.CameraPosition;
+                    Camera.LookAt(car.CameraLookat);
+                }
+            }
+
             drawEffect.View = Camera.viewMatrix;
+            drawAlphaEffect.View = Camera.viewMatrix;
 
             base.Update(gameTime);
         }
@@ -318,33 +373,54 @@ namespace Pseudo3DRacer
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Draw horizon, yo
-            Vector3 horizV = new Vector3(0, 0, -200);
+            Vector3 horizV = new Vector3(0, 0f, -200);
             Vector3 horiz = GraphicsDevice.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
             float horizHeight = horiz.Y;
             spriteBatch.Begin();
             spriteBatch.Draw(texBlank, new Rectangle(0, (int)horizHeight, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - (int)horizHeight), Color.Green);
             spriteBatch.End();
 
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+           
+            
 
             if (Mode == EditorMode.Construction)
             {
                 // Draw grid
                 drawEffect.Texture = texGrid;
                 drawEffect.DiffuseColor = Color.White.ToVector3();
-                Quad quad = new Quad(Vector3.Zero, Vector3.Up, Vector3.Forward, 200f, 200f);
+                Quad quad = new Quad(new Vector3(0,-0.1f,0), Vector3.Up, Vector3.Forward, 200f, 200f);
                 Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
                 quad = new Quad(Vector3.Zero, Vector3.Down, Vector3.Forward, 200f, 200f);
                 Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
             }
 
+            
+
             // Draw track
-            if(Mode == EditorMode.Construction)
-                Track.Draw(GraphicsDevice, drawEffect, 0, Track.Length);
-            if (Mode == EditorMode.Painting || Mode==EditorMode.Testing)
-                Track.Draw(GraphicsDevice, drawEffect, currentTrackPos, Track.Length);
+            if (Mode == EditorMode.Construction)
+            {
+                Track.DrawRoad(GraphicsDevice, drawEffect, 0, Track.Length);
+
+
+
+                Track.DrawScenery(GraphicsDevice, drawAlphaEffect, 0, Track.Length);
+            }
+            if (Mode == EditorMode.Painting || Mode == EditorMode.Testing)
+            {
+                Track.DrawRoad(GraphicsDevice, drawEffect, currentTrackPos, Track.Length);
+                car.Draw(GraphicsDevice, drawAlphaEffect, Camera);
+                Track.DrawScenery(GraphicsDevice, drawAlphaEffect, currentTrackPos, Track.Length);
+
+            }
+
+            if (Mode == EditorMode.Testing)
+            {
+               
+            }
 
             if (Mode == EditorMode.Construction)
             {
@@ -378,12 +454,16 @@ namespace Pseudo3DRacer
             spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(EditorMode), Mode), new Vector2(10, 5), Color.White);
 
             if(Mode == EditorMode.Construction)
-                spriteBatch.DrawString(spriteFont, ControlPoints[selectedPoint].X.ToString("0.00") + "," + ControlPoints[selectedPoint].Y.ToString("0.00") + "," + ControlPoints[selectedPoint].Z.ToString("0.00"), new Vector2(10,25), Color.White);
+                spriteBatch.DrawString(spriteFont, ControlPoints[selectedPoint].ToString() + " | " + car.debug, new Vector2(10,25), Color.White);
 
             if (Mode == EditorMode.Painting)
             {
                 spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(SceneryBrush), LeftBrush) + " | " + Enum.GetName(typeof(RoadBrush), RoadBrush) + " | " + Enum.GetName(typeof(AboveBrush), AboveBrush) + " | " + Enum.GetName(typeof(SceneryBrush), RightBrush), new Vector2(10, 25), Color.White);
             }
+
+            if(Mode== EditorMode.Testing)
+                spriteBatch.DrawString(spriteFont, car.Yaw.ToString() + "," + car.Pitch.ToString() + " | " + car.courseTrackPos + "/" + Track.Length, new Vector2(10, 25), Color.White);
+
 
             spriteBatch.End();
 

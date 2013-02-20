@@ -23,7 +23,7 @@ namespace Psuedo3DRacer.Common
         {
             worldMatrix = Matrix.Identity;
             viewMatrix = Matrix.CreateLookAt(Position, new Vector3(0, 0, -100), Vector3.Up);
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 4.0f / 3.0f, 0.001f, 500);
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 4.0f / 3.0f, 0.001f, 100f);
         }
 
         public void AddToPosition(Vector3 vectorToAdd)
