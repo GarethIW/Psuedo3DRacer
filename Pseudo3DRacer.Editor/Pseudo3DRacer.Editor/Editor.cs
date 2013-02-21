@@ -140,6 +140,8 @@ namespace Pseudo3DRacer
             Cars[7].SpeedWhenTurning = 0.06f;
             Cars[7].ReactionTime = 100;
 
+            Cars[7].IsPlayerControlled = true;
+
             foreach (Car c in Cars) c.LoadContent(Content, 0);
 
             //car = new Car(0, Track, Color.Red);
@@ -360,6 +362,32 @@ namespace Pseudo3DRacer
                     {
                         Camera.Rotate(mousedelta.X, mousedelta.Y);
                     }
+                }
+                else
+                {
+                    if (cks.IsKeyDown(Keys.Up) || cks.IsKeyDown(Keys.W))
+                        Cars[7].ApplyThrottle(true);
+                    else
+                        Cars[7].ApplyThrottle(false);
+
+                    if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
+                        Cars[7].ApplyBrake(true);
+                    else
+                        Cars[7].ApplyBrake(false);
+                    //if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
+                    //    moveVector += new Vector3(0, 0, 1);
+                    bool steering = false;
+                    if (cks.IsKeyDown(Keys.Right) || cks.IsKeyDown(Keys.D))
+                    {
+                        Cars[7].Steer(1);
+                        steering = true;
+                    }
+                    if (cks.IsKeyDown(Keys.Left) || cks.IsKeyDown(Keys.A))
+                    {
+                        steering = true;
+                        Cars[7].Steer(-1);
+                    }
+                    if (!steering) Cars[7].Steer(0);
                 }
 
                 if (cks.IsKeyDown(Keys.Space) && !lks.IsKeyDown(Keys.Space))

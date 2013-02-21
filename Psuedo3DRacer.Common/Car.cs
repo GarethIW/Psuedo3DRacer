@@ -12,6 +12,8 @@ namespace Psuedo3DRacer.Common
     {
         static Random randomNumber = new Random();
 
+        public bool IsPlayerControlled = false;
+
         public Vector3 Position;
         public Vector3 Normal;
         public float Yaw;
@@ -31,6 +33,10 @@ namespace Psuedo3DRacer.Common
         bool hasStarted = false;
 
         bool applyingThrottle = false;
+        bool applyingBrake = false;
+        int applyingSteering = 0;
+
+        float steeringAmount;
 
         int currentTrackPos = 0;
         int prevTrackPos = 0;
@@ -49,8 +55,6 @@ namespace Psuedo3DRacer.Common
 
         public Color Tint;
 
-        Vector3 pitchNormal;
-
         public Car(int trackPos, Track track, Color tint)
         {
             Tint = tint;
@@ -63,7 +67,7 @@ namespace Psuedo3DRacer.Common
 
             ConcentrationLevel = 50 + randomNumber.Next(1900);
             CorrectionTime = 500 + (randomNumber.NextDouble() * 4500);
-            SpeedWhenTurning = 0.05f + ((float)randomNumber.NextDouble() * 0.01f);
+            SpeedWhenTurning = 0.05f + ((float)randomNumber.NextDouble() * 0.008f);
             ReactionTime = 100 + (randomNumber.NextDouble() * 1900);
             correctionCountdown = ReactionTime;
 
@@ -87,17 +91,6 @@ namespace Psuedo3DRacer.Common
 
         public void Update(GameTime gameTime, Track track)
         {
-            if (!hasStarted)
-            {
-                correctionCountdown -= gameTime.ElapsedGameTime.TotalMilliseconds;
-                if (correctionCountdown <= 0)
-                {
-                    hasStarted = true;
-                    applyingThrottle = true;
-                }
-            }
-
-
             float dist = 99999f;
             for (int i = 0; i < track.TrackSegments.Count; i++)
                 if ((Position - track.TrackSegments[i].Position).Length() < dist)
@@ -106,47 +99,84 @@ namespace Psuedo3DRacer.Common
                     currentTrackPos = i;
                 }
 
-            if ((Position - target).Length() < 0.5f)
+            if (!IsPlayerControlled)
             {
-                courseTrackPos += 1;
-                if (courseTrackPos > track.TrackSegments.Count - 1) courseTrackPos -= (track.TrackSegments.Count - 1);
-                PlotCourse(track);
+                if (!hasStarted)
+                {
+                    correctionCountdown -= gameTime.ElapsedGameTime.TotalMilliseconds;
+                    if (correctionCountdown <= 0)
+                    {
+                        hasStarted = true;
+                        applyingThrottle = true;
+                    }
+                }
+
+
+                if ((Position - target).Length() < 0.5f)
+                {
+                    courseTrackPos += 1;
+                    if (courseTrackPos > track.TrackSegments.Count - 1) courseTrackPos -= (track.TrackSegments.Count - 1);
+                    PlotCourse(track);
+                }
+
+                currentPositionOnTrack = MathHelper.Lerp(currentPositionOnTrack, targetPositionOnTrack, 0.01f);
+
+                if (Math.Abs(currentPositionOnTrack - targetPositionOnTrack) > 0.02f)
+                {
+                    if (Speed > SpeedWhenTurning) applyingThrottle = false;
+                    else
+                        applyingThrottle = true;
+                }
+                else applyingThrottle = true;
+
+                if (correctionCountdown > 0) correctionCountdown -= gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                Vector3 targetnorm = Position - target;
+                Normal = targetnorm;
+                Normal.Normalize();
+                float targetDist = targetnorm.Length();
+                Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
+                Pitch = (float)Math.Atan2(-targetnorm.Y, targetDist);
+            }
+            else
+            {
+                if (applyingSteering != 0)
+                {
+                    steeringAmount += (-(float)applyingSteering * 0.001f);
+                }
+                else
+                {
+                    steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.2f);
+                }
+
+                steeringAmount = MathHelper.Clamp(steeringAmount, -0.03f, 0.03f);
+                Yaw += steeringAmount;
+
+                target = track.TrackSegments[Helper.WrapInt(currentTrackPos + 5, track.TrackSegments.Count - 1)].Position + trackOffset;
+                Vector3 targetnorm = Position - target;
+                Pitch = (float)Math.Atan2(-targetnorm.Y, targetnorm.Length());
+
+                Matrix normRot = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
+                Normal =  Position - Vector3.Transform(Vector3.Forward * 100f, normRot);
+                Normal.Normalize();
+
+                
             }
 
             if (applyingThrottle) Speed += 0.0002f;
             else Speed -= 0.0002f;
-            Speed = MathHelper.Clamp(Speed, 0f, 0.06f);
-            
+            if (applyingBrake) Speed -= 0.001f;
+            Speed = MathHelper.Clamp(Speed, 0f, 0.06f);          
 
-            Vector3 targetnorm = Position - target;
-            Normal = targetnorm;
-            Normal.Normalize();
-            float targetDist = targetnorm.Length();
-            Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
-            Pitch = (float)Math.Atan2(-targetnorm.Y, targetDist);
+           
             Matrix rot = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
             Vector3 rotatedVector = Vector3.Transform(Vector3.Forward, rot);
             Position += Speed * rotatedVector;
-
-            pitchNormal = Position - track.TrackSegments[Helper.WrapInt(currentTrackPos + 20, track.TrackSegments.Count - 1)].Position;
-            //pitchNormal.Normalize();
-
-            currentPositionOnTrack = MathHelper.Lerp(currentPositionOnTrack, targetPositionOnTrack, 0.01f);
-
-            if (Math.Abs(currentPositionOnTrack - targetPositionOnTrack) > 0.02f)
-            {
-                if (Speed > SpeedWhenTurning) applyingThrottle = false;
-                else
-                    applyingThrottle = true;
-            }
-            else applyingThrottle = true;
 
             rotatedVector = Vector3.Transform(new Vector3(0, 0.3f, 1f), rot);
             CameraPosition = Vector3.Lerp(CameraPosition, Position + rotatedVector, 0.1f);
             rotatedVector = Vector3.Transform(new Vector3(0, 0.25f, -1f), rot);
             CameraLookat = Vector3.Lerp(CameraLookat, Position + rotatedVector, 0.1f);
-
-            if (correctionCountdown > 0) correctionCountdown -= gameTime.ElapsedGameTime.TotalMilliseconds;
         }
 
         public void Draw(GraphicsDevice gd, AlphaTestEffect effect, Camera gameCamera)
@@ -195,7 +225,7 @@ namespace Psuedo3DRacer.Common
                 }
             }
 
-            debug = correctionCountdown + " | " + CorrectionTime + " | " + ConcentrationLevel + " | " + pitchNormal.ToString();
+            debug = correctionCountdown + " | " + CorrectionTime + " | " + ConcentrationLevel;
 
             Vector3 leftV = Vector3.Cross(track.TrackSegments[Helper.WrapInt(courseTrackPos, track.TrackSegments.Count - 1)].Normal, Vector3.Up);
             target += leftV * currentPositionOnTrack;
@@ -229,5 +259,22 @@ namespace Psuedo3DRacer.Common
 
             return texDirections[returnTex];
         }
+
+        public void ApplyThrottle(bool isApplied)
+        {
+            applyingThrottle = isApplied;
+        }
+
+        public void ApplyBrake(bool isApplied)
+        {
+            applyingBrake = isApplied;
+        }
+
+        public void Steer(int direction)
+        {
+            applyingSteering = direction;
+        }
+
+        
     }
 }
