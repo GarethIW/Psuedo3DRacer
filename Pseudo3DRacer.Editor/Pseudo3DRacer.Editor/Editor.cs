@@ -56,7 +56,7 @@ namespace Pseudo3DRacer
         RoadBrush RoadBrush = RoadBrush.Road;
         AboveBrush AboveBrush = AboveBrush.None;
 
-        Car car;
+        List<Car> Cars = new List<Car>();
 
         public Editor()
         {
@@ -121,8 +121,29 @@ namespace Pseudo3DRacer
             Track = Track.BuildFromControlPoints(ControlPoints);
             Track.LoadContent(Content);
 
-            car = new Car(0, Track);
-            car.LoadContent(Content, 1);
+            Cars.Add(new Car(Track.Length - 10, Track, Color.Red));
+            Cars.Add(new Car(Track.Length - 20, Track, Color.Blue));
+            Cars.Add(new Car(Track.Length - 30, Track, Color.Green));
+            Cars.Add(new Car(Track.Length - 40, Track, Color.Gold));
+            Cars.Add(new Car(Track.Length - 50, Track, Color.Pink));
+            Cars.Add(new Car(Track.Length - 60, Track, Color.Purple));
+            Cars.Add(new Car(Track.Length - 70, Track, Color.Orange));
+            Cars.Add(new Car(Track.Length - 80, Track, Color.Silver));
+
+            Cars[0].ConcentrationLevel = 50;
+            Cars[0].CorrectionTime = 5000;
+            Cars[6].ConcentrationLevel = 50;
+            Cars[6].CorrectionTime = 5000;
+
+            Cars[7].ConcentrationLevel = 50;
+            Cars[7].CorrectionTime = 5000;
+            Cars[7].SpeedWhenTurning = 0.06f;
+            Cars[7].ReactionTime = 100;
+
+            foreach (Car c in Cars) c.LoadContent(Content, 0);
+
+            //car = new Car(0, Track, Color.Red);
+            //car.LoadContent(Content, 0);
         }
 
         /// <summary>
@@ -134,6 +155,7 @@ namespace Pseudo3DRacer
             // TODO: Unload any non ContentManager content here
         }
 
+#region Update
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -165,6 +187,7 @@ namespace Pseudo3DRacer
             if (cks.IsKeyDown(Keys.F3) && !lks.IsKeyDown(Keys.F3))
             {
                 Mode = EditorMode.Testing;
+                Camera.Position = Cars[7].CameraPosition;
                 //car = new car(0, Track);
             }
 
@@ -350,11 +373,15 @@ namespace Pseudo3DRacer
 
             if (Mode == EditorMode.Testing)
             {
-                car.Update(gameTime, Track);
+                foreach (Car c in Cars)
+                {
+                    c.Update(gameTime, Track);
+                }
+
                 if (lockCameraToCar)
                 {
-                    Camera.Position = car.CameraPosition;
-                    Camera.LookAt(car.CameraLookat);
+                    Camera.Position = Cars[7].CameraPosition;
+                    Camera.LookAt(Cars[7].CameraLookat);
                 }
             }
 
@@ -363,6 +390,7 @@ namespace Pseudo3DRacer
 
             base.Update(gameTime);
         }
+#endregion
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -412,7 +440,7 @@ namespace Pseudo3DRacer
             if (Mode == EditorMode.Painting || Mode == EditorMode.Testing)
             {
                 Track.DrawRoad(GraphicsDevice, drawEffect, currentTrackPos, Track.Length);
-                car.Draw(GraphicsDevice, drawAlphaEffect, Camera);
+                foreach (Car c in Cars) c.Draw(GraphicsDevice, drawAlphaEffect, Camera);
                 Track.DrawScenery(GraphicsDevice, drawAlphaEffect, currentTrackPos, Track.Length);
 
             }
@@ -453,8 +481,8 @@ namespace Pseudo3DRacer
             spriteBatch.Begin();
             spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(EditorMode), Mode), new Vector2(10, 5), Color.White);
 
-            if(Mode == EditorMode.Construction)
-                spriteBatch.DrawString(spriteFont, ControlPoints[selectedPoint].ToString() + " | " + car.debug, new Vector2(10,25), Color.White);
+            //if(Mode == EditorMode.Construction)
+                //spriteBatch.DrawString(spriteFont, ControlPoints[selectedPoint].ToString() + " | " + car.debug, new Vector2(10,25), Color.White);
 
             if (Mode == EditorMode.Painting)
             {
@@ -462,7 +490,7 @@ namespace Pseudo3DRacer
             }
 
             if(Mode== EditorMode.Testing)
-                spriteBatch.DrawString(spriteFont, car.Yaw.ToString() + "," + car.Pitch.ToString() + " | " + car.courseTrackPos + "/" + Track.Length, new Vector2(10, 25), Color.White);
+                spriteBatch.DrawString(spriteFont, Cars[7].debug, new Vector2(10, 25), Color.White);
 
 
             spriteBatch.End();
