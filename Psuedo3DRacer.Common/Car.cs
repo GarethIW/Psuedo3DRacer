@@ -51,9 +51,17 @@ namespace Psuedo3DRacer.Common
         Vector3 target;
         public int courseTrackPos = 0;
 
-        Texture2D[] texDirections;
+        Texture2D[] texDirections1;
+        Texture2D[] texDirections2;
+        Texture2D[] texTurnLeft;
+        Texture2D[] texTurnRight;
 
         public Color Tint;
+
+        int animFrame = 0;
+        double animTime = 0;
+
+        float testPitch;
 
         public Car(int trackPos, float offset, Track track, Color tint)
         {
@@ -74,9 +82,24 @@ namespace Psuedo3DRacer.Common
 
         public void LoadContent(ContentManager content, int carnum)
         {
-            texDirections = new Texture2D[8];
+            texDirections1 = new Texture2D[8];
+            texDirections2 = new Texture2D[8];
             for (int dir = 0; dir < 8; dir++)
-                texDirections[dir] = content.Load<Texture2D>("cars/" + carnum + "-" + dir);
+            {
+                texDirections1[dir] = content.Load<Texture2D>("cars/" + carnum + "-" + dir + "-0");
+                texDirections2[dir] = content.Load<Texture2D>("cars/" + carnum + "-" + dir + "-1");
+            }
+
+            texTurnLeft = new Texture2D[6];
+            texTurnRight = new Texture2D[6];
+            for (int turn = 0; turn < 3; turn++)
+            {
+                texTurnLeft[turn] = content.Load<Texture2D>("cars/" + carnum + "-turnl" + turn + "-0");
+                texTurnLeft[turn+3] = content.Load<Texture2D>("cars/" + carnum + "-turnl" + turn + "-1");
+                texTurnRight[turn] = content.Load<Texture2D>("cars/" + carnum + "-turnr" + turn + "-0");
+                texTurnRight[turn+3] = content.Load<Texture2D>("cars/" + carnum + "-turnr" + turn + "-1");
+            }
+
         }
 
         public void Update(GameTime gameTime, Track track)
@@ -132,6 +155,8 @@ namespace Psuedo3DRacer.Common
                 float targetDist = targetnorm.Length();
                 Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
                 Pitch = (float)Math.Atan2(-targetnorm.Y, targetDist);
+                testPitch = (float)Math.Atan2(-targetnorm.Y, targetDist*10);
+
             }
             else
             {
@@ -165,6 +190,14 @@ namespace Psuedo3DRacer.Common
                 
             }
 
+            animTime += (gameTime.ElapsedGameTime.TotalMilliseconds * (Speed * 10));
+            if (animTime >= 30)
+            {
+                animFrame++;
+                if (animFrame == 2) animFrame = 0;
+                animTime = 0;
+            }
+
             if (applyingThrottle) Speed += 0.0003f;
             else Speed -= 0.0003f;
             if (applyingBrake) Speed -= 0.001f;
@@ -195,12 +228,17 @@ namespace Psuedo3DRacer.Common
 
             //Matrix cameraRotation = Matrix.CreateRotationX(gameCamera.Pitch) * Matrix.CreateRotationY(gameCamera.Yaw);
             Vector3 faceCam = gameCamera.Position - Position; //Vector3.Transform(Vector3.Forward, -cameraRotation);
+            float camAngle = Helper.WrapAngle((float)Math.Atan2(faceCam.X, faceCam.Z));
+
+            Matrix rot = Matrix.CreateRotationX(testPitch) * Matrix.CreateRotationY(camAngle);
+            Vector3 finalFace = Vector3.Transform(Vector3.Forward, rot);
+
             faceCam.Normalize();
-         
+
             Quad quad;
             effect.Texture = GetTextureForDirection(faceCam);
             effect.DiffuseColor = Tint.ToVector3();
-            quad = new Quad(Position, faceCam, Vector3.Up, 0.4f, 0.2f);
+            quad = new Quad(Position, finalFace, Vector3.Up, 0.4f, 0.2f);
             Drawing.DrawQuad(effect, quad, gd);
 
             effect.ReferenceAlpha = oldRefAlpha;
@@ -242,7 +280,7 @@ namespace Psuedo3DRacer.Common
             float normAngle = Helper.WrapAngle((float)Math.Atan2(Normal.X, Normal.Z));
             float camAngle = Helper.WrapAngle((float)Math.Atan2(direction.X, direction.Z));
 
-            float testAngle = Helper.WrapAngle(camAngle - normAngle);
+            float testAngle = Helper.WrapAngle(normAngle-camAngle);
 
             int returnTex = 0;
             //if ((testAngle <= -(MathHelper.PiOver4 * 3) && testAngle> -(MathHelper.PiOver4 * 4)) || (testAngle >= 0f && testAngle < (MathHelper.PiOver4 * 1))) returnTex = 0;
@@ -259,9 +297,9 @@ namespace Psuedo3DRacer.Common
             if (testAngle <= -(MathHelper.PiOver4 * 1.5) && testAngle > -(MathHelper.PiOver4 * 2.5)) returnTex = 6;
             if (testAngle <= -(MathHelper.PiOver4 * 0.5) && testAngle > -(MathHelper.PiOver4 * 1.5)) returnTex = 7;
 
-            
 
-            return texDirections[returnTex];
+
+            return (animFrame == 0 ? texDirections1[returnTex] : texDirections2[returnTex]);
         }
 
         public void SetPosition(int trackPos, Track track, float offset)
