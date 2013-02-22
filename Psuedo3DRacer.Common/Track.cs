@@ -5,17 +5,42 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Psuedo3DRacer.Common
 {
+    public enum Horizon
+    {
+        Forest,
+        City,
+        Desert
+    }
+
+    [Serializable]
     public class Track
     {
         const int SEGMENTS_PER100M = 1000;
 
         public int Length = 0;
 
+        public string FileName = "";
+
+        public string TrackName = "";
+
+        public Color GroundColor = Color.Green;
+
+        public Color SkyColor = Color.CornflowerBlue;
+
+        public Horizon Horizon = Horizon.Forest;
+
+        [XmlIgnore]
         public List<Segment> TrackSegments = new List<Segment>();
 
+        public List<string> PackedSegments = new List<string>();
+
+        public List<Vector3> ControlPoints = new List<Vector3>();
+
+        [XmlIgnore]
         Dictionary<string, Texture2D> textDict = new Dictionary<string, Texture2D>();
 
         public void LoadContent(ContentManager content)
@@ -28,8 +53,8 @@ namespace Psuedo3DRacer.Common
             textDict.Add("sign-left", content.Load<Texture2D>("sign-left"));
             textDict.Add("sign-right", content.Load<Texture2D>("sign-right"));
             textDict.Add("start", content.Load<Texture2D>("start"));
-
-
+            textDict.Add("wall", content.Load<Texture2D>("wall"));
+            textDict.Add("tunnel-upper", content.Load<Texture2D>("tunnel-upper"));
         }
 
         public void DrawRoad(GraphicsDevice gd, BasicEffect effect, int startPos, int distance)

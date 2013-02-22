@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Psuedo3DRacer.Common;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace Pseudo3DRacer
 {
@@ -57,6 +59,8 @@ namespace Pseudo3DRacer
         AboveBrush AboveBrush = AboveBrush.None;
 
         List<Car> Cars = new List<Car>();
+
+        int currentTrackLoaded = 0;
 
         public Editor()
         {
@@ -121,28 +125,7 @@ namespace Pseudo3DRacer
             Track = Track.BuildFromControlPoints(ControlPoints);
             Track.LoadContent(Content);
 
-            Cars.Add(new Car(Track.Length - 10, Track, Color.Red));
-            Cars.Add(new Car(Track.Length - 20, Track, Color.Blue));
-            Cars.Add(new Car(Track.Length - 30, Track, Color.Green));
-            Cars.Add(new Car(Track.Length - 40, Track, Color.Gold));
-            Cars.Add(new Car(Track.Length - 50, Track, Color.Pink));
-            Cars.Add(new Car(Track.Length - 60, Track, Color.Purple));
-            Cars.Add(new Car(Track.Length - 70, Track, Color.Orange));
-            Cars.Add(new Car(Track.Length - 80, Track, Color.Silver));
-
-            Cars[0].ConcentrationLevel = 50;
-            Cars[0].CorrectionTime = 5000;
-            Cars[6].ConcentrationLevel = 50;
-            Cars[6].CorrectionTime = 5000;
-
-            Cars[7].ConcentrationLevel = 50;
-            Cars[7].CorrectionTime = 5000;
-            Cars[7].SpeedWhenTurning = 0.06f;
-            Cars[7].ReactionTime = 100;
-
-            Cars[7].IsPlayerControlled = true;
-
-            foreach (Car c in Cars) c.LoadContent(Content, 0);
+            ResetCars();
 
             //car = new Car(0, Track, Color.Red);
             //car.LoadContent(Content, 0);
@@ -189,8 +172,18 @@ namespace Pseudo3DRacer
             if (cks.IsKeyDown(Keys.F3) && !lks.IsKeyDown(Keys.F3))
             {
                 Mode = EditorMode.Testing;
+                ResetCars();
                 Camera.Position = Cars[7].CameraPosition;
                 //car = new car(0, Track);
+            }
+            if (cks.IsKeyDown(Keys.F5) && !lks.IsKeyDown(Keys.F5))
+            {
+                Save();
+            }
+
+            if (cks.IsKeyDown(Keys.F12) && !lks.IsKeyDown(Keys.F12))
+            {
+                Load();
             }
 
             if (Mode == EditorMode.Construction)// || Mode == EditorMode.Testing)
@@ -216,6 +209,15 @@ namespace Pseudo3DRacer
                     delta.Z = delta.Z / 2;
                     ControlPoints.Insert(selectedPoint + 1, ControlPoints[pos] + delta);
                     selectedPoint++;
+                    Track.Rebuild(ControlPoints);
+                }
+
+                if (cks.IsKeyDown(Keys.Back) && !lks.IsKeyDown(Keys.Back))
+                {
+                    if(selectedPoint!=0) 
+                    {ControlPoints.RemoveAt(selectedPoint);
+                    selectedPoint--;
+                        }
                     Track.Rebuild(ControlPoints);
                 }
 
@@ -323,10 +325,46 @@ namespace Pseudo3DRacer
                     if ((int)AboveBrush < 0) AboveBrush = (AboveBrush)Enum.GetValues(typeof(AboveBrush)).Length - 1;
                 }
 
+                if (cks.IsKeyDown(Keys.R) && !lks.IsKeyDown(Keys.R))
+                {
+                    Track.Horizon++;
+                    if ((int)Track.Horizon > Enum.GetValues(typeof(Horizon)).Length - 1) Track.Horizon = 0;
+                }
+                if (cks.IsKeyDown(Keys.F) && !lks.IsKeyDown(Keys.F))
+                {
+                    Track.Horizon--;
+                    if ((int)Track.Horizon < 0) Track.Horizon = (Horizon)Enum.GetValues(typeof(Horizon)).Length - 1;
+                }
+
+                if (cks.IsKeyDown(Keys.T))
+                {
+                    Track.GroundColor.R++;
+                }
+                if (cks.IsKeyDown(Keys.G))
+                {
+                    Track.GroundColor.R--;
+                }
+                if (cks.IsKeyDown(Keys.Y))
+                {
+                    Track.GroundColor.G++;
+                }
+                if (cks.IsKeyDown(Keys.H))
+                {
+                    Track.GroundColor.G--;
+                }
+                if (cks.IsKeyDown(Keys.U))
+                {
+                    Track.GroundColor.B++;
+                }
+                if (cks.IsKeyDown(Keys.J))
+                {
+                    Track.GroundColor.B--;
+                }
+
                 if (currentTrackPos == Track.Length) currentTrackPos = 0;
                 if (currentTrackPos == -1) currentTrackPos = Track.Length - 1;
 
-                if (cks.IsKeyDown(Keys.Space))
+                if (cks.IsKeyDown(Keys.Space))                
                 {
                     Track.TrackSegments[paintPos].Paint(paintPos, RoadBrush, AboveBrush, LeftBrush, RightBrush);
                     paintPos++;
@@ -339,7 +377,7 @@ namespace Pseudo3DRacer
                 //                                        Track.TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0),
                 //                                        Vector3.Up);
                 Camera.Position = Track.TrackSegments[currentTrackPos].Position + new Vector3(0, 0.5f, 0);
-                Camera.LookAt(Track.TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0));
+                Camera.LookAt(Track.TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0), 0f);
 
             }
 
@@ -409,7 +447,7 @@ namespace Pseudo3DRacer
                 if (lockCameraToCar)
                 {
                     Camera.Position = Cars[7].CameraPosition;
-                    Camera.LookAt(Cars[7].CameraLookat);
+                    Camera.LookAt(Cars[7].CameraLookat, (Cars[7].steeringAmount * 0.2f));
                 }
             }
 
@@ -433,7 +471,7 @@ namespace Pseudo3DRacer
             Vector3 horiz = GraphicsDevice.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
             float horizHeight = horiz.Y;
             spriteBatch.Begin();
-            spriteBatch.Draw(texBlank, new Rectangle(0, (int)horizHeight, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - (int)horizHeight), Color.Green);
+            spriteBatch.Draw(texBlank, new Rectangle(GraphicsDevice.Viewport.Width/2, (int)horizHeight, GraphicsDevice.Viewport.Width*2, (GraphicsDevice.Viewport.Height - (int)horizHeight)+400), null, Track.GroundColor, (Cars[7].steeringAmount * 0.2f), new Vector2(0.5f, 0), SpriteEffects.None, 1);
             spriteBatch.End();
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -446,12 +484,10 @@ namespace Pseudo3DRacer
             if (Mode == EditorMode.Construction)
             {
                 // Draw grid
-                drawEffect.Texture = texGrid;
-                drawEffect.DiffuseColor = Color.White.ToVector3();
-                Quad quad = new Quad(new Vector3(0,-0.1f,0), Vector3.Up, Vector3.Forward, 200f, 200f);
-                Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
-                quad = new Quad(Vector3.Zero, Vector3.Down, Vector3.Forward, 200f, 200f);
-                Drawing.DrawQuad(drawEffect, quad, GraphicsDevice);
+                drawAlphaEffect.Texture = texGrid;
+                drawAlphaEffect.DiffuseColor = Color.White.ToVector3();
+                Quad quad = new Quad(new Vector3(0,0f,0), Vector3.Up, Vector3.Forward, 200f, 200f);
+                Drawing.DrawQuad(drawAlphaEffect, quad, GraphicsDevice);
             }
 
             
@@ -509,8 +545,8 @@ namespace Pseudo3DRacer
             spriteBatch.Begin();
             spriteBatch.DrawString(spriteFont, Enum.GetName(typeof(EditorMode), Mode), new Vector2(10, 5), Color.White);
 
-            //if(Mode == EditorMode.Construction)
-                //spriteBatch.DrawString(spriteFont, ControlPoints[selectedPoint].ToString() + " | " + car.debug, new Vector2(10,25), Color.White);
+            if(Mode == EditorMode.Construction)
+                spriteBatch.DrawString(spriteFont, ControlPoints[selectedPoint].ToString(), new Vector2(10,25), Color.White);
 
             if (Mode == EditorMode.Painting)
             {
@@ -524,6 +560,92 @@ namespace Pseudo3DRacer
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void Save()
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            path = Path.Combine(path, "Psuedo3DRacer/Tracks/");
+
+            Directory.CreateDirectory(path);
+
+            Track.ControlPoints = ControlPoints;
+
+            Track.PackedSegments.Clear();
+            foreach (Segment s in Track.TrackSegments) Track.PackedSegments.Add(s.ToString());
+
+            if (Track.FileName == "")
+            {
+                int num = 0;
+                while (File.Exists(Path.Combine(path, "Track" + num.ToString("000") + ".trk"))) num++;
+
+                Track.FileName = "Track" + num.ToString("000") + ".trk";
+            }
+
+            XmlSerializer xmls = new XmlSerializer(typeof(Track));
+
+            using (FileStream stream = new FileStream(Path.Combine(path, Track.FileName), FileMode.Create))
+            {
+                xmls.Serialize(stream, Track);
+            }
+        }
+
+        public void Load()
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            path = Path.Combine(path, "Psuedo3DRacer/Tracks/");
+
+            
+                int num = currentTrackLoaded;
+                if (File.Exists(Path.Combine(path, "Track" + num.ToString("000") + ".trk")))
+                {
+                    Track.FileName = "Track" + num.ToString("000") + ".trk";
+
+
+                    XmlSerializer xmls = new XmlSerializer(typeof(Track));
+
+                    using (FileStream stream = new FileStream(Path.Combine(path, Track.FileName), FileMode.Open))
+                    {
+                        Track = (Track)xmls.Deserialize(stream);
+                    }
+
+                    foreach (string s in Track.PackedSegments)
+                    {
+                        Segment seg = Segment.FromString(s);
+                        Track.TrackSegments.Add(seg);
+                    }
+                    ControlPoints = Track.ControlPoints;
+                    Track.LoadContent(Content);
+                    ResetCars();
+                    selectedPoint = 0;
+
+                    currentTrackLoaded++;
+
+                    if (!File.Exists(Path.Combine(path, "Track" + currentTrackLoaded.ToString("000") + ".trk"))) currentTrackLoaded = 0;
+                }
+        }
+
+        void ResetCars()
+        {
+            Cars.Clear();
+
+            Cars.Add(new Car(Track.Length - 10, -0.2f, Track, Color.Red));
+            Cars.Add(new Car(Track.Length - 20, 0.2f, Track, Color.Blue));
+            Cars.Add(new Car(Track.Length - 30, -0.2f, Track, Color.Green));
+            Cars.Add(new Car(Track.Length - 40, 0.2f, Track, Color.Gold));
+            Cars.Add(new Car(Track.Length - 50, -0.2f, Track, Color.Pink));
+            Cars.Add(new Car(Track.Length - 60, 0.2f, Track, Color.Purple));
+            Cars.Add(new Car(Track.Length - 70, -0.2f, Track, Color.Orange));
+            Cars.Add(new Car(Track.Length - 80, 0.2f, Track, Color.Silver));
+
+            Cars[7].ConcentrationLevel = 50;
+            Cars[7].CorrectionTime = 5000;
+            Cars[7].SpeedWhenTurning = 0.06f;
+            Cars[7].ReactionTime = 100;
+
+            Cars[7].IsPlayerControlled = true;
+
+            foreach (Car c in Cars) c.LoadContent(Content, 0);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Psuedo3DRacer.Common
             Matrix cameraRotation = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
             Vector3 rotatedVector = Vector3.Transform(vectorToAdd, cameraRotation);
             Position += moveSpeed * rotatedVector;
-            UpdateViewMatrix();
+            UpdateViewMatrix(0f);
         }
 
         //public void GoToPosition(Vector3 position, float leftright, float updown)
@@ -46,12 +46,12 @@ namespace Psuedo3DRacer.Common
         {
             Yaw -= rotationSpeed * yaw;
             Pitch -= rotationSpeed * pitch;
-            UpdateViewMatrix();
+            UpdateViewMatrix(0f);
         }
 
-        private void UpdateViewMatrix()
+        private void UpdateViewMatrix(float roll)
         {
-            Matrix cameraRotation = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
+            Matrix cameraRotation = Matrix.CreateRotationZ(roll) * Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
 
             Vector3 cameraOriginalTarget = new Vector3(0, 0, -1);
             Vector3 cameraRotatedTarget = Vector3.Transform(cameraOriginalTarget, cameraRotation);
@@ -79,13 +79,13 @@ namespace Psuedo3DRacer.Common
             return Matrix.CreateLookAt(thisCamPosition, cameraFinalTarget, cameraRotatedUpVector);
         }
 
-        public void LookAt(Vector3 lookat)
+        public void LookAt(Vector3 lookat, float roll)
         {
             Vector3 lookVect = Position - lookat;
             float dist = (Position - lookat).Length();
             Yaw = (float)Math.Atan2(lookVect.X, lookVect.Z);
             Pitch = (float)Math.Atan2(-lookVect.Y, dist);
-            UpdateViewMatrix();
+            UpdateViewMatrix(roll);
         }
 
         
