@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CEB84A1C-060E-4D90-A072-F157EE35A1EE}</ProjectGuid>
+    <OutputType>AppContainerExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Psuedo3DRacer</RootNamespace>
+    <AssemblyName>Psuedo3DRacer.Mono.Windows8</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <PackageCertificateKeyFile>Psuedo3DRacer.Mono.Windows8_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Windows8\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE; WINRT; TOUCH</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Windows8\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Windows8\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <OutputPath>bin\Windows8\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Windows8\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\Windows8\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Windows8\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\Windows8\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <Reference Include="MonoGame.Framework, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\Windows8\Debug\MonoGame.Framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\ParallaxManager.cs">
+      <Link>ParallaxManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Psuedo3DRacer.cs">
+      <Link>Psuedo3DRacer.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\ScreenManager\GameScreen.cs">
+      <Link>ScreenManager\GameScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\ScreenManager\InputState.cs">
+      <Link>ScreenManager\InputState.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\ScreenManager\ScreenManager.cs">
+      <Link>ScreenManager\ScreenManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\BackgroundScreen.cs">
+      <Link>Screens\BackgroundScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\GameplayScreen.cs">
+      <Link>Screens\GameplayScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\LoadingScreen.cs">
+      <Link>Screens\LoadingScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\MainMenuScreen.cs">
+      <Link>Screens\MainMenuScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\MenuEntry.cs">
+      <Link>Screens\MenuEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\MenuScreen.cs">
+      <Link>Screens\MenuScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\MessageBoxScreen.cs">
+      <Link>Screens\MessageBoxScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\PauseBackgroundScreen.cs">
+      <Link>Screens\PauseBackgroundScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\PauseMenuScreen.cs">
+      <Link>Screens\PauseMenuScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\PlayerIndexEventArgs.cs">
+      <Link>Screens\PlayerIndexEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GamePage.xaml.cs">
+      <DependentUpon>GamePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\blank.xnb">
+      <Link>Psuedo3DRacer.Content\blank.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-0-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-0-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-0-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-0-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-1-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-1-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-1-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-1-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-2-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-2-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-2-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-2-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-3-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-3-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-3-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-3-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-4-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-4-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-4-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-4-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-5-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-5-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-5-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-5-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-6-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-6-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-6-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-6-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-7-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-7-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-7-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-7-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnl0-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl0-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnl0-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl0-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnl1-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl1-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnl1-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl1-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnl2-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl2-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnl2-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl2-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnr0-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr0-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnr0-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr0-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnr1-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr1-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnr1-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr1-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnr2-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr2-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\cars\0-turnr2-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr2-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\font.xnb">
+      <Link>Psuedo3DRacer.Content\font.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\blank-ground.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\blank-ground.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\girder.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\girder.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\road-normal.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\road-normal.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\road-wood.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\road-wood.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\sign-left.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\sign-left.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\sign-right.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\sign-right.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\start.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\start.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\tree.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\tree.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\tunnel-upper.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\tunnel-upper.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\tunnel.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\tunnel.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\scenery\wall.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\wall.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\tracks\track000.xnb">
+      <Link>Psuedo3DRacer.Content\tracks\track000.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Psuedo3DRacer.Mono.Windows8_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Logo.png" />
+    <Content Include="Assets\SmallLogo.png" />
+    <Content Include="Assets\SplashScreen.png" />
+    <Content Include="Assets\StoreLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Common\StandardStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="GamePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Psuedo3DRacer.Common.Mono.Windows8\Psuedo3DRacer.Common.Mono.Windows8.csproj">
+      <Project>{ca9d7aba-94d9-4a5e-b90c-306daf99aeb1}</Project>
+      <Name>Psuedo3DRacer.Common.Mono.Windows8</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
+    <VisualStudioVersion>11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

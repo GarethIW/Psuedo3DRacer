@@ -99,7 +99,7 @@ namespace Pseudo3DRacer
             texGrid = Content.Load<Texture2D>("grid");
             texBlank = Content.Load<Texture2D>("blank");
             handleSphere = Content.Load<Model>("spherelowpoly");
-            spriteFont = Content.Load<SpriteFont>("gamefont");
+            spriteFont = Content.Load<SpriteFont>("font");
 
             sphereTransforms = new Matrix[handleSphere.Bones.Count];
             handleSphere.CopyAbsoluteBoneTransformsTo(sphereTransforms);
@@ -188,6 +188,8 @@ namespace Pseudo3DRacer
 
             if (Mode == EditorMode.Construction)// || Mode == EditorMode.Testing)
             {
+                Camera.AttachedToCar = false;
+
                 if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp))
                 {
                     selectedPoint++;
@@ -274,6 +276,8 @@ namespace Pseudo3DRacer
 
             if (Mode == EditorMode.Painting)
             {
+                Camera.AttachedToCar = false;
+
                 if (cks.IsKeyDown(Keys.Up) || cks.IsKeyDown(Keys.W))
                 {
                     currentTrackPos++;
@@ -448,7 +452,10 @@ namespace Pseudo3DRacer
                 {
                     Camera.Position = Cars[7].CameraPosition;
                     Camera.LookAt(Cars[7].CameraLookat, (Cars[7].steeringAmount * 0.2f));
+                    Camera.AttachedToCar = true;
                 }
+                else
+                    Camera.AttachedToCar = false;
             }
 
             drawEffect.View = Camera.viewMatrix;

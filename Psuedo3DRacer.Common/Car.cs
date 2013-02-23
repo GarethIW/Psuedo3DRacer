@@ -34,11 +34,11 @@ namespace Psuedo3DRacer.Common
 
         bool applyingThrottle = false;
         bool applyingBrake = false;
-        int applyingSteering = 0;
+        float applyingSteering = 0;
 
         public float steeringAmount;
 
-        int currentTrackPos = 0;
+        public int currentTrackPos = 0;
         int prevTrackPos = 0;
 
         float currentPositionOnTrack = 0f;
@@ -71,7 +71,7 @@ namespace Psuedo3DRacer.Common
 
             ConcentrationLevel = 50 + randomNumber.Next(1900);
             CorrectionTime = 500 + (randomNumber.NextDouble() * 4500);
-            SpeedWhenTurning = 0.045f + ((float)randomNumber.NextDouble() * 0.014f);
+            SpeedWhenTurning = 0.045f + ((float)randomNumber.NextDouble() * 0.01f);
             ReactionTime = 100 + (randomNumber.NextDouble() * 1900);
             
 
@@ -155,24 +155,26 @@ namespace Psuedo3DRacer.Common
                 float targetDist = targetnorm.Length();
                 Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
                 Pitch = (float)Math.Atan2(-targetnorm.Y, targetDist);
-                testPitch = (float)Math.Atan2(-targetnorm.Y, targetDist*10);
+               
 
             }
             else
             {
                 if (Speed > 0)
                 {
-                    if (applyingSteering != 0)
-                    {
-                        steeringAmount += (-(float)applyingSteering * 0.03f);
-                    }
-                    else
-                    {
-                        steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.2f);
-                    }
+                    //if (Math.Abs(applyingSteering) > 0.15f)
+                    //{
+                    //    steeringAmount = (-applyingSteering * 0.03f);
+                    //}
+                    //else
+                    //{
+                    //    steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.2f);
+                    //}
 
-                    steeringAmount = MathHelper.Clamp(steeringAmount, -0.4f, 0.4f);
-                    Yaw += steeringAmount * Speed;
+                    steeringAmount = (-applyingSteering);
+
+                    steeringAmount = MathHelper.Clamp(steeringAmount, -0.6f, 0.6f);
+                    Yaw += steeringAmount * 0.05f;// *Speed;
                 }
 
                 //Vector3 trackNormal = track.TrackSegments[currentTrackPos].Normal;
@@ -198,8 +200,8 @@ namespace Psuedo3DRacer.Common
                 animTime = 0;
             }
 
-            if (applyingThrottle) Speed += 0.0003f;
-            else Speed -= 0.0003f;
+            if (applyingThrottle) Speed += 0.0004f;
+            else Speed -= 0.0004f;
             if (applyingBrake) Speed -= 0.001f;
             Speed = MathHelper.Clamp(Speed, 0f, 0.06f);          
 
@@ -208,7 +210,7 @@ namespace Psuedo3DRacer.Common
             Vector3 rotatedVector = Vector3.Transform(Vector3.Forward, rot);
             Position += Speed * rotatedVector;
 
-            rotatedVector = Vector3.Transform(new Vector3(0, 0.3f, 1f), rot);
+            rotatedVector = Vector3.Transform(new Vector3(0, 0.2f, 1f), rot);
             CameraPosition = Vector3.Lerp(CameraPosition, Position + rotatedVector, 0.1f);
             rotatedVector = Vector3.Transform(new Vector3(0, 0.25f, -1f), rot);
             //rotatedVector = Vector3.Transform(rotatedVector, Matrix.CreateRotationZ(0.4f));
@@ -226,17 +228,21 @@ namespace Psuedo3DRacer.Common
 
             effect.ReferenceAlpha = 150;
 
-            //Matrix cameraRotation = Matrix.CreateRotationX(gameCamera.Pitch) * Matrix.CreateRotationY(gameCamera.Yaw);
-            Vector3 faceCam = gameCamera.Position - Position; //Vector3.Transform(Vector3.Forward, -cameraRotation);
+            Vector3 finalFace = Vector3.Zero;
+
+           
+            Vector3 faceCam = gameCamera.Position - Position; 
             float camAngle = Helper.WrapAngle((float)Math.Atan2(faceCam.X, faceCam.Z));
 
-            Matrix rot = Matrix.CreateRotationX(testPitch) * Matrix.CreateRotationY(camAngle);
-            Vector3 finalFace = Vector3.Transform(Vector3.Forward, rot);
+            Matrix rot = Matrix.CreateRotationY(camAngle);
+            finalFace = Vector3.Transform(Vector3.Forward, rot);
 
             faceCam.Normalize();
+            effect.Texture = GetTextureForDirection(faceCam, gameCamera.AttachedToCar);
+        
 
             Quad quad;
-            effect.Texture = GetTextureForDirection(faceCam);
+            
             effect.DiffuseColor = Tint.ToVector3();
             quad = new Quad(Position, finalFace, Vector3.Up, 0.4f, 0.2f);
             Drawing.DrawQuad(effect, quad, gd);
@@ -275,31 +281,53 @@ namespace Psuedo3DRacer.Common
             target += trackOffset;
         }
 
-        Texture2D GetTextureForDirection(Vector3 direction)
+        Texture2D GetTextureForDirection(Vector3 direction, bool attachedToCar)
         {
-            float normAngle = Helper.WrapAngle((float)Math.Atan2(Normal.X, Normal.Z));
-            float camAngle = Helper.WrapAngle((float)Math.Atan2(direction.X, direction.Z));
+            if (!attachedToCar || !IsPlayerControlled)
+            {
+                float normAngle = Helper.WrapAngle((float)Math.Atan2(Normal.X, Normal.Z));
+                float camAngle = Helper.WrapAngle((float)Math.Atan2(direction.X, direction.Z));
 
-            float testAngle = Helper.WrapAngle(normAngle-camAngle);
+                float testAngle = Helper.WrapAngle(normAngle - camAngle);
 
-            int returnTex = 0;
-            //if ((testAngle <= -(MathHelper.PiOver4 * 3) && testAngle> -(MathHelper.PiOver4 * 4)) || (testAngle >= 0f && testAngle < (MathHelper.PiOver4 * 1))) returnTex = 0;
-            //if (testAngle >= (MathHelper.PiOver4 * 1) && testAngle < (MathHelper.PiOver4 * 3)) returnTex = 1;
-            //if ((testAngle >= (MathHelper.PiOver4 * 3) && testAngle < (MathHelper.PiOver4 * 4)) || (testAngle> -(MathHelper.PiOver4 * 4) && testAngle < -(MathHelper.PiOver4 * 3))) returnTex = 2;
-            //if (testAngle <= -(MathHelper.PiOver4 * 1) && testAngle > -(MathHelper.PiOver4 * 3)) returnTex = 3;
+                int returnTex = 0;
 
-            if ((testAngle <= -(MathHelper.PiOver4 * 3.5) && testAngle > -(MathHelper.PiOver4 * 4)) || (testAngle >= 0f && testAngle < (MathHelper.PiOver4 * 0.5))) returnTex = 0;
-            if (testAngle >= (MathHelper.PiOver4 * 0.5) && testAngle < (MathHelper.PiOver4 * 1.5)) returnTex = 1;
-            if (testAngle >= (MathHelper.PiOver4 * 1.5) && testAngle < (MathHelper.PiOver4 * 2.5)) returnTex = 2;
-            if (testAngle >= (MathHelper.PiOver4 * 2.5) && testAngle < (MathHelper.PiOver4 * 3.5)) returnTex = 3;
-            if ((testAngle >= (MathHelper.PiOver4 * 3.5) && testAngle < (MathHelper.PiOver4 * 4)) || (testAngle > -(MathHelper.PiOver4 * 4) && testAngle < -(MathHelper.PiOver4 * 3.5))) returnTex = 4;
-            if (testAngle <= -(MathHelper.PiOver4 * 2.5) && testAngle > -(MathHelper.PiOver4 * 3.5)) returnTex = 5;
-            if (testAngle <= -(MathHelper.PiOver4 * 1.5) && testAngle > -(MathHelper.PiOver4 * 2.5)) returnTex = 6;
-            if (testAngle <= -(MathHelper.PiOver4 * 0.5) && testAngle > -(MathHelper.PiOver4 * 1.5)) returnTex = 7;
+                if ((testAngle <= -(MathHelper.PiOver4 * 3.5) && testAngle > -(MathHelper.PiOver4 * 4)) || (testAngle >= 0f && testAngle < (MathHelper.PiOver4 * 0.5))) returnTex = 0;
+                if (testAngle >= (MathHelper.PiOver4 * 0.5) && testAngle < (MathHelper.PiOver4 * 1.5)) returnTex = 1;
+                if (testAngle >= (MathHelper.PiOver4 * 1.5) && testAngle < (MathHelper.PiOver4 * 2.5)) returnTex = 2;
+                if (testAngle >= (MathHelper.PiOver4 * 2.5) && testAngle < (MathHelper.PiOver4 * 3.5)) returnTex = 3;
+                if ((testAngle >= (MathHelper.PiOver4 * 3.5) && testAngle < (MathHelper.PiOver4 * 4)) || (testAngle > -(MathHelper.PiOver4 * 4) && testAngle < -(MathHelper.PiOver4 * 3.5))) returnTex = 4;
+                if (testAngle <= -(MathHelper.PiOver4 * 2.5) && testAngle > -(MathHelper.PiOver4 * 3.5)) returnTex = 5;
+                if (testAngle <= -(MathHelper.PiOver4 * 1.5) && testAngle > -(MathHelper.PiOver4 * 2.5)) returnTex = 6;
+                if (testAngle <= -(MathHelper.PiOver4 * 0.5) && testAngle > -(MathHelper.PiOver4 * 1.5)) returnTex = 7;
+
+                return (animFrame == 0 ? texDirections1[returnTex] : texDirections2[returnTex]);
+            }
+            else
+            {
+                float steer = Math.Abs(steeringAmount);
+
+                if (steeringAmount < 0)
+                {
+                    
+                    if (steer < 0.1f) return (animFrame == 0 ? texDirections1[0] : texDirections2[0]);
+                    if (steer < 0.2f) return texTurnLeft[0 + (3 * animFrame)];
+                    if (steer < 0.3f) return texTurnLeft[1 + (3 * animFrame)];
+                    return texTurnLeft[2 + (3 * animFrame)];
 
 
+                    
+                }
+                else
+                {
+                    if (steer < 0.1f) return (animFrame == 0 ? texDirections1[0] : texDirections2[0]);
+                    if (steer < 0.2f) return texTurnRight[0 + (3 * animFrame)];
+                    if (steer < 0.3f) return texTurnRight[1 + (3 * animFrame)];
+                    return texTurnRight[2 + (3 * animFrame)];
+                }
+            }
 
-            return (animFrame == 0 ? texDirections1[returnTex] : texDirections2[returnTex]);
+            return (animFrame == 0 ? texDirections1[0] : texDirections2[0]);
         }
 
         public void SetPosition(int trackPos, Track track, float offset)
@@ -339,7 +367,7 @@ namespace Psuedo3DRacer.Common
             applyingBrake = isApplied;
         }
 
-        public void Steer(int direction)
+        public void Steer(float direction)
         {
             applyingSteering = direction;
         }

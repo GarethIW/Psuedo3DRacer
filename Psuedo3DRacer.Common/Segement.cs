@@ -42,10 +42,10 @@ namespace Psuedo3DRacer.Common
         UpperWall,
         LowerWall,
         SignLeft,
-        SignRight
+        SignRight,
+        Ground
     }
 
-    [Serializable]
     public class Segment
     {
         static Random randomNumber = new Random();
@@ -181,6 +181,13 @@ namespace Psuedo3DRacer.Common
                     if (trackPos % 4 == 0) LeftTint = Color.DarkGray.ToVector3();
                     else LeftTint = Color.White.ToVector3();
                     break;
+                case SceneryBrush.Ground:
+                    LeftOffset = (leftV * 4f) + new Vector3(0f, (-Position.Y) -3f, 0f);
+                    LeftSize = new Vector2(5f, 6f);
+                    LeftTextureName = "ground";
+                    LeftScenery = SceneryType.Offroad;
+                    LeftTint = Color.White.ToVector3();
+                    break;
                 case SceneryBrush.Erase:
                     LeftTextureName = "";
                     break;
@@ -233,6 +240,13 @@ namespace Psuedo3DRacer.Common
                     RightScenery = SceneryType.Wall;
                     if (trackPos % 4 == 0) RightTint = Color.DarkGray.ToVector3();
                     else RightTint = Color.White.ToVector3();
+                    break;
+                case SceneryBrush.Ground:
+                    RightOffset = (rightV * 4f) + new Vector3(0f, (-Position.Y) -3f, 0f);
+                    RightSize = new Vector2(4f, 6f);
+                    RightTextureName = "ground";
+                    RightScenery = SceneryType.Offroad;
+                    RightTint = Color.White.ToVector3();
                     break;
                 case SceneryBrush.Erase:
                     RightTextureName = "";

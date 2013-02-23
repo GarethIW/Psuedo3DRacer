@@ -16,6 +16,8 @@ namespace Psuedo3DRacer.Common
         public float Yaw = 0;//MathHelper.PiOver2;
         public float Pitch = 0;//-MathHelper.Pi / 10.0f;
 
+        public bool AttachedToCar = false;
+
         const float rotationSpeed = 0.01f;
         const float moveSpeed = 0.1f;
 

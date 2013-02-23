@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -16,7 +17,24 @@ namespace Psuedo3DRacer.Common
         Desert
     }
 
-    [Serializable]
+    public enum BatchEffectType
+    {
+        Basic,
+        Alpha
+    }
+
+    public class Batch
+    {
+        public BatchEffectType effectType;
+        public string textureName;
+        public Vector3 diffuseColor;
+
+        public List<Quad> quads = new List<Quad>();
+
+        public VertexPositionNormalTexture[] vpnts;
+        public short[] indexes;
+    }
+
     public class Track
     {
         const int SEGMENTS_PER100M = 1000;
@@ -43,25 +61,30 @@ namespace Psuedo3DRacer.Common
         [XmlIgnore]
         Dictionary<string, Texture2D> textDict = new Dictionary<string, Texture2D>();
 
+        [XmlIgnore]
+        public List<Batch> Batches = new List<Batch>();
+
         public void LoadContent(ContentManager content)
         {
-            textDict.Add("road-normal", content.Load<Texture2D>("road-normal"));
-            textDict.Add("road-wood", content.Load<Texture2D>("road-wood"));
-            textDict.Add("tunnel", content.Load<Texture2D>("tunnel"));
-            textDict.Add("tree", content.Load<Texture2D>("tree"));
-            textDict.Add("girder", content.Load<Texture2D>("girder"));
-            textDict.Add("sign-left", content.Load<Texture2D>("sign-left"));
-            textDict.Add("sign-right", content.Load<Texture2D>("sign-right"));
-            textDict.Add("start", content.Load<Texture2D>("start"));
-            textDict.Add("wall", content.Load<Texture2D>("wall"));
-            textDict.Add("tunnel-upper", content.Load<Texture2D>("tunnel-upper"));
+            textDict.Add("road-normal", content.Load<Texture2D>("scenery/road-normal"));
+            textDict.Add("road-wood", content.Load<Texture2D>("scenery/road-wood"));
+            textDict.Add("tunnel", content.Load<Texture2D>("scenery/tunnel"));
+            textDict.Add("tree", content.Load<Texture2D>("scenery/tree"));
+            textDict.Add("girder", content.Load<Texture2D>("scenery/girder"));
+            textDict.Add("sign-left", content.Load<Texture2D>("scenery/sign-left"));
+            textDict.Add("sign-right", content.Load<Texture2D>("scenery/sign-right"));
+            textDict.Add("start", content.Load<Texture2D>("scenery/start"));
+            textDict.Add("wall", content.Load<Texture2D>("scenery/wall"));
+            textDict.Add("tunnel-upper", content.Load<Texture2D>("scenery/tunnel-upper"));
+            textDict.Add("ground", content.Load<Texture2D>("scenery/blank-ground"));
+
         }
 
         public void DrawRoad(GraphicsDevice gd, BasicEffect effect, int startPos, int distance)
         {
-            gd.BlendState = BlendState.AlphaBlend;
+            //gd.BlendState = BlendState.AlphaBlend;
             //gd.DepthStencilState = DepthStencilState.Default;
-            gd.SamplerStates[0] = SamplerState.LinearClamp;
+            //gd.SamplerStates[0] = SamplerState.LinearClamp;
 
             Quad quad;
 
@@ -97,10 +120,10 @@ namespace Psuedo3DRacer.Common
 
         public void DrawScenery(GraphicsDevice gd, AlphaTestEffect effect, int startPos, int distance)
         {
-            gd.BlendState = BlendState.AlphaBlend;
+            //gd.BlendState = BlendState.AlphaBlend;
             
             //gd.DepthStencilState = DepthStencilState.Default;
-            gd.SamplerStates[0] = SamplerState.LinearClamp;
+            //gd.SamplerStates[0] = SamplerState.LinearClamp;
 
             Quad quad;
 
@@ -120,14 +143,25 @@ namespace Psuedo3DRacer.Common
                 if (prevpos >= TrackSegments.Count) prevpos = prevpos - TrackSegments.Count;
                 if (prevpos < 0) prevpos = 0;
 
-                
-                
+                Vector3 norm = TrackSegments[pos].Normal;
+                Vector3 up = Vector3.Up;
 
                 if (!string.IsNullOrEmpty(TrackSegments[pos].LeftTextureName))
                 {
+                    norm = TrackSegments[pos].Normal;
+                    up = Vector3.Up;
+
                     effect.Texture = textDict[TrackSegments[pos].LeftTextureName];
                     effect.DiffuseColor = TrackSegments[pos].LeftTint;
-                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].LeftOffset, TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
+
+                    if (TrackSegments[pos].LeftTextureName == "ground")
+                    {
+                        effect.DiffuseColor = GroundColor.ToVector3();
+                        //norm = Vector3.Transform(TrackSegments[pos].Normal, Matrix.CreateRotationX(MathHelper.PiOver4));
+                        //up = TrackSegments[pos].Normal;
+                    }
+
+                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].LeftOffset, norm, up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
                     Drawing.DrawQuad(effect, quad, gd);
                     //quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].LeftOffset, -TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
                     //Drawing.DrawQuad(effect, quad, gd);
@@ -135,9 +169,12 @@ namespace Psuedo3DRacer.Common
 
                 if (!string.IsNullOrEmpty(TrackSegments[pos].AboveTextureName))
                 {
+                    norm = TrackSegments[pos].Normal;
+                    up = Vector3.Up;
+
                     effect.Texture = textDict[TrackSegments[pos].AboveTextureName];
                     effect.DiffuseColor = TrackSegments[pos].AboveTint;
-                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].AboveOffset, TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].AboveSize.X, TrackSegments[pos].AboveSize.Y);
+                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].AboveOffset, norm, up, TrackSegments[pos].AboveSize.X, TrackSegments[pos].AboveSize.Y);
                     Drawing.DrawQuad(effect, quad, gd);
                     //quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].AboveOffset, -TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].AboveSize.X, TrackSegments[pos].AboveSize.Y);
                     //Drawing.DrawQuad(effect, quad, gd);
@@ -145,63 +182,135 @@ namespace Psuedo3DRacer.Common
 
                 if (!string.IsNullOrEmpty(TrackSegments[pos].RightTextureName))
                 {
+                    norm = TrackSegments[pos].Normal;
+                    up = Vector3.Up;
+
                     effect.Texture = textDict[TrackSegments[pos].RightTextureName];
                     effect.DiffuseColor = TrackSegments[pos].RightTint;
-                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].RightSize.X, TrackSegments[pos].RightSize.Y);
+
+                    if (TrackSegments[pos].RightTextureName == "ground")
+                    {
+                        effect.DiffuseColor = GroundColor.ToVector3();
+                        //norm = Vector3.Transform(TrackSegments[pos].Normal, Matrix.CreateRotationX(MathHelper.PiOver4));
+                        //up = TrackSegments[pos].Normal;
+                    }
+
+                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, norm, up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
                     Drawing.DrawQuad(effect, quad, gd);
                     //quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, -TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].RightSize.X, TrackSegments[pos].RightSize.Y);
                     //Drawing.DrawQuad(effect, quad, gd);
                 }
             }
-            //gd.DepthStencilState = DepthStencilState.DepthRead;
-            //for (int i = startPos; i < distance; i++)
-            //{
-            //    int pos = i;
-            //    int prevpos = (i - 1);
-            //    if (pos >= TrackSegments.Count) pos = pos - (TrackSegments.Count);
-            //    if (prevpos >= TrackSegments.Count) prevpos = prevpos - TrackSegments.Count;
-            //    if (prevpos < 0) prevpos = 0;
-
-                
-
-            //    if (!string.IsNullOrEmpty(TrackSegments[pos].LeftTextureName))
-            //    {
-            //        effect.Texture = textDict[TrackSegments[pos].LeftTextureName];
-            //        effect.DiffuseColor = TrackSegments[pos].LeftTint;
-            //        quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].LeftOffset, -TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
-            //        Drawing.DrawQuad(effect, quad, gd);
-            //        //quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].LeftOffset, TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
-            //        //Drawing.DrawQuad(effect, quad, gd);
-            //    }
-
-            //    if (!string.IsNullOrEmpty(TrackSegments[pos].AboveTextureName))
-            //    {
-            //        effect.Texture = textDict[TrackSegments[pos].AboveTextureName];
-            //        effect.DiffuseColor = TrackSegments[pos].AboveTint;
-            //        quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].AboveOffset, -TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].AboveSize.X, TrackSegments[pos].AboveSize.Y);
-            //        Drawing.DrawQuad(effect, quad, gd);
-            //        //quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].AboveOffset, TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].AboveSize.X, TrackSegments[pos].AboveSize.Y);
-            //        //Drawing.DrawQuad(effect, quad, gd);
-            //    }
-
-            //    if (!string.IsNullOrEmpty(TrackSegments[pos].RightTextureName))
-            //    {
-            //        effect.Texture = textDict[TrackSegments[pos].RightTextureName];
-            //        effect.DiffuseColor = TrackSegments[pos].RightTint;
-            //        quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, -TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].RightSize.X, TrackSegments[pos].RightSize.Y);
-            //        Drawing.DrawQuad(effect, quad, gd);
-            //        //quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].RightSize.X, TrackSegments[pos].RightSize.Y);
-            //        //Drawing.DrawQuad(effect, quad, gd);
-            //    }
-            //}
-
-            // Draw grid
-            //gd.DepthStencilState = DepthStencilState.DepthRead;
-            //effect.Texture = textDict["road-normal"];
-            //effect.DiffuseColor = Color.DarkGray.ToVector3();
-            //quad = new Quad(Vector3.Zero, Vector3.Up, Vector3.Forward, 200f, 200f);
-            //Drawing.DrawQuad(effect, quad, gd);
+            
            
+        }
+
+        public void DrawBatches(GraphicsDevice gd, BasicEffect basicEffect, AlphaTestEffect alphaEffect)
+        {
+            foreach (Batch b in Batches)
+            {
+                if (b.effectType == BatchEffectType.Basic)
+                {
+                    basicEffect.Texture = textDict[b.textureName];
+                    basicEffect.DiffuseColor = b.diffuseColor;
+                    foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+
+                        gd.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, b.vpnts, 0, b.vpnts.Length, b.indexes, 0, b.vpnts.Length/2);
+                    }
+                }
+                else
+                {
+                    alphaEffect.Texture = textDict[b.textureName];
+                    alphaEffect.DiffuseColor = b.diffuseColor;
+                    foreach (EffectPass pass in alphaEffect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+
+                        gd.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, b.vpnts, 0, b.vpnts.Length, b.indexes, 0, b.vpnts.Length / 2);
+                    }
+                }
+            }
+        }
+
+        void PrepareBatches()
+        {
+            Quad quad;
+
+            foreach (Segment seg in TrackSegments)
+            {
+                if (!string.IsNullOrEmpty(seg.TextureName))
+                {
+                    quad = new Quad(seg.Position + seg.Offset, seg.Normal, Vector3.Up, seg.Size.X, seg.Size.Y);
+                    AddToBatch(BatchEffectType.Basic, seg.Tint, seg.TextureName, quad);
+                }
+
+                if (!string.IsNullOrEmpty(seg.LeftTextureName))
+                {
+                    quad = new Quad(seg.Position + seg.LeftOffset, seg.Normal, Vector3.Up, seg.LeftSize.X, seg.LeftSize.Y);
+                    AddToBatch(BatchEffectType.Alpha, seg.LeftTextureName!="ground"?seg.LeftTint:GroundColor.ToVector3(), seg.LeftTextureName, quad);
+                }
+
+                if (!string.IsNullOrEmpty(seg.AboveTextureName))
+                {
+                    quad = new Quad(seg.Position + seg.AboveOffset, seg.Normal, Vector3.Up, seg.AboveSize.X, seg.AboveSize.Y);
+                    AddToBatch(BatchEffectType.Alpha, seg.AboveTint, seg.AboveTextureName, quad);
+                }
+
+                if (!string.IsNullOrEmpty(seg.RightTextureName))
+                {
+                    quad = new Quad(seg.Position + seg.RightOffset, seg.Normal, Vector3.Up, seg.RightSize.X, seg.RightSize.Y);
+                    AddToBatch(BatchEffectType.Alpha, seg.RightTextureName != "ground" ? seg.RightTint : GroundColor.ToVector3(), seg.RightTextureName, quad);
+                }
+            }
+
+            foreach (Batch b in Batches)
+            {
+                b.vpnts = new VertexPositionNormalTexture[b.quads.Count * 4];
+                b.indexes = new short[b.quads.Count * 6];
+
+                int vi = 0;
+                int ii = 0;
+
+                foreach (Quad q in b.quads)
+                {
+                    foreach (VertexPositionNormalTexture v in q.Vertices)
+                    {
+                        b.vpnts[vi] = v;
+                        vi++;
+                    }
+                    foreach (short i in q.Indexes)
+                    {
+                        b.indexes[ii] = (short)(i + (4*b.quads.IndexOf(q)));
+                        ii++;
+                    }
+                }
+            }
+        }
+
+        void AddToBatch(BatchEffectType type, Vector3 color, string texName, Quad quad)
+        {
+            bool found = false;
+
+            foreach (Batch b in Batches)
+            {
+                if (b.effectType == type && b.diffuseColor == color && b.textureName == texName)
+                {
+                    b.quads.Add(quad);
+                    found = true;
+                }
+            }
+
+            if (!found)
+            {
+                Batch newBatch = new Batch();
+                newBatch.effectType = type;
+                newBatch.diffuseColor = color;
+                newBatch.textureName = texName;
+                Batches.Add(newBatch);
+                newBatch.quads.Add(quad);
+            }
         }
 
         public void Rebuild(List<Vector3> controlPoints)
@@ -262,6 +371,32 @@ namespace Psuedo3DRacer.Common
             t.Rebuild(controlPoints);
 
             return t;
+        }
+
+        public static Track Load(string filename, ContentManager content)
+        {
+            Track returnTrack = null;
+
+            string trackXML = content.Load<string>("tracks/track000");
+
+            XmlSerializer xmls = new XmlSerializer(typeof(Track));
+
+            using (StringReader stream = new StringReader(trackXML))
+            {
+                returnTrack = (Track)xmls.Deserialize(stream);
+            }
+
+            foreach (string s in returnTrack.PackedSegments)
+            {
+                Segment seg = Segment.FromString(s);
+                returnTrack.TrackSegments.Add(seg);
+            }
+
+            returnTrack.LoadContent(content);
+
+            returnTrack.PrepareBatches();
+
+            return returnTrack;
         }
     }
 }

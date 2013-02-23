@@ -16,13 +16,23 @@ namespace Psuedo3DRacer
     /// </summary>
     public class Psuedo3DRacer : Microsoft.Xna.Framework.Game
     {
+        public static Psuedo3DRacer Instance;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        ScreenManager screenManager;
 
         public Psuedo3DRacer()
         {
             graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
+
+            Content.RootDirectory = "Psuedo3DRacer.Content";
+
+            screenManager = new ScreenManager(this, false);
+            Components.Add(screenManager);
         }
 
         /// <summary>
@@ -33,7 +43,9 @@ namespace Psuedo3DRacer
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            graphics.ApplyChanges();
+
+            Instance = this;
 
             base.Initialize();
         }
@@ -47,7 +59,7 @@ namespace Psuedo3DRacer
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            screenManager.AddScreen(new GameplayScreen(), null);
         }
 
         /// <summary>
