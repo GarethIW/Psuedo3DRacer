@@ -9,7 +9,7 @@
     <ProjectGuid>{CA9D7ABA-94D9-4A5E-B90C-306DAF99AEB1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Psuedo3DRacer.Common.Mono.Windows8</RootNamespace>
+    <RootNamespace>Psuedo3DRacer</RootNamespace>
     <AssemblyName>Psuedo3DRacer.Common.Mono.Windows8</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>

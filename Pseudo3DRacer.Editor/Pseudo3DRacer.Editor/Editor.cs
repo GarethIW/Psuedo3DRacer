@@ -445,7 +445,7 @@ namespace Pseudo3DRacer
             {
                 foreach (Car c in Cars)
                 {
-                    c.Update(gameTime, Track);
+                    c.Update(gameTime, Track, Cars);
                 }
 
                 if (lockCameraToCar)

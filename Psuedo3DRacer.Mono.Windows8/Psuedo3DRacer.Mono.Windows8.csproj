@@ -332,6 +332,34 @@
       <Link>Psuedo3DRacer.Content\tracks\track000.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\horizons\cityday\city.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\city.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\horizons\cityday\clouds1.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\clouds1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\horizons\cityday\clouds2.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\clouds2.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\horizons\cityday\clouds3.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\clouds3.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\horizons\cityday\ground.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\ground.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\horizons\cityday\mountains.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\mountains.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Psuedo3DRacer\Psuedo3DRacer\bin\x86\Debug\Psuedo3DRacer.Content\horizons\cityday\sky.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\sky.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Psuedo3DRacer.Mono.Windows8_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

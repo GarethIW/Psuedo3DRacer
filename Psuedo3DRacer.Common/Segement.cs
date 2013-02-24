@@ -14,8 +14,8 @@ namespace Psuedo3DRacer.Common
 
     public enum SceneryType
     {
-        Wall,
-        Offroad
+        Offroad,
+        Wall
     }
 
     public enum RoadBrush

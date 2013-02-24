@@ -50,6 +50,8 @@ namespace Psuedo3DRacer
 
         float steeringAmount = 0f;
 
+        float horizHeight;
+
         #endregion
 
         #region Initialization
@@ -90,6 +92,17 @@ namespace Psuedo3DRacer
             texBlank = content.Load<Texture2D>("blank");
 
             parallaxManager = new ParallaxManager(ScreenManager.GraphicsDevice.Viewport);
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/ground"), new Vector2(0,50f), 1f, false, false));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/sky"), new Vector2(0, -100f), 1f, false, false));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/mountains"), new Vector2(0f, -40f), 1f, false, false));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds1"), new Vector2(-1280f, -290f), 1f, false, true));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(2560f, -200f), 1f, false, true));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(-2560f, -200f), 1f, false, true));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds3"), new Vector2(0f, -250f), 1f, false, true));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/city"), new Vector2(200f, -80f), 1f, false, true));
+            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/city"), new Vector2(520f, -80f), 1f, false, true));
+
+
 
             gameCars.Add(new Car(gameTrack.Length - 10, -0.2f, gameTrack, Color.Red));
             gameCars.Add(new Car(gameTrack.Length - 20, 0.2f, gameTrack, Color.Blue));
@@ -156,7 +169,7 @@ namespace Psuedo3DRacer
 
                 foreach (Car c in gameCars)
                 {
-                    c.Update(gameTime, gameTrack);
+                    c.Update(gameTime, gameTrack, gameCars);
                 }
 
                 gameCamera.Position = gameCars[7].CameraPosition;
@@ -165,6 +178,8 @@ namespace Psuedo3DRacer
 
             drawEffect.View = gameCamera.viewMatrix;
             drawAlphaEffect.View = gameCamera.viewMatrix;
+
+            parallaxManager.Update(gameTime, new Vector2(((ScreenManager.GraphicsDevice.Viewport.Width*4) / MathHelper.TwoPi) * gameCamera.Yaw, 0f));
         }
 
 
@@ -195,6 +210,8 @@ namespace Psuedo3DRacer
         
             if(IsActive)
             {
+                
+
                 gameCars[7].ApplyThrottle(false);
                 gameCars[7].ApplyBrake(false);
 
@@ -269,9 +286,12 @@ namespace Psuedo3DRacer
 
             Vector3 horizV = new Vector3(0, 0f, -200);
             Vector3 horiz = ScreenManager.GraphicsDevice.Viewport.Project(horizV, gameCamera.projectionMatrix, gameCamera.ViewMatrixUpDownOnly(), gameCamera.worldMatrix);
-            float horizHeight = horiz.Y;
+            horizHeight = horiz.Y-25;
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.Draw(texBlank, new Rectangle(ScreenManager.GraphicsDevice.Viewport.Width / 2, (int)horizHeight, ScreenManager.GraphicsDevice.Viewport.Width * 2, (ScreenManager.GraphicsDevice.Viewport.Height - (int)horizHeight) + 400), null, gameTrack.GroundColor, (gameCars[7].steeringAmount * 0.5f), new Vector2(0.5f, 0), SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateRotationZ(gameCars[7].steeringAmount * 0.5f) * Matrix.CreateTranslation(new Vector3(ScreenManager.GraphicsDevice.Viewport.Width/2, horizHeight,0f)));
+            parallaxManager.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
 
             ScreenManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -283,6 +303,10 @@ namespace Psuedo3DRacer
             //gameTrack.DrawRoad(ScreenManager.GraphicsDevice, drawEffect, gameCars[7].currentTrackPos, gameTrack.Length);
             foreach (Car c in gameCars) c.Draw(ScreenManager.GraphicsDevice, drawAlphaEffect, gameCamera);
             //gameTrack.DrawScenery(ScreenManager.GraphicsDevice, drawAlphaEffect, gameCars[7].currentTrackPos, gameTrack.Length);
+
+            ScreenManager.SpriteBatch.Begin();
+            ScreenManager.SpriteBatch.DrawString(gameFont, gameCars[7].debug, Vector2.One * 10f, Color.Black);
+            ScreenManager.SpriteBatch.End();
 
 
             // If the game is transitioning on or off, fade it out to black.

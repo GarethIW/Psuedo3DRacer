@@ -44,6 +44,13 @@ namespace Psuedo3DRacer.Common
         float currentPositionOnTrack = 0f;
         float targetPositionOnTrack = 0f;
 
+        bool offRoad = false;
+
+        double spinTime = 0;
+        float spinSpeed = 0f;
+        double spinAnimTime = 0;
+        int spinAnimFrame = 0;
+
         public string debug;
 
         Vector3 trackOffset = new Vector3(0, 0.13f, 0);
@@ -102,7 +109,7 @@ namespace Psuedo3DRacer.Common
 
         }
 
-        public void Update(GameTime gameTime, Track track)
+        public void Update(GameTime gameTime, Track track, List<Car> gameCars)
         {
             float dist = 99999f;
             for (int i = 0; i < track.TrackSegments.Count; i++)
@@ -111,6 +118,9 @@ namespace Psuedo3DRacer.Common
                     dist = (Position - track.TrackSegments[i].Position).Length();
                     currentTrackPos = i;
                 }
+
+            
+
 
             if (!IsPlayerControlled)
             {
@@ -185,11 +195,20 @@ namespace Psuedo3DRacer.Common
                 Vector3 targetnorm = Position - target;
                 Pitch = (float)Math.Atan2(-targetnorm.Y, targetnorm.Length());
 
-                Matrix normRot = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
-                Normal =  Position - Vector3.Transform(Vector3.Forward * 100f, normRot);
-                Normal.Normalize();
+                if (spinTime > 0)
+                {
+                    spinTime -= gameTime.ElapsedGameTime.TotalMilliseconds;
+                    target = track.TrackSegments[Helper.WrapInt(currentTrackPos+20, track.Length-1)].Position;
+                    targetnorm = Position - target;
+                    Normal = targetnorm;
+                    Normal.Normalize();
+                    float targetDist = targetnorm.Length();
+                    Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
+                }
 
-                
+                Matrix normRot = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
+                Normal = Position - Vector3.Transform(Vector3.Forward * 100f, normRot);
+                Normal.Normalize();
             }
 
             animTime += (gameTime.ElapsedGameTime.TotalMilliseconds * (Speed * 10));
@@ -200,15 +219,35 @@ namespace Psuedo3DRacer.Common
                 animTime = 0;
             }
 
-            if (applyingThrottle) Speed += 0.0004f;
-            else Speed -= 0.0004f;
-            if (applyingBrake) Speed -= 0.001f;
-            Speed = MathHelper.Clamp(Speed, 0f, 0.06f);          
+            if (spinTime <= 0)
+            {
+                if (applyingThrottle) Speed += 0.0004f;
+                else Speed -= 0.0004f;
+                if (applyingBrake) Speed -= 0.001f;
+                Speed = MathHelper.Clamp(Speed, 0f, 0.06f);
+            }
 
+            if (spinTime > 0)
+            {
+                spinAnimTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+                if (spinAnimTime > 200)
+                {
+                    spinAnimFrame++;
+                    if (spinAnimFrame == 8) spinAnimFrame = 0;
+                    spinAnimTime = 0;
+                }
+            }
+
+            if (offRoad || spinTime>0)
+            {
+                if (Speed > 0.02f) Speed = MathHelper.Lerp(Speed, 0.02f, 0.1f);
+            }
            
             Matrix rot = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
             Vector3 rotatedVector = Vector3.Transform(Vector3.Forward, rot);
             Position += Speed * rotatedVector;
+
+            Yaw = MathHelper.WrapAngle(Yaw);
 
             rotatedVector = Vector3.Transform(new Vector3(0, 0.2f, 1f), rot);
             CameraPosition = Vector3.Lerp(CameraPosition, Position + rotatedVector, 0.1f);
@@ -216,6 +255,8 @@ namespace Psuedo3DRacer.Common
             //rotatedVector = Vector3.Transform(rotatedVector, Matrix.CreateRotationZ(0.4f));
             CameraLookat = Vector3.Lerp(CameraLookat, Position + rotatedVector, 0.1f);
             //CameraLookat = Vector3.Transform(CameraLookat, Matrix.CreateRotationZ(0.4f));
+
+            CheckCollisions(gameCars, track);
         }
 
         public void Draw(GraphicsDevice gd, AlphaTestEffect effect, Camera gameCamera)
@@ -248,6 +289,46 @@ namespace Psuedo3DRacer.Common
             Drawing.DrawQuad(effect, quad, gd);
 
             effect.ReferenceAlpha = oldRefAlpha;
+        }
+
+        void CheckCollisions(List<Car> gameCars, Track track)
+        {
+            SceneryType collScenery = SceneryType.Offroad;
+            offRoad = false;
+
+            if (IsPlayerControlled)
+            {
+                currentPositionOnTrack = (Position - track.TrackSegments[currentTrackPos].Position).Length();
+                Vector3 leftV = Vector3.Cross(track.TrackSegments[currentTrackPos].Normal, Vector3.Up) * 0.5f;
+                Vector3 rightV = -Vector3.Cross(track.TrackSegments[currentTrackPos].Normal, Vector3.Up) * 0.5f;
+
+                if ((Position - leftV).Length() < (Position - rightV).Length())
+                {
+                    collScenery = track.TrackSegments[currentTrackPos].LeftScenery;
+                }
+                else
+                {
+                    collScenery = track.TrackSegments[currentTrackPos].RightScenery;
+                }
+
+                if (currentPositionOnTrack > 1f) collScenery = SceneryType.Wall;
+                if (track.TrackSegments[currentTrackPos].Position.Y > 0.1f || track.TrackSegments[currentTrackPos].Position.Y < -0.1f) collScenery = SceneryType.Wall;
+
+                if (currentPositionOnTrack > 0.5f) offRoad = true;
+                
+            }
+            else
+            {
+
+            }
+
+            if (offRoad && collScenery == SceneryType.Wall)
+            {
+                spinTime = 1600;
+                spinSpeed = Speed;
+            }
+
+            debug = offRoad.ToString() + " | " + Enum.GetName(typeof(SceneryType), collScenery);
         }
 
         void PlotCourse(Track track)
@@ -283,6 +364,11 @@ namespace Psuedo3DRacer.Common
 
         Texture2D GetTextureForDirection(Vector3 direction, bool attachedToCar)
         {
+            if (spinTime > 0)
+            {
+                return texDirections1[spinAnimFrame];
+            }
+
             if (!attachedToCar || !IsPlayerControlled)
             {
                 float normAngle = Helper.WrapAngle((float)Math.Atan2(Normal.X, Normal.Z));
@@ -326,6 +412,8 @@ namespace Psuedo3DRacer.Common
                     return texTurnRight[2 + (3 * animFrame)];
                 }
             }
+
+            
 
             return (animFrame == 0 ? texDirections1[0] : texDirections2[0]);
         }

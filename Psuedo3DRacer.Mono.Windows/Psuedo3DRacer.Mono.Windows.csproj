@@ -1,0 +1,414 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{23A16B5A-1C46-4A77-9674-9033CEE6A724}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Psuedo3DRacer.Mono.Windows</RootNamespace>
+    <AssemblyName>Psuedo3DRacer.Mono.Windows</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\WindowsGL\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\WindowsGL\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Psuedo3DRacer.Mono.Windows.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\ParallaxManager.cs">
+      <Link>ParallaxManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Psuedo3DRacer.cs">
+      <Link>Psuedo3DRacer.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screenmanager\GameScreen.cs">
+      <Link>ScreenManager\GameScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screenmanager\InputState.cs">
+      <Link>ScreenManager\InputState.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screenmanager\ScreenManager.cs">
+      <Link>ScreenManager\ScreenManager.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\BackgroundScreen.cs">
+      <Link>Screens\BackgroundScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\GameplayScreen.cs">
+      <Link>Screens\GameplayScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\LoadingScreen.cs">
+      <Link>Screens\LoadingScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\MainMenuScreen.cs">
+      <Link>Screens\MainMenuScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\MenuEntry.cs">
+      <Link>Screens\MenuEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\MenuScreen.cs">
+      <Link>Screens\MenuScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\MessageBoxScreen.cs">
+      <Link>Screens\MessageBoxScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\PauseBackgroundScreen.cs">
+      <Link>Screens\PauseBackgroundScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\PauseMenuScreen.cs">
+      <Link>Screens\PauseMenuScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\PlayerIndexEventArgs.cs">
+      <Link>Screens\PlayerIndexEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\Windows\Debug\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Lidgren.Network">
+      <HintPath>$(MSBuildExtensionsPath)\..\MonoGame\v3.0\Assemblies\WindowsGL\Lidgren.Network.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\blank.xnb">
+      <Link>Psuedo3DRacer.Content\blank.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-0-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-0-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-0-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-0-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-1-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-1-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-1-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-1-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-2-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-2-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-2-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-2-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-3-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-3-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-3-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-3-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-4-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-4-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-4-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-4-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-5-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-5-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-5-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-5-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-6-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-6-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-6-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-6-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-7-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-7-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-7-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-7-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnl0-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl0-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnl0-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl0-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnl1-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl1-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnl1-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl1-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnl2-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl2-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnl2-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnl2-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnr0-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr0-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnr0-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr0-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnr1-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr1-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnr1-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr1-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnr2-0.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr2-0.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\cars\0-turnr2-1.xnb">
+      <Link>Psuedo3DRacer.Content\cars\0-turnr2-1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\font.xnb">
+      <Link>Psuedo3DRacer.Content\font.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\horizons\cityday\city.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\city.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\horizons\cityday\clouds1.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\clouds1.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\horizons\cityday\clouds2.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\clouds2.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\horizons\cityday\clouds3.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\clouds3.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\horizons\cityday\ground.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\ground.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\horizons\cityday\mountains.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\mountains.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\horizons\cityday\sky.xnb">
+      <Link>Psuedo3DRacer.Content\horizons\cityday\sky.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\blank-ground.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\blank-ground.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\girder.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\girder.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\road-normal.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\road-normal.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\road-wood.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\road-wood.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\sign-left.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\sign-left.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\sign-right.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\sign-right.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\start.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\start.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\tree.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\tree.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\tunnel-upper.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\tunnel-upper.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\tunnel.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\tunnel.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\scenery\wall.xnb">
+      <Link>Psuedo3DRacer.Content\scenery\wall.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\tracks\track000.xnb">
+      <Link>Psuedo3DRacer.Content\tracks\track000.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Psuedo3DRacer.Common.Mono.Windows\Psuedo3DRacer.Common.Mono.Windows.csproj">
+      <Project>{7c2a2d77-78b8-4062-ba0f-19124d70422c}</Project>
+      <Name>Psuedo3DRacer.Common.Mono.Windows</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

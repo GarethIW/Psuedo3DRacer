@@ -8,10 +8,7 @@
 #endregion
 
 #region Using Statements
-#if WINDOWS_PHONE
-using Microsoft.Devices.Sensors;
-#endif 
-#if WINRT
+#if WINRT || WINDOWS_PHONE
 using Windows.Devices.Sensors;
 #endif
 using Microsoft.Xna.Framework;
@@ -112,7 +109,9 @@ namespace Psuedo3DRacer
 
 
                 CurrentKeyboardStates[i] = Keyboard.GetState((PlayerIndex)i);
+#if !WINDOWS_PHONE
                 CurrentGamePadStates[i] = GamePad.GetState((PlayerIndex)i);
+#endif
 
                 // Keep track of whether a gamepad has ever been
                 // connected, so we can detect if it is unplugged.
@@ -332,7 +331,7 @@ namespace Psuedo3DRacer
             return (distance / oldDistance);
         }
 
-#if WINRT
+#if WINRT || WINDOWS_PHONE
         private void initAccel()
         {
 
@@ -352,24 +351,28 @@ namespace Psuedo3DRacer
         {
             AccelerometerReading ar = sender.GetCurrentReading();
             AccelerometerVect = new Vector3((float)ar.AccelerationX, (float)ar.AccelerationY, (float)ar.AccelerationZ);
+
+#if WINDOWS_PHONE
+            AccelerometerVect = new Vector3(-(float)ar.AccelerationY, (float)ar.AccelerationX, (float)ar.AccelerationZ);
+#endif
         }
 
     
 #endif
 
-#if WINDOWS_PHONE
-        private void initAccel()
-        {
-            accelerometer = new Accelerometer();
-            accelerometer.Start();
-            accelerometer.CurrentValueChanged += acc_CurrentValueChanged;
-        }
+//#if WINDOWS_PHONE
+//        private void initAccel()
+//        {
+//            accelerometer = new Accelerometer();
+//            accelerometer.Start();
+//            accelerometer.CurrentValueChanged += acc_CurrentValueChanged;
+//        }
 
-        void acc_CurrentValueChanged(object sender, SensorReadingEventArgs<AccelerometerReading> e)
-        {
-            AccelerometerVect = e.SensorReading.Acceleration;
-        }
-#endif
+//        void acc_CurrentValueChanged(object sender, SensorReadingEventArgs<AccelerometerReading> e)
+//        {
+//            AccelerometerVect = e.SensorReading.Acceleration;
+//        }
+//#endif
 
 
 

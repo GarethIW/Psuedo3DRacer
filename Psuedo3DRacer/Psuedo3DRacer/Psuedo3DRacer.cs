@@ -23,16 +23,27 @@ namespace Psuedo3DRacer
 
         ScreenManager screenManager;
 
+        RenderTarget2D renderTarget;
+
         public Psuedo3DRacer()
         {
             graphics = new GraphicsDeviceManager(this);
+
+#if WINDOWS
             graphics.PreferredBackBufferWidth = 1280;
             graphics.PreferredBackBufferHeight = 720;
+#endif
+#if WINRT || WINDOWS_PHONE
+            graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+#endif
+            graphics.ApplyChanges();
 
             Content.RootDirectory = "Psuedo3DRacer.Content";
 
             screenManager = new ScreenManager(this, false);
             Components.Add(screenManager);
+
+
         }
 
         /// <summary>
@@ -60,6 +71,10 @@ namespace Psuedo3DRacer
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             screenManager.AddScreen(new GameplayScreen(), null);
+
+#if WINDOWS_PHONE
+            renderTarget = new RenderTarget2D(GraphicsDevice, 1280, 768);
+#endif
         }
 
         /// <summary>
@@ -78,9 +93,9 @@ namespace Psuedo3DRacer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            //// Allows the game to exit
+            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            //    this.Exit();
 
             // TODO: Add your update logic here
 
@@ -93,11 +108,22 @@ namespace Psuedo3DRacer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+#if WINDOWS_PHONE
+            GraphicsDevice.SetRenderTarget(renderTarget);
+#endif
+
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
+
+#if WINDOWS_PHONE
+            GraphicsDevice.SetRenderTarget(null);
+            spriteBatch.Begin();
+            spriteBatch.Draw(renderTarget, new Vector2(768, 0), null, Color.White, MathHelper.PiOver2, Vector2.Zero, 1f, SpriteEffects.None, 1);
+            spriteBatch.End();
+#endif
         }
     }
 }
