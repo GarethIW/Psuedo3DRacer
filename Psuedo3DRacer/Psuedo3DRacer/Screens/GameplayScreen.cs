@@ -86,7 +86,7 @@ namespace Psuedo3DRacer
             gameCamera = new Camera();
             gameCamera.AttachedToCar = true;
 
-            gameTrack = Track.Load("track000", content);
+            gameTrack = Track.Load("track001", content);
 
             gameFont = content.Load<SpriteFont>("font");
             texBlank = content.Load<Texture2D>("blank");
@@ -282,7 +282,7 @@ namespace Psuedo3DRacer
         /// </summary>
         public override void Draw(GameTime gameTime)
         {
-            ScreenManager.GraphicsDevice.Clear(Color.CornflowerBlue);
+            ScreenManager.GraphicsDevice.Clear(gameTrack.SkyColor);
 
             Vector3 horizV = new Vector3(0, 0f, -200);
             Vector3 horiz = ScreenManager.GraphicsDevice.Viewport.Project(horizV, gameCamera.projectionMatrix, gameCamera.ViewMatrixUpDownOnly(), gameCamera.worldMatrix);

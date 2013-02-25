@@ -377,7 +377,7 @@ namespace Psuedo3DRacer.Common
         {
             Track returnTrack = null;
 
-            string trackXML = content.Load<string>("tracks/track000");
+            string trackXML = content.Load<string>("tracks/" + filename);
 
             XmlSerializer xmls = new XmlSerializer(typeof(Track));
 
