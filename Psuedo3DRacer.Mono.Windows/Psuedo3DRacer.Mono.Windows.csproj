@@ -38,9 +38,6 @@
     <StartupObject>Psuedo3DRacer.Mono.Windows.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\ParallaxManager.cs">
-      <Link>ParallaxManager.cs</Link>
-    </Compile>
     <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Psuedo3DRacer.cs">
       <Link>Psuedo3DRacer.cs</Link>
     </Compile>

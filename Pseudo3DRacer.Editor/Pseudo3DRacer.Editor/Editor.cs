@@ -31,7 +31,7 @@ namespace Pseudo3DRacer
 
         EditorMode Mode = EditorMode.Construction;
         bool lockCameraToCar = true;
-        Camera Camera = new Camera();
+        Camera Camera;
         Track Track;
 
         BasicEffect drawEffect;
@@ -57,6 +57,8 @@ namespace Pseudo3DRacer
         SceneryBrush RightBrush = SceneryBrush.None;
         RoadBrush RoadBrush = RoadBrush.Road;
         AboveBrush AboveBrush = AboveBrush.None;
+
+        ParallaxManager parallaxManager;
 
         List<Car> Cars = new List<Car>();
 
@@ -93,7 +95,8 @@ namespace Pseudo3DRacer
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
+            Camera = new Camera(GraphicsDevice);
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             texGrid = Content.Load<Texture2D>("grid");
@@ -124,6 +127,9 @@ namespace Pseudo3DRacer
 
             Track = Track.BuildFromControlPoints(ControlPoints);
             Track.LoadContent(Content);
+
+            parallaxManager = new ParallaxManager(GraphicsDevice.Viewport);
+            Track.LoadHorizon(Content, parallaxManager);
 
             ResetCars();
 
@@ -333,11 +339,13 @@ namespace Pseudo3DRacer
                 {
                     Track.Horizon++;
                     if ((int)Track.Horizon > Enum.GetValues(typeof(Horizon)).Length - 1) Track.Horizon = 0;
+                    Track.LoadHorizon(Content, parallaxManager);
                 }
                 if (cks.IsKeyDown(Keys.F) && !lks.IsKeyDown(Keys.F))
                 {
                     Track.Horizon--;
                     if ((int)Track.Horizon < 0) Track.Horizon = (Horizon)Enum.GetValues(typeof(Horizon)).Length - 1;
+                    Track.LoadHorizon(Content, parallaxManager);
                 }
 
                 if (cks.IsKeyDown(Keys.T))
@@ -451,12 +459,14 @@ namespace Pseudo3DRacer
                 if (lockCameraToCar)
                 {
                     Camera.Position = Cars[7].CameraPosition;
-                    Camera.LookAt(Cars[7].CameraLookat, (Cars[7].steeringAmount * 0.2f));
+                    Camera.LookAt(Cars[7].CameraLookat, (Cars[7].steeringAmount * 0.5f));
                     Camera.AttachedToCar = true;
                 }
                 else
                     Camera.AttachedToCar = false;
             }
+
+            parallaxManager.Update(gameTime, new Vector2(((GraphicsDevice.Viewport.Width * 4) / MathHelper.TwoPi) * Helper.WrapAngle(Camera.Yaw), 0f));
 
             drawEffect.View = Camera.viewMatrix;
             drawAlphaEffect.View = Camera.viewMatrix;
@@ -471,14 +481,17 @@ namespace Pseudo3DRacer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Track.SkyColor);
 
             // Draw horizon, yo
             Vector3 horizV = new Vector3(0, 0f, -200);
             Vector3 horiz = GraphicsDevice.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
             float horizHeight = horiz.Y;
             spriteBatch.Begin();
-            spriteBatch.Draw(texBlank, new Rectangle(GraphicsDevice.Viewport.Width/2, (int)horizHeight, GraphicsDevice.Viewport.Width*2, (GraphicsDevice.Viewport.Height - (int)horizHeight)+400), null, Track.GroundColor, (Cars[7].steeringAmount * 0.2f), new Vector2(0.5f, 0), SpriteEffects.None, 1);
+            spriteBatch.Draw(texBlank, new Rectangle(GraphicsDevice.Viewport.Width/2, (int)horizHeight, GraphicsDevice.Viewport.Width*2, (GraphicsDevice.Viewport.Height - (int)horizHeight)+400), null, Track.GroundColor, (Cars[7].steeringAmount * 0.5f), new Vector2(0.5f, 0), SpriteEffects.None, 1);
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateRotationZ(Cars[7].steeringAmount * 0.5f) * Matrix.CreateTranslation(new Vector3(GraphicsDevice.Viewport.Width / 2, horizHeight, 0f)));
+            parallaxManager.Draw(spriteBatch);
             spriteBatch.End();
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -623,6 +636,7 @@ namespace Pseudo3DRacer
                     }
                     ControlPoints = Track.ControlPoints;
                     Track.LoadContent(Content);
+                    Track.LoadHorizon(Content, parallaxManager);
                     ResetCars();
                     selectedPoint = 0;
 

@@ -12,9 +12,10 @@ namespace Psuedo3DRacer.Common
 {
     public enum Horizon
     {
-        Forest,
-        City,
-        Desert
+        CityDay,
+        CityNight,
+        Island,
+        Arctic
     }
 
     public enum BatchEffectType
@@ -49,7 +50,7 @@ namespace Psuedo3DRacer.Common
 
         public Color SkyColor = Color.CornflowerBlue;
 
-        public Horizon Horizon = Horizon.Forest;
+        public Horizon Horizon = Horizon.CityDay;
 
         [XmlIgnore]
         public List<Segment> TrackSegments = new List<Segment>();
@@ -78,6 +79,40 @@ namespace Psuedo3DRacer.Common
             textDict.Add("tunnel-upper", content.Load<Texture2D>("scenery/tunnel-upper"));
             textDict.Add("ground", content.Load<Texture2D>("scenery/blank-ground"));
 
+        }
+
+        public void LoadHorizon(ContentManager content, ParallaxManager parallaxManager)
+        {
+            parallaxManager.Layers.Clear();
+
+            switch (Horizon)
+            {
+                case Horizon.CityDay:
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/ground"), new Vector2(0,50f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/sky"), new Vector2(0, -100f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/mountains"), new Vector2(0f, -40f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds1"), new Vector2(-1280f, -290f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(2560f, -200f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(-2560f, -200f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds3"), new Vector2(0f, -250f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/city"), new Vector2(200f, -80f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/city"), new Vector2(520f, -80f), 1f, false, true));
+                    GroundColor = Color.Green;
+                    SkyColor = Color.CornflowerBlue;
+                    break;
+                case Horizon.CityNight:
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/ground"), new Vector2(0, 25f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/mountains"), new Vector2(0f, -40f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/stars2"), new Vector2(0f, -250f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/stars"), new Vector2(1280f, -250f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/stars2"), new Vector2(2560f, -250f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/stars"), new Vector2(-1280f, -250f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/stars2"), new Vector2(-2560f, -250f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/citynight/city"), new Vector2(0f, -40f), 1f, false, true));
+                    GroundColor = new Color(10,10,50);
+                    SkyColor = new Color(10,10,20);
+                    break;
+            }
         }
 
         public void DrawRoad(GraphicsDevice gd, BasicEffect effect, int startPos, int distance)
@@ -373,7 +408,7 @@ namespace Psuedo3DRacer.Common
             return t;
         }
 
-        public static Track Load(string filename, ContentManager content)
+        public static Track Load(string filename, ContentManager content, ParallaxManager pMan)
         {
             Track returnTrack = null;
 
@@ -393,6 +428,7 @@ namespace Psuedo3DRacer.Common
             }
 
             returnTrack.LoadContent(content);
+            returnTrack.LoadHorizon(content, pMan);
 
             returnTrack.PrepareBatches();
 

@@ -28,7 +28,7 @@ namespace Psuedo3DRacer
         ContentManager content;
         Texture2D texBG;
 
-        ParallaxManager parallaxManager;
+        //ParallaxManager parallaxManager;
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace Psuedo3DRacer
 
             texBG = content.Load<Texture2D>("blank-white");
 
-            parallaxManager = new ParallaxManager(ScreenManager.GraphicsDevice.Viewport);
+            //parallaxManager = new ParallaxManager(ScreenManager.GraphicsDevice.Viewport);
         }
 
 
@@ -88,7 +88,7 @@ namespace Psuedo3DRacer
                                                        bool coveredByOtherScreen)
         {
            
-            parallaxManager.Update(gameTime, Vector2.Zero);
+           // parallaxManager.Update(gameTime, Vector2.Zero);
 
           
 
@@ -109,7 +109,7 @@ namespace Psuedo3DRacer
 
             //spriteBatch.Draw(texBG, fullscreen,
               //               Color.White * TransitionAlpha * (0.5f + (0.5f * TransitionPosition)));
-            parallaxManager.Draw(spriteBatch);
+           // parallaxManager.Draw(spriteBatch);
 
             
             spriteBatch.End();

@@ -28,6 +28,13 @@ namespace Psuedo3DRacer.Common
         public float SpeedWhenTurning = 0.05f;
         public double ReactionTime = 500;
 
+        public int RacePosition = 0;
+        public int RaceDistanceToGo = 0;
+        public int LapsToGo = 0;
+        public bool StartedFirstLap = false;
+
+        bool countedLap = false;
+
         double correctionCountdown = 0;
 
         bool hasStarted = false;
@@ -74,7 +81,9 @@ namespace Psuedo3DRacer.Common
         {
             Tint = tint;
 
-            
+            StartedFirstLap = false;
+            RaceDistanceToGo = 3 * track.Length;
+            LapsToGo = 3;
 
             ConcentrationLevel = 50 + randomNumber.Next(1900);
             CorrectionTime = 500 + (randomNumber.NextDouble() * 4500);
@@ -198,7 +207,7 @@ namespace Psuedo3DRacer.Common
                 if (spinTime > 0)
                 {
                     spinTime -= gameTime.ElapsedGameTime.TotalMilliseconds;
-                    target = track.TrackSegments[Helper.WrapInt(currentTrackPos+20, track.Length-1)].Position;
+                    target = track.TrackSegments[Helper.WrapInt(currentTrackPos+10, track.Length-1)].Position;
                     targetnorm = Position - target;
                     Normal = targetnorm;
                     Normal.Normalize();
@@ -257,6 +266,27 @@ namespace Psuedo3DRacer.Common
             //CameraLookat = Vector3.Transform(CameraLookat, Matrix.CreateRotationZ(0.4f));
 
             CheckCollisions(gameCars, track);
+
+            // Calcuate position
+            RacePosition = 1;
+            foreach (Car c in gameCars)
+            {
+                if (c.RaceDistanceToGo < RaceDistanceToGo) RacePosition++;
+            }
+
+            if (currentTrackPos == 0 && !countedLap)
+            {
+                countedLap = true;
+
+                if (!StartedFirstLap) StartedFirstLap = true;
+                else LapsToGo--;
+            }
+
+            if (currentTrackPos == track.Length / 2) countedLap = false;
+
+            RaceDistanceToGo = ((LapsToGo + (StartedFirstLap?0:1)) * track.Length) - (currentTrackPos);
+
+            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition;
         }
 
         public void Draw(GraphicsDevice gd, AlphaTestEffect effect, Camera gameCamera)
@@ -285,7 +315,7 @@ namespace Psuedo3DRacer.Common
             Quad quad;
             
             effect.DiffuseColor = Tint.ToVector3();
-            quad = new Quad(Position, finalFace, Vector3.Up, 0.4f, 0.2f);
+            quad = new Quad(Position, finalFace, Vector3.Up, 0.4f, 0.15f);
             Drawing.DrawQuad(effect, quad, gd);
 
             effect.ReferenceAlpha = oldRefAlpha;
@@ -354,7 +384,7 @@ namespace Psuedo3DRacer.Common
                 }
             }
 
-            debug = correctionCountdown + " | " + CorrectionTime + " | " + ConcentrationLevel;
+            //debug = correctionCountdown + " | " + CorrectionTime + " | " + ConcentrationLevel;
 
             Vector3 leftV = Vector3.Cross(track.TrackSegments[Helper.WrapInt(courseTrackPos, track.TrackSegments.Count - 1)].Normal, Vector3.Up);
             target += leftV * currentPositionOnTrack;

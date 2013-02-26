@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,11 +22,11 @@ namespace Psuedo3DRacer.Common
         const float rotationSpeed = 0.01f;
         const float moveSpeed = 0.1f;
 
-        public Camera()
+        public Camera(GraphicsDevice gd)
         {
             worldMatrix = Matrix.Identity;
             viewMatrix = Matrix.CreateLookAt(Position, new Vector3(0, 0, -100), Vector3.Up);
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 4.0f / 3.0f, 0.001f, 100f);
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, gd.Viewport.AspectRatio, 0.001f, 100f);
         }
 
         public void AddToPosition(Vector3 vectorToAdd)

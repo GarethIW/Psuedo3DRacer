@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Psuedo3DRacer
+namespace Psuedo3DRacer.Common
 {
     public class ParallaxLayer
     {

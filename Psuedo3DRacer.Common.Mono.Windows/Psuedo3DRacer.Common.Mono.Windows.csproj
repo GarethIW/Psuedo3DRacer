@@ -56,6 +56,9 @@
     <Compile Include="..\Psuedo3DRacer.Common\Helper.cs">
       <Link>Helper.cs</Link>
     </Compile>
+    <Compile Include="..\Psuedo3DRacer.Common\ParallaxManager.cs">
+      <Link>ParallaxManager.cs</Link>
+    </Compile>
     <Compile Include="..\Psuedo3DRacer.Common\Quad.cs">
       <Link>Quad.cs</Link>
     </Compile>

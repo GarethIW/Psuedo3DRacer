@@ -83,26 +83,15 @@ namespace Psuedo3DRacer
 
             //AudioController.LoadContent(content);
 
-            gameCamera = new Camera();
+            parallaxManager = new ParallaxManager(ScreenManager.GraphicsDevice.Viewport);
+
+            gameCamera = new Camera(ScreenManager.GraphicsDevice);
             gameCamera.AttachedToCar = true;
 
-            gameTrack = Track.Load("track001", content);
+            gameTrack = Track.Load("track001", content, parallaxManager);
 
             gameFont = content.Load<SpriteFont>("font");
             texBlank = content.Load<Texture2D>("blank");
-
-            parallaxManager = new ParallaxManager(ScreenManager.GraphicsDevice.Viewport);
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/ground"), new Vector2(0,50f), 1f, false, false));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/sky"), new Vector2(0, -100f), 1f, false, false));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/mountains"), new Vector2(0f, -40f), 1f, false, false));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds1"), new Vector2(-1280f, -290f), 1f, false, true));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(2560f, -200f), 1f, false, true));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(-2560f, -200f), 1f, false, true));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds3"), new Vector2(0f, -250f), 1f, false, true));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/city"), new Vector2(200f, -80f), 1f, false, true));
-            parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/city"), new Vector2(520f, -80f), 1f, false, true));
-
-
 
             gameCars.Add(new Car(gameTrack.Length - 10, -0.2f, gameTrack, Color.Red));
             gameCars.Add(new Car(gameTrack.Length - 20, 0.2f, gameTrack, Color.Blue));
@@ -179,7 +168,7 @@ namespace Psuedo3DRacer
             drawEffect.View = gameCamera.viewMatrix;
             drawAlphaEffect.View = gameCamera.viewMatrix;
 
-            parallaxManager.Update(gameTime, new Vector2(((ScreenManager.GraphicsDevice.Viewport.Width*4) / MathHelper.TwoPi) * gameCamera.Yaw, 0f));
+            parallaxManager.Update(gameTime, new Vector2(((1280*4) / MathHelper.TwoPi) * gameCamera.Yaw, 0f));
         }
 
 
@@ -305,7 +294,7 @@ namespace Psuedo3DRacer
             //gameTrack.DrawScenery(ScreenManager.GraphicsDevice, drawAlphaEffect, gameCars[7].currentTrackPos, gameTrack.Length);
 
             ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.DrawString(gameFont, gameCars[7].debug, Vector2.One * 10f, Color.Black);
+            ScreenManager.SpriteBatch.DrawString(gameFont, gameCars[7].debug, Vector2.One * 10f, Color.White);
             ScreenManager.SpriteBatch.End();
 
 

@@ -1,3 +1,4 @@
+Psuedo3DRacer.Content\font.xnb
 Psuedo3DRacer.Content\SphereLowPoly.xnb
 Psuedo3DRacer.Content\grid.xnb
 Psuedo3DRacer.Content\blank.xnb
@@ -17,19 +18,18 @@ Psuedo3DRacer.Content\cars\0-3-0.xnb
 Psuedo3DRacer.Content\cars\0-3-1.xnb
 Psuedo3DRacer.Content\cars\0-4-0.xnb
 Psuedo3DRacer.Content\cars\0-4-1.xnb
+Psuedo3DRacer.Content\cars\0-turnl0-0.xnb
+Psuedo3DRacer.Content\cars\0-turnl0-1.xnb
 Psuedo3DRacer.Content\cars\0-turnl1-0.xnb
 Psuedo3DRacer.Content\cars\0-turnl1-1.xnb
 Psuedo3DRacer.Content\cars\0-turnl2-0.xnb
 Psuedo3DRacer.Content\cars\0-turnl2-1.xnb
+Psuedo3DRacer.Content\cars\0-turnr0-0.xnb
+Psuedo3DRacer.Content\cars\0-turnr0-1.xnb
 Psuedo3DRacer.Content\cars\0-turnr1-0.xnb
 Psuedo3DRacer.Content\cars\0-turnr1-1.xnb
 Psuedo3DRacer.Content\cars\0-turnr2-0.xnb
 Psuedo3DRacer.Content\cars\0-turnr2-1.xnb
-Psuedo3DRacer.Content\cars\0-turnl0-0.xnb
-Psuedo3DRacer.Content\cars\0-turnl0-1.xnb
-Psuedo3DRacer.Content\cars\0-turnr0-0.xnb
-Psuedo3DRacer.Content\cars\0-turnr0-1.xnb
-Psuedo3DRacer.Content\font.xnb
 Psuedo3DRacer.Content\scenery\blank-ground.xnb
 Psuedo3DRacer.Content\scenery\girder.xnb
 Psuedo3DRacer.Content\scenery\road-normal.xnb
@@ -50,3 +50,8 @@ Psuedo3DRacer.Content\horizons\cityday\clouds3.xnb
 Psuedo3DRacer.Content\horizons\cityday\mountains.xnb
 Psuedo3DRacer.Content\tracks\track000.xnb
 Psuedo3DRacer.Content\tracks\track001.xnb
+Psuedo3DRacer.Content\horizons\citynight\city.xnb
+Psuedo3DRacer.Content\horizons\citynight\ground.xnb
+Psuedo3DRacer.Content\horizons\citynight\mountains.xnb
+Psuedo3DRacer.Content\horizons\citynight\stars.xnb
+Psuedo3DRacer.Content\horizons\citynight\stars2.xnb
