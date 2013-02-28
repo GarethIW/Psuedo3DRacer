@@ -88,7 +88,7 @@ namespace Psuedo3DRacer
             gameCamera = new Camera(ScreenManager.GraphicsDevice);
             gameCamera.AttachedToCar = true;
 
-            gameTrack = Track.Load("track001", content, parallaxManager);
+            gameTrack = Track.Load("track002", content, parallaxManager);
 
             gameFont = content.Load<SpriteFont>("font");
             texBlank = content.Load<Texture2D>("blank");

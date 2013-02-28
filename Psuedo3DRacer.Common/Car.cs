@@ -258,8 +258,8 @@ namespace Psuedo3DRacer.Common
 
             Yaw = MathHelper.WrapAngle(Yaw);
 
-            rotatedVector = Vector3.Transform(new Vector3(0, 0.2f, 1f), rot);
-            CameraPosition = Vector3.Lerp(CameraPosition, Position + rotatedVector, 0.1f);
+            rotatedVector = Vector3.Transform(new Vector3(0, 0.2f, 0.75f), rot);
+            CameraPosition = Vector3.Lerp(CameraPosition, Position + rotatedVector, 0.2f);
             rotatedVector = Vector3.Transform(new Vector3(0, 0.25f, -1f), rot);
             //rotatedVector = Vector3.Transform(rotatedVector, Matrix.CreateRotationZ(0.4f));
             CameraLookat = Vector3.Lerp(CameraLookat, Position + rotatedVector, 0.1f);
@@ -345,6 +345,22 @@ namespace Psuedo3DRacer.Common
                 if (track.TrackSegments[currentTrackPos].Position.Y > 0.1f || track.TrackSegments[currentTrackPos].Position.Y < -0.1f) collScenery = SceneryType.Wall;
 
                 if (currentPositionOnTrack > 0.5f) offRoad = true;
+
+                foreach (Car c in gameCars)
+                {
+                    if(c==this) continue;
+
+                    if ((c.Position - Position).Length() < 0.2f)
+                    { 
+                        int trackDist = Helper.WrapInt(c.currentTrackPos - currentTrackPos, track.Length-1);
+                        if (trackDist > 0)
+                        {
+                            spinTime = 1600;
+                            spinSpeed = Speed;
+                        }
+                    }
+
+                }
                 
             }
             else

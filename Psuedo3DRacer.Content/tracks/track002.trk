@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
+<XnaContent>
+  <Asset Type="System.String">
+    <![CDATA[
 <Track xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Length>1075</Length>
   <FileName>Track002.trk</FileName>
@@ -17,7 +20,7 @@
     <A>255</A>
     <PackedValue>4293760356</PackedValue>
   </SkyColor>
-  <Horizon>Forest</Horizon>
+  <Horizon>CityNight</Horizon>
   <PackedSegments>
     <string>3.249999,0,16.55002,0.08062663,0,-0.9967444,0,0,0,1,0.05,road-normal,0.6627451,0.6627451,0.6627451,0,0,0.45,0,1.5,1,start,1,1,1,0,0,0,0,0,,0,0,0,0,0,0,0,0,0,,0,0,0,0</string>
     <string>3.242457,0,16.64344,0.08047265,0,-0.9967569,0,0,0,1,0.05,road-normal,1,1,1,0,0,0,0,0,0,,0,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0,0,,0,0,0,0</string>
@@ -1172,4 +1175,6 @@
       <Z>4.52500534</Z>
     </Vector3>
   </ControlPoints>
-</Track>
+</Track>]]>
+</Asset>
+</XnaContent>

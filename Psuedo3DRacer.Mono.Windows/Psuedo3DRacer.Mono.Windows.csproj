@@ -98,7 +98,8 @@
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\" />
+    <Folder Include="Psuedo3DRacer.Content\horizons\citynight\" />
+    <Folder Include="Psuedo3DRacer.Content\horizons\island\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\psuedo3dracer\psuedo3dracer\bin\x86\debug\psuedo3dracer.content\blank.xnb">

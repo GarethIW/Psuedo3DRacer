@@ -112,6 +112,18 @@ namespace Psuedo3DRacer.Common
                     GroundColor = new Color(10,10,50);
                     SkyColor = new Color(10,10,20);
                     break;
+                case Horizon.Island:
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/sky"), new Vector2(0f, -150f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/boat"), new Vector2(0f, -85f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/beach"), new Vector2(0f, 0f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/beach"), new Vector2(1280f, 0f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/beach"), new Vector2(2560f, 0f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/beach"), new Vector2(-1280f, 0f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/beach"), new Vector2(-2560f, 0f), 1f, false, true));
+                    
+                    GroundColor = new Color(183, 159, 0);
+                    SkyColor = new Color(0, 175, 219);
+                    break;
             }
         }
 
