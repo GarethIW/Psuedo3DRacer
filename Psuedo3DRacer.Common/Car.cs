@@ -53,6 +53,8 @@ namespace Psuedo3DRacer.Common
 
         bool offRoad = false;
 
+        bool overtaking = false;
+
         double spinTime = 0;
         float spinSpeed = 0f;
         double spinAnimTime = 0;
@@ -60,7 +62,7 @@ namespace Psuedo3DRacer.Common
 
         public string debug;
 
-        Vector3 trackOffset = new Vector3(0, 0.13f, 0);
+        Vector3 trackOffset = new Vector3(0, 0.10f, 0);
 
         Vector3 target;
         public int courseTrackPos = 0;
@@ -120,6 +122,8 @@ namespace Psuedo3DRacer.Common
 
         public void Update(GameTime gameTime, Track track, List<Car> gameCars)
         {
+            debug = "";
+
             float dist = 99999f;
             for (int i = 0; i < track.TrackSegments.Count; i++)
                 if ((Position - track.TrackSegments[i].Position).Length() < dist)
@@ -153,7 +157,7 @@ namespace Psuedo3DRacer.Common
                     PlotCourse(track);
                 }
 
-               currentPositionOnTrack = MathHelper.Lerp(currentPositionOnTrack, targetPositionOnTrack, 0.01f);
+                if(!overtaking) currentPositionOnTrack = MathHelper.Lerp(currentPositionOnTrack, targetPositionOnTrack, 0.01f);
 
                 if (hasStarted)
                 {
@@ -286,7 +290,7 @@ namespace Psuedo3DRacer.Common
 
             RaceDistanceToGo = ((LapsToGo + (StartedFirstLap?0:1)) * track.Length) - (currentTrackPos);
 
-            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition;
+            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition + " | " + overtaking + " | "+ currentPositionOnTrack;
         }
 
         public void Draw(GraphicsDevice gd, AlphaTestEffect effect, Camera gameCamera)
@@ -326,31 +330,35 @@ namespace Psuedo3DRacer.Common
             SceneryType collScenery = SceneryType.Offroad;
             offRoad = false;
 
+            
+
             if (IsPlayerControlled)
             {
-                currentPositionOnTrack = (Position - track.TrackSegments[currentTrackPos].Position).Length();
+                
                 Vector3 leftV = Vector3.Cross(track.TrackSegments[currentTrackPos].Normal, Vector3.Up) * 0.5f;
-                Vector3 rightV = -Vector3.Cross(track.TrackSegments[currentTrackPos].Normal, Vector3.Up) * 0.5f;
+                Vector3 rightV = -(Vector3.Cross(track.TrackSegments[currentTrackPos].Normal, Vector3.Up) * 0.5f);
 
-                if ((Position - leftV).Length() < (Position - rightV).Length())
+                if (((Position - trackOffset) - (track.TrackSegments[currentTrackPos].Position + leftV)).Length() < ((Position + trackOffset) - (track.TrackSegments[currentTrackPos].Position + rightV)).Length())
                 {
+                    currentPositionOnTrack = -((Position - trackOffset) - track.TrackSegments[currentTrackPos].Position).Length();
                     collScenery = track.TrackSegments[currentTrackPos].LeftScenery;
                 }
                 else
                 {
+                    currentPositionOnTrack = ((Position - trackOffset) - track.TrackSegments[currentTrackPos].Position).Length();
                     collScenery = track.TrackSegments[currentTrackPos].RightScenery;
                 }
 
-                if (currentPositionOnTrack > 1f) collScenery = SceneryType.Wall;
-                if (track.TrackSegments[currentTrackPos].Position.Y > 0.1f || track.TrackSegments[currentTrackPos].Position.Y < -0.1f) collScenery = SceneryType.Wall;
+                if (currentPositionOnTrack > 1f || currentPositionOnTrack < -1f) collScenery = SceneryType.Wall;
+                if (track.TrackSegments[currentTrackPos].Position.Y > 0.05f || track.TrackSegments[currentTrackPos].Position.Y < -0.1f) collScenery = SceneryType.Wall;
 
-                if (currentPositionOnTrack > 0.5f) offRoad = true;
+                if (currentPositionOnTrack > 0.5f || currentPositionOnTrack < -0.5f) offRoad = true;
 
                 foreach (Car c in gameCars)
                 {
                     if(c==this) continue;
 
-                    if ((c.Position - Position).Length() < 0.2f)
+                    if ((c.Position - Position).Length() < 0.2f && c.Speed<=Speed)
                     { 
                         int trackDist = Helper.WrapInt(c.currentTrackPos - currentTrackPos, track.Length-1);
                         if (trackDist > 0)
@@ -365,7 +373,41 @@ namespace Psuedo3DRacer.Common
             }
             else
             {
+                overtaking = false;
+                int foundCarDistance = 99999;
 
+                foreach (Car c in gameCars)
+                {
+                    if (c == this) continue;
+
+                    int trackDist = Helper.WrapInt(c.currentTrackPos - currentTrackPos, track.Length - 1);
+                    if (trackDist > 0 && trackDist<10  + (30-(c.Speed * 500)) && ((Speed>=c.Speed && trackDist<foundCarDistance) || c.IsPlayerControlled))
+                    {
+                    //if ((c.Position - Position).Length() < 10f && ((c.Position - Position).Length()<foundCarDistance || c.IsPlayerControlled))
+                    //{
+                        if (c.IsPlayerControlled) foundCarDistance = 0;
+                        else foundCarDistance = trackDist;// (c.Position - Position).Length();
+
+                        if (currentPositionOnTrack < c.currentPositionOnTrack)
+                        {
+                            targetPositionOnTrack = c.currentPositionOnTrack - (0.4f);
+                            if (targetPositionOnTrack < -0.45f) targetPositionOnTrack = c.currentPositionOnTrack + (0.3f);
+                        }
+                        else
+                        {
+                            targetPositionOnTrack = c.currentPositionOnTrack + (0.4f);
+                            if (targetPositionOnTrack > 0.45f) targetPositionOnTrack = c.currentPositionOnTrack - (0.3f);
+                        }
+                        //if (c.currentPositionOnTrack <= 0f) targetPositionOnTrack = c.currentPositionOnTrack + (0.4f);// * (3f - (c.Position - Position).Length()));
+                        //else targetPositionOnTrack = c.currentPositionOnTrack - (0.4f);// * (3f - (c.Position - Position).Length()));
+                        currentPositionOnTrack = MathHelper.Lerp(currentPositionOnTrack, targetPositionOnTrack, 0.02f);
+                        overtaking = true;
+                        PlotCourse(track);
+                        //}
+                    }
+                }
+
+                debug += foundCarDistance;
             }
 
             if (offRoad && collScenery == SceneryType.Wall)
@@ -374,7 +416,7 @@ namespace Psuedo3DRacer.Common
                 spinSpeed = Speed;
             }
 
-            debug = offRoad.ToString() + " | " + Enum.GetName(typeof(SceneryType), collScenery);
+            
         }
 
         void PlotCourse(Track track)
@@ -390,19 +432,22 @@ namespace Psuedo3DRacer.Common
 
             if (correctionCountdown <= 0)
             {
-                targetPositionOnTrack = MathHelper.Clamp((0.35f / 0.5f) * targetAngle, -0.35f, 0.35f);
-
-                if (randomNumber.Next(ConcentrationLevel) == 1)
+                if (!overtaking)
                 {
-                    targetPositionOnTrack = ((float)randomNumber.NextDouble() * 0.8f) - 0.4f;
+                    targetPositionOnTrack = -MathHelper.Clamp((0.35f / 0.5f) * targetAngle, -0.35f, 0.35f);
 
-                    correctionCountdown = CorrectionTime;
+                    if (randomNumber.Next(ConcentrationLevel) == 1)
+                    {
+                        targetPositionOnTrack = ((float)randomNumber.NextDouble() * 0.8f) - 0.4f;
+
+                        correctionCountdown = CorrectionTime;
+                    }
                 }
             }
 
             //debug = correctionCountdown + " | " + CorrectionTime + " | " + ConcentrationLevel;
 
-            Vector3 leftV = Vector3.Cross(track.TrackSegments[Helper.WrapInt(courseTrackPos, track.TrackSegments.Count - 1)].Normal, Vector3.Up);
+            Vector3 leftV = -Vector3.Cross(track.TrackSegments[Helper.WrapInt(courseTrackPos, track.TrackSegments.Count - 1)].Normal, Vector3.Up);
             target += leftV * currentPositionOnTrack;
 
             target += trackOffset;
