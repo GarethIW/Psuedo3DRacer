@@ -8,6 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
+#if !WINRT
+using System.ComponentModel;
+#else
+using System.Threading.Tasks;
+using Windows.System.Threading;
+#endif
+
 namespace Psuedo3DRacer.Common
 {
     public enum Horizon
@@ -53,6 +60,9 @@ namespace Psuedo3DRacer.Common
         public Horizon Horizon = Horizon.CityDay;
 
         [XmlIgnore]
+        public Texture2D mapSegment;
+
+        [XmlIgnore]
         public List<Segment> TrackSegments = new List<Segment>();
 
         public List<string> PackedSegments = new List<string>();
@@ -64,6 +74,13 @@ namespace Psuedo3DRacer.Common
 
         [XmlIgnore]
         public List<Batch> Batches = new List<Batch>();
+
+        [XmlIgnore]
+        public bool HasLoaded;
+
+#if !WINRT
+        BackgroundWorker bgW = new BackgroundWorker();
+#endif
 
         public void LoadContent(ContentManager content)
         {
@@ -79,6 +96,7 @@ namespace Psuedo3DRacer.Common
             textDict.Add("tunnel-upper", content.Load<Texture2D>("scenery/tunnel-upper"));
             textDict.Add("ground", content.Load<Texture2D>("scenery/blank-ground"));
 
+            mapSegment = content.Load<Texture2D>("map-segment");
         }
 
         public void LoadHorizon(ContentManager content, ParallaxManager parallaxManager)
@@ -252,6 +270,63 @@ namespace Psuedo3DRacer.Common
            
         }
 
+        public void DrawMap(GraphicsDevice gd, SpriteBatch sb, RenderTarget2D rt, List<Car> cars)
+        {
+            float scale = 7f;
+            Vector2 center = new Vector2(rt.Width, rt.Height) / 2;
+
+            Vector2 offset = Vector2.Zero;
+
+            float top = 1000f, left = 1000f;
+            float bottom = -1000f, right = -1000f;
+            foreach (Segment seg in TrackSegments)
+            {
+                if (seg.Position.X < left) left = seg.Position.X;
+                if (seg.Position.X > right) right = seg.Position.X;
+                if (seg.Position.Z < top) top = seg.Position.Z;
+                if (seg.Position.Z > bottom) bottom = seg.Position.Z;
+            }
+
+            bool fits = false;
+            while (!fits)
+            {
+                //offset = ((new Vector2(right - left, bottom - top) * scale) / 2);
+                offset = new Vector2(150, 150) - ((new Vector2((right + left)/2, (bottom + top)/2)) *scale);
+
+                if (offset.Y + (top * scale) < 7 || offset.X + (left * scale) < 7 || offset.Y + (bottom * scale) > 293 || offset.X + (right * scale) > 293)
+                {
+                    scale-=0.2f;
+                }
+                else fits = true;
+            }
+
+            
+
+            gd.SetRenderTarget(rt);
+
+            gd.Clear(Color.Black * 0f);
+
+            sb.Begin(SpriteSortMode.BackToFront, null);
+            foreach (Segment seg in TrackSegments)
+            {
+                sb.Draw(mapSegment, offset+ (new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.White, 0f, new Vector2(7,7), 1.0f, SpriteEffects.None, 1);
+                sb.Draw(mapSegment, offset +(new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.Black, 0f, new Vector2(7,7), 0.8f, SpriteEffects.None, 0);
+            }
+            sb.End();
+
+            sb.Begin(SpriteSortMode.BackToFront, null);
+            foreach (Car c in cars.OrderByDescending(car => car.RacePosition))
+            {
+                if(!c.IsPlayerControlled)
+                    sb.Draw(mapSegment, offset + (new Vector2(c.Position.X, c.Position.Z) * scale), null, c.Tint, 0f, new Vector2(7, 7), 0.4f, SpriteEffects.None, 1);
+                else
+                    sb.Draw(mapSegment, offset + (new Vector2(c.Position.X, c.Position.Z) * scale), null, c.Tint, 0f, new Vector2(7, 7), 0.6f, SpriteEffects.None, 0);
+            }
+            sb.End();
+
+            gd.SetRenderTarget(null);
+        }
+
         public void DrawBatches(GraphicsDevice gd, BasicEffect basicEffect, AlphaTestEffect alphaEffect)
         {
             foreach (Batch b in Batches)
@@ -320,16 +395,16 @@ namespace Psuedo3DRacer.Common
                 int vi = 0;
                 int ii = 0;
 
-                foreach (Quad q in b.quads)
+                for (int q=0;q<b.quads.Count;q++)
                 {
-                    foreach (VertexPositionNormalTexture v in q.Vertices)
+                    for (int v = 0; v < b.quads[q].Vertices.Length;v++ )
                     {
-                        b.vpnts[vi] = v;
+                        b.vpnts[vi] = b.quads[q].Vertices[v];
                         vi++;
                     }
-                    foreach (short i in q.Indexes)
+                    for (int i = 0; i < b.quads[q].Indexes.Length;i++)
                     {
-                        b.indexes[ii] = (short)(i + (4*b.quads.IndexOf(q)));
+                        b.indexes[ii] = (short)(b.quads[q].Indexes[i] + (4 * q));
                         ii++;
                     }
                 }
@@ -420,7 +495,26 @@ namespace Psuedo3DRacer.Common
             return t;
         }
 
-        public static Track Load(string filename, ContentManager content, ParallaxManager pMan)
+#if !WINRT
+        public void AsyncLoad(object sender, DoWorkEventArgs e)
+        {
+#else
+        public async Task AsyncLoad()
+        {
+#endif
+            
+            foreach (string s in PackedSegments)
+            {
+                Segment seg = Segment.FromString(s);
+                TrackSegments.Add(seg);
+            }
+
+            PrepareBatches();
+
+            HasLoaded = true;
+        }
+
+        public static Track Load(string filename, ContentManager content, ParallaxManager pMan, bool async)
         {
             Track returnTrack = null;
 
@@ -433,18 +527,36 @@ namespace Psuedo3DRacer.Common
                 returnTrack = (Track)xmls.Deserialize(stream);
             }
 
-            foreach (string s in returnTrack.PackedSegments)
-            {
-                Segment seg = Segment.FromString(s);
-                returnTrack.TrackSegments.Add(seg);
-            }
-
             returnTrack.LoadContent(content);
             returnTrack.LoadHorizon(content, pMan);
 
-            returnTrack.PrepareBatches();
+            returnTrack.HasLoaded = false;
+
+            if (async)
+            {
+#if !WINRT
+            returnTrack.bgW.DoWork += returnTrack.AsyncLoad;
+            returnTrack.bgW.RunWorkerAsync();
+#else
+                ThreadPool.RunAsync(async delegate { returnTrack.AsyncLoad(); });
+#endif
+            }
+            else
+            {
+                foreach (string s in returnTrack.PackedSegments)
+                {
+                    Segment seg = Segment.FromString(s);
+                    returnTrack.TrackSegments.Add(seg);
+                }
+
+                returnTrack.PrepareBatches();
+
+                returnTrack.HasLoaded = true;
+            }
 
             return returnTrack;
         }
+
+       
     }
 }

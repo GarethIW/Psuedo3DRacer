@@ -17,6 +17,7 @@ namespace Psuedo3DRacer.Common
         public bool PositionFromBottom;
         public bool OneOnly;
 
+
         public ParallaxLayer(Texture2D tex, Vector2 pos, float speed, bool bottom, bool oneonly)
         {
             Texture = tex;
@@ -37,9 +38,13 @@ namespace Psuedo3DRacer.Common
 
         float rotation;
 
+        public float Scale;
+
         public ParallaxManager(Viewport vp)
         {
             viewport = vp;
+
+            Scale = (float)vp.Height / 720f;
         }
 
         public void Update(GameTime gameTime, Vector2 scrollPos)
@@ -62,7 +67,7 @@ namespace Psuedo3DRacer.Common
             {
                 if (!l.OneOnly)
                 {
-                    for (float x = (scrollPosition.X * l.ScrollSpeed) - (spriteBatch.GraphicsDevice.Viewport.Width*3); x < (scrollPosition.X * l.ScrollSpeed) + (spriteBatch.GraphicsDevice.Viewport.Width*3); x += l.Texture.Width)
+                    for (float x = (scrollPosition.X * l.ScrollSpeed) - (1280 *5); x < (scrollPosition.X * l.ScrollSpeed) + (1280 * 5); x += l.Texture.Width)
                     {
                         //if (l.Position.X + x > -l.Texture.Width)
                         //{

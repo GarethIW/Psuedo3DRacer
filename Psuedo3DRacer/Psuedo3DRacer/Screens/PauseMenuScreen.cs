@@ -81,8 +81,8 @@ namespace Psuedo3DRacer
         /// </summary>
         void ExitMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            LoadingScreen.Load(ScreenManager, false, e.PlayerIndex, new GameplayScreen(),
-                               new MainMenuScreen());
+           // LoadingScreen.Load(ScreenManager, false, e.PlayerIndex, new GameplayScreen(),
+             //                  new MainMenuScreen());
         }
 
 

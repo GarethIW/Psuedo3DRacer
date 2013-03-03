@@ -70,7 +70,8 @@ namespace Psuedo3DRacer
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            screenManager.AddScreen(new GameplayScreen(), null);
+            //screenManager.AddScreen(new GameplayScreen(), null);
+            screenManager.AddScreen(new SelectionScreen(), null);
 
 #if WINDOWS_PHONE
             renderTarget = new RenderTarget2D(GraphicsDevice, 1280, 768);
@@ -112,7 +113,7 @@ namespace Psuedo3DRacer
             GraphicsDevice.SetRenderTarget(renderTarget);
 #endif
 
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
 

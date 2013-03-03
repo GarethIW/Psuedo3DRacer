@@ -112,7 +112,7 @@ namespace Psuedo3DRacer
                 if (delayTime > 5000)
                 {
                     delayTime = 0;
-                    LoadingScreen.Load(ScreenManager, false, null, new GameplayScreen(), new MainMenuScreen());
+                    //LoadingScreen.Load(ScreenManager, false, null, new GameplayScreen(), new MainMenuScreen());
                 }
             }
 
@@ -128,7 +128,7 @@ namespace Psuedo3DRacer
 
             if (input.IsMenuSelect(ControllingPlayer, out playerIndex) || input.IsMenuCancel(ControllingPlayer, out playerIndex) || input.TapPosition.HasValue || input.MouseLeftClick)
             {
-                LoadingScreen.Load(ScreenManager, false, null, new GameplayScreen(), new MainMenuScreen());
+              //  LoadingScreen.Load(ScreenManager, false, null, new GameplayScreen(), new MainMenuScreen());
             }
            
 

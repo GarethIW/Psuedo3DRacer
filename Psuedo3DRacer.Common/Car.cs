@@ -32,6 +32,7 @@ namespace Psuedo3DRacer.Common
         public int RaceDistanceToGo = 0;
         public int LapsToGo = 0;
         public bool StartedFirstLap = false;
+        public bool Finished = false;
 
         bool countedLap = false;
 
@@ -284,13 +285,24 @@ namespace Psuedo3DRacer.Common
 
                 if (!StartedFirstLap) StartedFirstLap = true;
                 else LapsToGo--;
+
+                if (LapsToGo == 0)
+                {
+                    Finished = true;
+                    if (IsPlayerControlled)
+                    {
+                        IsPlayerControlled = false;
+                        courseTrackPos = 20;
+                        PlotCourse(track);
+                    }
+                }
             }
 
             if (currentTrackPos == track.Length / 2) countedLap = false;
 
             RaceDistanceToGo = ((LapsToGo + (StartedFirstLap?0:1)) * track.Length) - (currentTrackPos);
 
-            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition + " | " + overtaking + " | "+ currentPositionOnTrack;
+            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition + " | " + overtaking + " | "+ currentPositionOnTrack + " | " + SpeedWhenTurning;
         }
 
         public void Draw(GraphicsDevice gd, AlphaTestEffect effect, Camera gameCamera)
@@ -438,9 +450,25 @@ namespace Psuedo3DRacer.Common
 
                     if (randomNumber.Next(ConcentrationLevel) == 1)
                     {
-                        targetPositionOnTrack = ((float)randomNumber.NextDouble() * 0.8f) - 0.4f;
-
-                        correctionCountdown = CorrectionTime;
+                        if (targetPositionOnTrack > -0.25f && targetPositionOnTrack < 0.25f)
+                        {
+                            if (randomNumber.Next(2) == 1)
+                            {
+                                targetPositionOnTrack = ((float)randomNumber.NextDouble() * -0.2f) - 0.25f;
+                            }
+                            else
+                            {
+                                targetPositionOnTrack = ((float)randomNumber.NextDouble() * 0.2f) + 0.25f;
+                            }
+                        }
+                        else if (targetPositionOnTrack <= -0.25f)
+                        {
+                            targetPositionOnTrack = ((float)randomNumber.NextDouble() * 0.45f);
+                        }
+                        else if (targetPositionOnTrack >= 0.25f)
+                        {
+                            targetPositionOnTrack = ((float)randomNumber.NextDouble() * -0.45f);
+                        }
                     }
                 }
             }
@@ -514,7 +542,7 @@ namespace Psuedo3DRacer.Common
             courseTrackPos = trackPos + 20 + randomNumber.Next(30);
             currentTrackPos = trackPos;
 
-            Vector3 leftV = Vector3.Cross(track.TrackSegments[Helper.WrapInt(trackPos, track.TrackSegments.Count - 1)].Normal, Vector3.Up);
+            Vector3 leftV = -Vector3.Cross(track.TrackSegments[Helper.WrapInt(trackPos, track.TrackSegments.Count - 1)].Normal, Vector3.Up);
             Vector3 offsetVect = leftV * offset;
 
             PlotCourse(track);
