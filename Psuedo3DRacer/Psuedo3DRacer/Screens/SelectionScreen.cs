@@ -103,7 +103,9 @@ namespace Psuedo3DRacer
             TransitionOnTime = TimeSpan.FromSeconds(1);
             TransitionOffTime = TimeSpan.FromSeconds(1);
 
+#if WINRT || WINDOWS_PHONE || TOUCH
             EnabledGestures = GestureType.Tap;
+#endif
         }
 
 
