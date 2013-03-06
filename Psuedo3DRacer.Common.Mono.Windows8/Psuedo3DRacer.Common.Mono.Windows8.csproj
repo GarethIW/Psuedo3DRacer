@@ -126,7 +126,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Framework">
+    <Reference Include="MonoGame.Framework, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\MonoGame\MonoGame.Framework\bin\Windows8\Debug\MonoGame.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>

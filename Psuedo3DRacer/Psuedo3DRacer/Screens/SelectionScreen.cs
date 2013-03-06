@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Psuedo3DRacer.Common;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Input;
 #if WINRT || WINDOWS_PHONE || TOUCH
 using Microsoft.Xna.Framework.Input.Touch;
 #endif
@@ -59,6 +60,9 @@ namespace Psuedo3DRacer
         Rectangle greenRect;
         Rectangle blueRect;
 
+        Rectangle leftRect;
+        Rectangle rightRect;
+
         Color carColor = new Color(255, 255, 255);
 
         Texture2D[] texCarDirections;
@@ -104,7 +108,7 @@ namespace Psuedo3DRacer
             TransitionOffTime = TimeSpan.FromSeconds(1);
 
 #if WINRT || WINDOWS_PHONE || TOUCH
-            EnabledGestures = GestureType.Tap;
+            EnabledGestures = GestureType.Tap | GestureType.HorizontalDrag |GestureType.Flick;
 #endif
         }
 
@@ -121,6 +125,7 @@ namespace Psuedo3DRacer
             if (content == null)
                 content = new ContentManager(ScreenManager.Game.Services, "Psuedo3DRacer.Content");
 
+            LoadTex("arrow");
             LoadTex("blank");
             LoadTex("blank-track");
             LoadTex("banner-bottom");
@@ -143,7 +148,7 @@ namespace Psuedo3DRacer
                 texCarDirections[dir] = content.Load<Texture2D>("cars/0-" + dir + "-0");
             }
 
-            Parallax = new ParallaxManager(ScreenManager.GraphicsDevice.Viewport);
+            Parallax = new ParallaxManager(ScreenManager.Viewport);
             Camera = new Camera(ScreenManager.GraphicsDevice);
             Track = Track.Load("track000", content, Parallax, false);
 
@@ -168,9 +173,9 @@ namespace Psuedo3DRacer
             bannerTop1Pos = new Vector2(150, -230);
             bannerTop2Pos = new Vector2(400, -230);
 
-            CarPos = new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, -250f);
-            SpotPos = new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height + 500f);
-            PaintPos = new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height + 500f);
+            CarPos = new Vector2(ScreenManager.Viewport.Width / 2, -250f);
+            SpotPos = new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height + 500f);
+            PaintPos = new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height + 500f);
 
             Cups.Add(new Cup());
             Cups.Add(new Cup());
@@ -178,7 +183,7 @@ namespace Psuedo3DRacer
             Cups.Add(new Cup());
             Cups.Add(new Cup());
 
-            cupPosition = new Vector2(ScreenManager.GraphicsDevice.Viewport.Width + 500, ScreenManager.GraphicsDevice.Viewport.Height / 2);
+            cupPosition = new Vector2(ScreenManager.Viewport.Width + 500, ScreenManager.Viewport.Height / 2);
             for (int i = selectedCup - 2; i <= selectedCup + 2; i++)
             {
                 if (i >= 0 && i < Cups.Count)
@@ -192,7 +197,10 @@ namespace Psuedo3DRacer
             cupTrackRT[1] = new RenderTarget2D(ScreenManager.GraphicsDevice, 193, 108, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             cupTrackRT[2] = new RenderTarget2D(ScreenManager.GraphicsDevice, 193, 108, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
 
-            
+            leftRect = new Rectangle(0, ScreenManager.Viewport.Height - 75, 150, 50);
+            rightRect = new Rectangle(ScreenManager.Viewport.Width-150, ScreenManager.Viewport.Height - 75, 150, 50);
+
+            ScreenManager.Game.ResetElapsedTime();
         }
 
         void LoadTex(string name)
@@ -210,6 +218,7 @@ namespace Psuedo3DRacer
 
                 trackPos[i] = cupTracks[i].Length - 50;
             }
+            ScreenManager.Game.ResetElapsedTime();
         }
 
         /// <summary>
@@ -257,13 +266,13 @@ namespace Psuedo3DRacer
                 bannerBottom1Pos = bannerTop1Pos + new Vector2(0, 210);
                 bannerTop2Pos = Vector2.Lerp(bannerTop2Pos, new Vector2(400, -230), 0.1f);
                 bannerBottom2Pos = bannerTop2Pos + new Vector2(0, 210);
-                CarPos = Vector2.Lerp(CarPos, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height-50)/2, 0.1f);
+                CarPos = Vector2.Lerp(CarPos, new Vector2(ScreenManager.Viewport.Width, ScreenManager.Viewport.Height-50)/2, 0.1f);
                 carScale = MathHelper.Lerp(carScale, 1f, 0.1f);
-                SpotPos = Vector2.Lerp(SpotPos, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height+100)/2, 0.1f);
-                PaintPos = Vector2.Lerp(PaintPos, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width/2, ScreenManager.GraphicsDevice.Viewport.Height - 150) , 0.1f);
+                SpotPos = Vector2.Lerp(SpotPos, new Vector2(ScreenManager.Viewport.Width, ScreenManager.Viewport.Height+100)/2, 0.1f);
+                PaintPos = Vector2.Lerp(PaintPos, new Vector2(ScreenManager.Viewport.Width/2, ScreenManager.Viewport.Height - 150) , 0.1f);
                 paintCarAlpha = MathHelper.Lerp(paintCarAlpha, 1f, 0.1f);
 
-                cupPosition = Vector2.Lerp(cupPosition, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width + 500, ScreenManager.GraphicsDevice.Viewport.Height / 2), 0.1f);
+                cupPosition = Vector2.Lerp(cupPosition, new Vector2(ScreenManager.Viewport.Width + 500, ScreenManager.Viewport.Height / 2), 0.1f);
                 
             }
             else
@@ -277,11 +286,11 @@ namespace Psuedo3DRacer
                 carScale = MathHelper.Lerp(carScale, 0.5f, 0.1f);
                 CarPos = Vector2.Lerp(CarPos, bannerBottom1Pos - new Vector2(0, ((bannerBottom1Pos.Y - (bannerTop1Pos.Y + texList["banner-top"].Height)) / 2) - 1f), 0.1f);
 
-                SpotPos = Vector2.Lerp(SpotPos, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height + 500f), 0.1f);
-                PaintPos = Vector2.Lerp(PaintPos, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height + 500f), 0.1f);
+                SpotPos = Vector2.Lerp(SpotPos, new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height + 500f), 0.1f);
+                PaintPos = Vector2.Lerp(PaintPos, new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height + 500f), 0.1f);
 
 
-                cupPosition = Vector2.Lerp(cupPosition, new Vector2(500 + ((ScreenManager.GraphicsDevice.Viewport.Width - 500)/2), ScreenManager.GraphicsDevice.Viewport.Height / 2), 0.1f);
+                cupPosition = Vector2.Lerp(cupPosition, new Vector2(500 + ((ScreenManager.Viewport.Width - 500)/2), ScreenManager.Viewport.Height / 2), 0.1f);
 
                 for (int i = 0; i < 3; i++)
                 {
@@ -340,7 +349,9 @@ namespace Psuedo3DRacer
             if (selectionMode == 0)
             {
                 if (input.CurrentKeyboardStates[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Left) ||
-                   input.CurrentKeyboardStates[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.A))
+                   input.CurrentKeyboardStates[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.A) ||
+                    input.CurrentGamePadStates[0].ThumbSticks.Left.X<-0.2f ||
+                    input.CurrentGamePadStates[0].DPad.Left == ButtonState.Pressed)
                 {
                     switch (selectedColor)
                     {
@@ -357,7 +368,9 @@ namespace Psuedo3DRacer
 
                 }
                 if (input.CurrentKeyboardStates[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Right) ||
-                   input.CurrentKeyboardStates[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.D))
+                   input.CurrentKeyboardStates[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.D) ||
+                    input.CurrentGamePadStates[0].ThumbSticks.Left.X > 0.2f ||
+                    input.CurrentGamePadStates[0].DPad.Right == ButtonState.Pressed)
                 {
                     switch (selectedColor)
                     {
@@ -374,30 +387,62 @@ namespace Psuedo3DRacer
                 }
 
                 if (input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Up, null, out player) ||
-                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.W, null, out player))
+                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.W, null, out player) ||
+                    input.IsMenuUp(null))
                 {
                     selectedColor--;
                     if (selectedColor == -1) selectedColor = 2;
                 }
                 if (input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Down, null, out player) ||
-                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.S, null, out player))
+                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.S, null, out player) ||
+                    input.IsMenuDown(null))
                 {
                     selectedColor++;
                     if (selectedColor == 3) selectedColor = 0;
                 }
 
                 if (input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Enter, null, out player) ||
-                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Space, null, out player))
+                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Space, null, out player) ||
+                    input.IsMenuSelect(null, out player))
                 {
                     selectionMode = 1;
                     LoadTracks(selectedCup);
                 }
 
 #if WINRT || WINDOWS_PHONE || TOUCH
+                foreach (GestureSample gest in input.Gestures)
+                {
+                    if (gest.GestureType == GestureType.HorizontalDrag)
+                    {
+                        if (redRect.Contains(new Point((int)gest.Position.X, (int)gest.Position.Y)))
+                        {
+                            carColor.R = (byte)MathHelper.Clamp((25f + (230f / 400f) * ((gest.Position.X - (float)redRect.Left))), 25f, 255f);
+                            selectedColor = 0;
+                        }
+                        if (greenRect.Contains(new Point((int)gest.Position.X, (int)gest.Position.Y)))
+                        {
+                            carColor.G = (byte)MathHelper.Clamp((25f + (230f / 400f) * ((gest.Position.X - (float)greenRect.Left))), 25f, 255f);
+                            selectedColor = 1;
+                        }
+                        if (blueRect.Contains(new Point((int)gest.Position.X, (int)gest.Position.Y)))
+                        {
+                            carColor.B = (byte)MathHelper.Clamp((25f + (230f / 400f) * ((gest.Position.X - (float)blueRect.Left))), 25f, 255f);
+                            selectedColor = 2;
+                        }
+                    }
+                }
+
                 if (input.TapGesture != null)
                 {
-                    selectionMode = 1;
-                    LoadTracks(selectedCup);
+#if WINDOWS_PHONE
+                    if (rightRect.Contains(new Point((int)input.TapGesture.Value.Position.Y, ScreenManager.Viewport.Height - (int)input.TapGesture.Value.Position.X)))
+#else
+                    if (rightRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
+#endif
+                    {
+                        selectionMode = 1;
+                        LoadTracks(selectedCup);
+                    }
                 }
 
 #endif
@@ -406,20 +451,25 @@ namespace Psuedo3DRacer
             else
             {
                 if (input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Escape, null, out player) ||
-                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Back, null, out player))
+                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Back, null, out player) ||
+                    input.IsMenuCancel(null, out player))
                 {
                     selectionMode = 0;
                 }
 
                 if (input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Left, null, out player) ||
-                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.A, null, out player))
+                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.A, null, out player) ||
+                    (input.CurrentGamePadStates[0].ThumbSticks.Left.X<-0.2f && input.LastGamePadStates[0].ThumbSticks.Left.X>=-0.2f) ||
+                    input.CurrentGamePadStates[0].DPad.Left == ButtonState.Pressed && input.LastGamePadStates[0].DPad.Left != ButtonState.Pressed)
                 {
                     selectedCup--;
                     if (selectedCup == -1) selectedCup = 0;
                     else LoadTracks(selectedCup);
                 }
                 if (input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Right, null, out player) ||
-                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.D, null, out player))
+                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.D, null, out player) ||
+                    (input.CurrentGamePadStates[0].ThumbSticks.Left.X > 0.2f && input.LastGamePadStates[0].ThumbSticks.Left.X <= 0.2f) ||
+                    input.CurrentGamePadStates[0].DPad.Right == ButtonState.Pressed && input.LastGamePadStates[0].DPad.Right != ButtonState.Pressed)
                 {
                     selectedCup++;
                     if (selectedCup == Cups.Count) selectedCup = Cups.Count-1;
@@ -427,16 +477,51 @@ namespace Psuedo3DRacer
                 }
 
                 if (input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Enter, null, out player) ||
-                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Space, null, out player))
+                   input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Space, null, out player) ||
+                    input.IsMenuSelect(null, out player))
                 {
                     ExitScreen();
                     //
                 }
 
 #if WINRT || WINDOWS_PHONE || TOUCH
+
+                foreach (GestureSample gest in input.Gestures)
+                {
+                    if (gest.GestureType == GestureType.Flick)
+                    {
+                       
+                            if (gest.Delta.X > 0f)
+                            {
+                                selectedCup--;
+                                if (selectedCup == -1) selectedCup = 0;
+                                else LoadTracks(selectedCup);
+                            }
+
+                            if (gest.Delta.X < 0f)
+                            {
+                                selectedCup++;
+                                if (selectedCup == Cups.Count) selectedCup = Cups.Count - 1;
+                                else LoadTracks(selectedCup);
+                            }
+                       
+                    }
+                }
+
                 if (input.TapGesture != null)
                 {
-                    ExitScreen();
+#if WINDOWS_PHONE
+                    if (rightRect.Contains(new Point((int)input.TapGesture.Value.Position.Y, ScreenManager.Viewport.Height - (int)input.TapGesture.Value.Position.X)))
+#else
+                    if (rightRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
+#endif
+                    {
+                        ExitScreen();
+                    }
+                    if (leftRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
+                    {
+                        selectionMode = 0;
+                    }
                 }
 
 #endif
@@ -454,7 +539,7 @@ namespace Psuedo3DRacer
         public override void Draw(GameTime gameTime)
         {
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-            Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport = ScreenManager.Viewport;
             Rectangle fullscreen = new Rectangle(0, 0, viewport.Width, viewport.Height);
 
             Vector3 horizV;
@@ -483,7 +568,7 @@ namespace Psuedo3DRacer
                     cupTrackPM[i].Update(gameTime, new Vector2(((1280 * 4) / MathHelper.TwoPi) * Camera.Yaw, 0f));
 
                     horizV = new Vector3(0, 0f, -200);
-                    horiz = ScreenManager.GraphicsDevice.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
+                    horiz = ScreenManager.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
                     horizHeight = horiz.Y - (25f * cupTrackPM[i].Scale);
                     ScreenManager.SpriteBatch.Begin();
                     ScreenManager.SpriteBatch.Draw(texList["blank"], new Rectangle(cupTrackRT[i].Width / 2, (int)horizHeight, cupTrackRT[i].Width * 2, (cupTrackRT[i].Height - (int)horizHeight) + 400), null, cupTracks[i].GroundColor, 0f, new Vector2(0.5f, 0), SpriteEffects.None, 1);
@@ -515,12 +600,12 @@ namespace Psuedo3DRacer
 
             ScreenManager.GraphicsDevice.Clear(Track.SkyColor);
             horizV = new Vector3(0, 0f, -200);
-            horiz = ScreenManager.GraphicsDevice.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
+            horiz = ScreenManager.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
             horizHeight = horiz.Y - (25 * Parallax.Scale);
             ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.Draw(texList["blank"], new Rectangle(ScreenManager.GraphicsDevice.Viewport.Width / 2, (int)horizHeight, ScreenManager.GraphicsDevice.Viewport.Width * 2, (ScreenManager.GraphicsDevice.Viewport.Height - (int)horizHeight) + 400), null, Track.GroundColor, 0f, new Vector2(0.5f, 0), SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.Draw(texList["blank"], new Rectangle(ScreenManager.Viewport.Width / 2, (int)horizHeight, ScreenManager.Viewport.Width * 2, (ScreenManager.Viewport.Height - (int)horizHeight) + 400), null, Track.GroundColor, 0f, new Vector2(0.5f, 0), SpriteEffects.None, 1);
             ScreenManager.SpriteBatch.End();
-            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(Parallax.Scale, Parallax.Scale,1f)) * Matrix.CreateTranslation(new Vector3(ScreenManager.GraphicsDevice.Viewport.Width / 2, horizHeight, 0f)));
+            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(Parallax.Scale, Parallax.Scale,1f)) * Matrix.CreateTranslation(new Vector3(ScreenManager.Viewport.Width / 2, horizHeight, 0f)));
             Parallax.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
 
@@ -550,6 +635,9 @@ namespace Psuedo3DRacer
             spriteBatch.Draw(texList["triangles"], new Vector2(redRect.Left+4, redRect.Top + 24) + new Vector2((400f/230f) * (float)(carColor.R-25),0f), null, selectedColor==0?Color.White:Color.Black, 0f, new Vector2(texList["triangles"].Width, texList["triangles"].Height) / 2, 1f, SpriteEffects.None, 1);
             spriteBatch.Draw(texList["triangles"], new Vector2(greenRect.Left + 4, greenRect.Top + 24) + new Vector2((400f / 230f) * (float)(carColor.G - 25), 0f), null, selectedColor == 1 ? Color.White : Color.Black, 0f, new Vector2(texList["triangles"].Width, texList["triangles"].Height) / 2, 1f, SpriteEffects.None, 1);
             spriteBatch.Draw(texList["triangles"], new Vector2(blueRect.Left + 4, blueRect.Top + 24) + new Vector2((400f / 230f) * (float)(carColor.B - 25), 0f), null, selectedColor == 2 ? Color.White : Color.Black, 0f, new Vector2(texList["triangles"].Width, texList["triangles"].Height) / 2, 1f, SpriteEffects.None, 1);
+
+            spriteBatch.Draw(texList["arrow"], new Vector2(leftRect.Center.X, leftRect.Center.Y), null, Color.LightGray, 0f, new Vector2(texList["arrow"].Width, texList["arrow"].Height) / 2, 1f, SpriteEffects.FlipHorizontally, 1);
+            spriteBatch.Draw(texList["arrow"], new Vector2(rightRect.Center.X, rightRect.Center.Y), null, Color.LightGray, 0f, new Vector2(texList["arrow"].Width, texList["arrow"].Height) / 2, 1f, SpriteEffects.None, 1);
 
             spriteBatch.End();
 

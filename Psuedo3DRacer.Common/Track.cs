@@ -309,8 +309,13 @@ namespace Psuedo3DRacer.Common
             sb.Begin(SpriteSortMode.BackToFront, null);
             foreach (Segment seg in TrackSegments)
             {
-                sb.Draw(mapSegment, offset+ (new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.White, 0f, new Vector2(7,7), 1.0f, SpriteEffects.None, 1);
-                sb.Draw(mapSegment, offset +(new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.Black, 0f, new Vector2(7,7), 0.8f, SpriteEffects.None, 0);
+                sb.Draw(mapSegment, offset+ (new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.White, 0f, new Vector2(7,7), 1.0f, SpriteEffects.None, 0.9f);
+                sb.Draw(mapSegment, offset +(new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.Black, 0f, new Vector2(7,7), 0.8f, SpriteEffects.None, 0.1f);
+                if (TrackSegments.IndexOf(seg) == 0)
+                {
+                    float angle = Helper.WrapAngle((float)Math.Atan2(-seg.Normal.X, seg.Normal.Z));
+                    sb.Draw(mapSegment, offset + (new Vector2(seg.Position.X, seg.Position.Z) * scale), new Rectangle(0,6,15,3), Color.White, angle, new Vector2(8, 1), 1.1f, SpriteEffects.None, 0f);
+                }
             }
             sb.End();
 

@@ -142,7 +142,7 @@ namespace Psuedo3DRacer
         public override void Draw(GameTime gameTime)
         {
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-            Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport = ScreenManager.Viewport;
             Rectangle fullscreen = new Rectangle(0, 0, viewport.Width, viewport.Height);
 
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 0.2f);
@@ -152,7 +152,7 @@ namespace Psuedo3DRacer
             //spriteBatch.Draw(texBG, fullscreen,
               //               Color.White * TransitionAlpha * (0.5f + (0.5f * TransitionPosition)));
 
-            ScreenManager.SpriteBatch.Draw(texBG, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height / 2), null, Color.White * TransitionAlpha, 0f, new Vector2(texBG.Width, texBG.Height) / 2, 1f + (5f * (!IsExiting?TransitionPosition:0f)), SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.Draw(texBG, new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 2), null, Color.White * TransitionAlpha, 0f, new Vector2(texBG.Width, texBG.Height) / 2, 1f + (5f * (!IsExiting?TransitionPosition:0f)), SpriteEffects.None, 1);
            
 
             spriteBatch.End();

@@ -40,7 +40,7 @@ namespace Psuedo3DRacer.Common
 
         bool hasStarted = false;
 
-        bool applyingThrottle = false;
+        float applyingThrottle = 0f;
         bool applyingBrake = false;
         float applyingSteering = 0;
 
@@ -144,7 +144,7 @@ namespace Psuedo3DRacer.Common
                     if (correctionCountdown <= 0)
                     {
                         hasStarted = true;
-                        applyingThrottle = true;
+                        applyingThrottle = 1f;
 
                         correctionCountdown = ReactionTime;
                     }
@@ -164,11 +164,11 @@ namespace Psuedo3DRacer.Common
                 {
                     if (Math.Abs(currentPositionOnTrack - targetPositionOnTrack) > 0.02f)
                     {
-                        if (Speed > SpeedWhenTurning) applyingThrottle = false;
+                        if (Speed > SpeedWhenTurning) applyingThrottle = 0f;
                         else
-                            applyingThrottle = true;
+                            applyingThrottle = 1f;
                     }
-                    else applyingThrottle = true;
+                    else applyingThrottle = 1f;
                 }
 
                 if (correctionCountdown > 0) correctionCountdown -= gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -235,10 +235,23 @@ namespace Psuedo3DRacer.Common
 
             if (spinTime <= 0)
             {
-                if (applyingThrottle) Speed += 0.0004f;
-                else Speed -= 0.0004f;
-                if (applyingBrake) Speed -= 0.001f;
-                Speed = MathHelper.Clamp(Speed, 0f, 0.06f);
+                if (applyingThrottle > 0f)
+                {
+                    if(Speed< 0.06f * applyingThrottle)
+                        Speed += 0.0004f;
+                    else
+                        Speed -= 0.0004f;
+                }
+                else
+                {
+                    Speed -= 0.0004f;
+                }
+                if (applyingBrake)
+                {
+                    Speed -= 0.001f;
+                    
+                }
+                Speed = MathHelper.Clamp(Speed, 0f, (0.06f));
             }
 
             if (spinTime > 0)
@@ -302,7 +315,7 @@ namespace Psuedo3DRacer.Common
 
             RaceDistanceToGo = ((LapsToGo + (StartedFirstLap?0:1)) * track.Length) - (currentTrackPos);
 
-            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition + " | " + overtaking + " | "+ currentPositionOnTrack + " | " + SpeedWhenTurning;
+            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition;
         }
 
         public void Draw(GraphicsDevice gd, AlphaTestEffect effect, Camera gameCamera)
@@ -564,9 +577,9 @@ namespace Psuedo3DRacer.Common
             CameraLookat = Position + Vector3.Transform(new Vector3(0, 0.25f, -1f), rot);
         }
 
-        public void ApplyThrottle(bool isApplied)
+        public void ApplyThrottle(float applied)
         {
-            applyingThrottle = isApplied;
+            applyingThrottle = applied;
         }
 
         public void ApplyBrake(bool isApplied)

@@ -34,7 +34,9 @@ namespace Psuedo3DRacer
             graphics.PreferredBackBufferHeight = 720;
 #endif
 #if WINRT || WINDOWS_PHONE
-            graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+            //graphics.PreferredBackBufferWidth = 1280;
+            //graphics.PreferredBackBufferHeight = 768;
+            //graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
 #endif
             graphics.ApplyChanges();
 
@@ -74,7 +76,7 @@ namespace Psuedo3DRacer
             screenManager.AddScreen(new SelectionScreen(), null);
 
 #if WINDOWS_PHONE
-            renderTarget = new RenderTarget2D(GraphicsDevice, 1280, 768);
+            renderTarget = new RenderTarget2D(GraphicsDevice, 1280, 768, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
 #endif
         }
 

@@ -90,7 +90,7 @@ namespace Psuedo3DRacer
             return new Rectangle(
                 0,
                 (int)entry.Position.Y - menuEntryPadding- 10,
-                ScreenManager.GraphicsDevice.Viewport.Width,
+                ScreenManager.Viewport.Width,
                 entry.GetHeight(this) + (menuEntryPadding * 2));
         }
 
@@ -203,7 +203,7 @@ namespace Psuedo3DRacer
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
 
             // start at Y = 175; each X value is generated per entry
-            Vector2 position = new Vector2(0f, ScreenManager.GraphicsDevice.Viewport.Height/3 + 140f);
+            Vector2 position = new Vector2(0f, ScreenManager.Viewport.Height/3 + 140f);
 
             // update each menu entry's location in turn
             for (int i = 0; i < menuEntries.Count; i++)
@@ -211,7 +211,7 @@ namespace Psuedo3DRacer
                 MenuEntry menuEntry = menuEntries[i];
                 
                 // each entry is to be centered horizontally
-                position.X = (ScreenManager.GraphicsDevice.Viewport.Width - scoresMargin) / 2;// -menuEntry.GetWidth(this) / 2;
+                position.X = (ScreenManager.Viewport.Width - scoresMargin) / 2;// -menuEntry.GetWidth(this) / 2;
 
                 menuEntry.Zoom = 1f;
 

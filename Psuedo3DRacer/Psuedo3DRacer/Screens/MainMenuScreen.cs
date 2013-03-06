@@ -137,10 +137,10 @@ namespace Psuedo3DRacer
             ScreenManager.FadeBackBufferToBlack(bgAlpha);
 
             ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.Draw(texLogo, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width/2, ScreenManager.GraphicsDevice.Viewport.Height/3) , null, Color.White * TransitionAlpha, 0f, new Vector2(texLogo.Width, texLogo.Height) / 2, 1f, SpriteEffects.None, 1);
-            ScreenManager.SpriteBatch.DrawString(gameFont, "One-level Prototype for #1GAM 2013", new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height / 3) + new Vector2(0, 40), Color.White * TransitionAlpha, 0f, gameFont.MeasureString("One-level Prototype for #1GAM 2013") / 2, 1f, SpriteEffects.None, 1);
-            ScreenManager.SpriteBatch.DrawString(gameFont, "onegameamonth.com/garethiw", new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height / 3) + new Vector2(0, 60), Color.White * TransitionAlpha, 0f, gameFont.MeasureString("onegameamonth.com/garethiw") / 2, 1f, SpriteEffects.None, 1);
-            ScreenManager.SpriteBatch.DrawString(gameFont, "Controls: A/D - move left/right, Space - use GravPad, Left Mouse - SHOOT STUFF", new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Height / 3) + new Vector2(0, 85), Color.White * TransitionAlpha, 0f, gameFont.MeasureString("Controls: A/D - move left/right, Space - use GravPad, Left Mouse - SHOOT STUFF") / 2, 0.8f, SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.Draw(texLogo, new Vector2(ScreenManager.Viewport.Width/2, ScreenManager.Viewport.Height/3) , null, Color.White * TransitionAlpha, 0f, new Vector2(texLogo.Width, texLogo.Height) / 2, 1f, SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.DrawString(gameFont, "One-level Prototype for #1GAM 2013", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 40), Color.White * TransitionAlpha, 0f, gameFont.MeasureString("One-level Prototype for #1GAM 2013") / 2, 1f, SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.DrawString(gameFont, "onegameamonth.com/garethiw", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 60), Color.White * TransitionAlpha, 0f, gameFont.MeasureString("onegameamonth.com/garethiw") / 2, 1f, SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.DrawString(gameFont, "Controls: A/D - move left/right, Space - use GravPad, Left Mouse - SHOOT STUFF", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 85), Color.White * TransitionAlpha, 0f, gameFont.MeasureString("Controls: A/D - move left/right, Space - use GravPad, Left Mouse - SHOOT STUFF") / 2, 0.8f, SpriteEffects.None, 1);
 
             ScreenManager.SpriteBatch.End();
 

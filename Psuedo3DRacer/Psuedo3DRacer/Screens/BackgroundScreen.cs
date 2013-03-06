@@ -59,7 +59,7 @@ namespace Psuedo3DRacer
 
             texBG = content.Load<Texture2D>("blank-white");
 
-            //parallaxManager = new ParallaxManager(ScreenManager.GraphicsDevice.Viewport);
+            //parallaxManager = new ParallaxManager(ScreenManager.Viewport);
         }
 
 
@@ -102,7 +102,7 @@ namespace Psuedo3DRacer
         public override void Draw(GameTime gameTime)
         {
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-            Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport = ScreenManager.Viewport;
             Rectangle fullscreen = new Rectangle(0, 0, viewport.Width, viewport.Height);
 
             spriteBatch.Begin();

@@ -416,9 +416,9 @@ namespace Pseudo3DRacer
                 else
                 {
                     if (cks.IsKeyDown(Keys.Up) || cks.IsKeyDown(Keys.W))
-                        Cars[7].ApplyThrottle(true);
+                        Cars[7].ApplyThrottle(1f);
                     else
-                        Cars[7].ApplyThrottle(false);
+                        Cars[7].ApplyThrottle(0f);
 
                     if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
                         Cars[7].ApplyBrake(true);

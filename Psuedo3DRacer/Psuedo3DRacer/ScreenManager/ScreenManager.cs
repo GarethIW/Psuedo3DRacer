@@ -73,6 +73,8 @@ namespace Psuedo3DRacer
         }
 
 
+        public Viewport Viewport;
+
         /// <summary>
         /// If true, the manager prints out a list of all the screens
         /// each time it is updated. This can be useful for making sure
@@ -125,6 +127,12 @@ namespace Psuedo3DRacer
             // Load content belonging to the screen manager.
             ContentManager content = Game.Content;
 
+#if !WINDOWS_PHONE
+            Viewport = GraphicsDevice.Viewport;
+#else
+            Viewport = new Viewport(0,0,1280,768);
+#endif
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
             font = content.Load<SpriteFont>("font");
             blankTexture = content.Load<Texture2D>("blank");
@@ -160,6 +168,11 @@ namespace Psuedo3DRacer
         /// </summary>
         public override void Update(GameTime gameTime)
         {
+#if !WINDOWS_PHONE
+            Viewport = GraphicsDevice.Viewport;
+#else
+            Viewport = new Viewport(0,0,1280,768);
+#endif
             // Read the keyboard and gamepad.
             input.Update();
 

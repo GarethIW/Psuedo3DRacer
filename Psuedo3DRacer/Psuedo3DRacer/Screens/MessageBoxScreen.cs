@@ -180,7 +180,7 @@ namespace Psuedo3DRacer
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 
             // Center the message text in the viewport.
-            Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport = ScreenManager.Viewport;
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
             Vector2 textSize = font.MeasureString(message);
             Vector2 textPosition = (viewportSize - textSize) / 2;

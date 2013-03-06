@@ -38,6 +38,9 @@
     <StartupObject>Psuedo3DRacer.Mono.Windows.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\HUD.cs">
+      <Link>HUD.cs</Link>
+    </Compile>
     <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Psuedo3DRacer.cs">
       <Link>Psuedo3DRacer.cs</Link>
     </Compile>
@@ -79,6 +82,9 @@
     </Compile>
     <Compile Include="..\psuedo3dracer\psuedo3dracer\screens\PlayerIndexEventArgs.cs">
       <Link>Screens\PlayerIndexEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Psuedo3DRacer\Psuedo3DRacer\Screens\SelectionScreen.cs">
+      <Link>Screens\SelectionScreen.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
