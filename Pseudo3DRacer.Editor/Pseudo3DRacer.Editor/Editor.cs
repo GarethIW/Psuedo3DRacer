@@ -95,7 +95,7 @@ namespace Pseudo3DRacer
         /// </summary>
         protected override void LoadContent()
         {
-            Camera = new Camera(GraphicsDevice);
+            Camera = new Camera(GraphicsDevice, GraphicsDevice.Viewport);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 

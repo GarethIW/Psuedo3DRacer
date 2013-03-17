@@ -23,7 +23,7 @@ namespace Psuedo3DRacer
 
         ScreenManager screenManager;
 
-        RenderTarget2D renderTarget;
+        public static RenderTarget2D renderTarget;
 
         public Psuedo3DRacer()
         {

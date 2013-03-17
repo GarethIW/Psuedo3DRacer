@@ -19,6 +19,7 @@ namespace Psuedo3DRacer.Common
         public float Yaw;
         public float Pitch;
         public float Speed = 0.0f;
+        Vector3 travellingDirection;
 
         public Vector3 CameraPosition;
         public Vector3 CameraLookat;
@@ -33,6 +34,8 @@ namespace Psuedo3DRacer.Common
         public int LapsToGo = 0;
         public bool StartedFirstLap = false;
         public bool Finished = false;
+
+        public int CupPoints = 0;
 
         bool countedLap = false;
 
@@ -68,7 +71,7 @@ namespace Psuedo3DRacer.Common
         Vector3 target;
         public int courseTrackPos = 0;
 
-        Texture2D[] texDirections1;
+        public Texture2D[] texDirections1;
         Texture2D[] texDirections2;
         Texture2D[] texTurnLeft;
         Texture2D[] texTurnRight;
@@ -78,25 +81,21 @@ namespace Psuedo3DRacer.Common
         int animFrame = 0;
         double animTime = 0;
 
-        float testPitch;
 
         public Car(int trackPos, float offset, Track track, Color tint)
         {
             Tint = tint;
 
-            StartedFirstLap = false;
-            RaceDistanceToGo = 3 * track.Length;
-            LapsToGo = 3;
+            
 
             ConcentrationLevel = 50 + randomNumber.Next(1900);
             CorrectionTime = 500 + (randomNumber.NextDouble() * 4500);
             SpeedWhenTurning = 0.045f + ((float)randomNumber.NextDouble() * 0.01f);
             ReactionTime = 100 + (randomNumber.NextDouble() * 1900);
+
+            Reset(trackPos, offset, track);
+
             
-
-            SetPosition(trackPos, track, offset);
-
-            correctionCountdown = ReactionTime;
         }
 
         public void LoadContent(ContentManager content, int carnum)
@@ -118,6 +117,45 @@ namespace Psuedo3DRacer.Common
                 texTurnRight[turn] = content.Load<Texture2D>("cars/" + carnum + "-turnr" + turn + "-0");
                 texTurnRight[turn+3] = content.Load<Texture2D>("cars/" + carnum + "-turnr" + turn + "-1");
             }
+
+        }
+
+        public void Reset(int trackPos, float offset, Track track)
+        {
+            StartedFirstLap = false;
+            RaceDistanceToGo = 3 * track.Length;
+            LapsToGo = 3;
+            Finished = false;
+
+            Yaw = 0f;
+            Pitch = 0f;
+
+            SetPosition(trackPos, track, offset);
+
+            correctionCountdown = ReactionTime;
+
+            Speed = 0f;
+            hasStarted = false;
+
+
+            countedLap = false;
+            applyingBrake = false;
+            applyingThrottle = 0f;
+            applyingSteering = 0f;
+            steeringAmount = 0f;
+
+            currentTrackPos = 0;
+            prevTrackPos = 0;
+
+            offRoad = false;
+
+            overtaking = false;
+
+            spinTime = 0;
+            spinSpeed = 0f;
+            spinAnimFrame = 0;
+            spinAnimTime = 0;
+
 
         }
 
@@ -179,7 +217,6 @@ namespace Psuedo3DRacer.Common
                 float targetDist = targetnorm.Length();
                 Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
                 Pitch = (float)Math.Atan2(-targetnorm.Y, targetDist);
-               
 
             }
             else
@@ -197,8 +234,9 @@ namespace Psuedo3DRacer.Common
 
                     steeringAmount = (-applyingSteering);
 
-                    steeringAmount = MathHelper.Clamp(steeringAmount, -0.6f, 0.6f);
+                    steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f);
                     Yaw += steeringAmount * 0.05f;// *Speed;
+                   
                 }
 
                 //Vector3 trackNormal = track.TrackSegments[currentTrackPos].Normal;
@@ -208,17 +246,6 @@ namespace Psuedo3DRacer.Common
                 target = track.TrackSegments[Helper.WrapInt(currentTrackPos + 5, track.TrackSegments.Count - 1)].Position + trackOffset;
                 Vector3 targetnorm = Position - target;
                 Pitch = (float)Math.Atan2(-targetnorm.Y, targetnorm.Length());
-
-                if (spinTime > 0)
-                {
-                    spinTime -= gameTime.ElapsedGameTime.TotalMilliseconds;
-                    target = track.TrackSegments[Helper.WrapInt(currentTrackPos+10, track.Length-1)].Position;
-                    targetnorm = Position - target;
-                    Normal = targetnorm;
-                    Normal.Normalize();
-                    float targetDist = targetnorm.Length();
-                    Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
-                }
 
                 Matrix normRot = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
                 Normal = Position - Vector3.Transform(Vector3.Forward * 100f, normRot);
@@ -265,14 +292,34 @@ namespace Psuedo3DRacer.Common
                 }
             }
 
+            if (spinTime > 0)
+            {
+                spinTime -= gameTime.ElapsedGameTime.TotalMilliseconds;
+                target = track.TrackSegments[Helper.WrapInt(currentTrackPos + 10, track.Length - 1)].Position + trackOffset;
+                Vector3 targetnorm = Position - target;
+                Normal = targetnorm;
+                Normal.Normalize();
+                float targetDist = targetnorm.Length();
+                Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
+                if (!IsPlayerControlled) PlotCourse(track);
+            }
+
             if (offRoad || spinTime>0)
             {
                 if (Speed > 0.02f) Speed = MathHelper.Lerp(Speed, 0.02f, 0.1f);
             }
-           
+
+            //Vector3 cornerAngle = track.TrackSegments[Helper.WrapInt(courseTrackPos, track.TrackSegments.Count - 1)].Normal;
+            //float targetAngle = Helper.WrapAngle((float)Math.Atan2(cornerAngle.X, cornerAngle.Z));
+            //targetPositionOnTrack = -MathHelper.Clamp((0.35f / 0.5f) * targetAngle, -0.35f, 0.35f);
+
             Matrix rot = Matrix.CreateRotationX(Pitch) * Matrix.CreateRotationY(Yaw);
             Vector3 rotatedVector = Vector3.Transform(Vector3.Forward, rot);
-            Position += Speed * rotatedVector;
+
+            //travellingDirection = Vector3.Lerp(travellingDirection, rotatedVector, 0.12f - (Speed));
+           // travellingDirection.Y = rotatedVector.Y;
+
+            Position += Speed * rotatedVector;//travellingDirection;
 
             Yaw = MathHelper.WrapAngle(Yaw);
 
@@ -286,10 +333,22 @@ namespace Psuedo3DRacer.Common
             CheckCollisions(gameCars, track);
 
             // Calcuate position
-            RacePosition = 1;
-            foreach (Car c in gameCars)
+            if (!gameCars[7].Finished)
             {
-                if (c.RaceDistanceToGo < RaceDistanceToGo) RacePosition++;
+                RacePosition = 1;
+                foreach (Car c in gameCars)
+                {
+                    if (c.RaceDistanceToGo < RaceDistanceToGo) RacePosition++;
+                }
+            }
+            else
+            {
+                if (!Finished)
+                {
+                    Finished = true;
+
+                    CupPoints += (9 - RacePosition);
+                }
             }
 
             if (currentTrackPos == 0 && !countedLap)
@@ -301,7 +360,13 @@ namespace Psuedo3DRacer.Common
 
                 if (LapsToGo == 0)
                 {
-                    Finished = true;
+                    if (!Finished)
+                    {
+                        Finished = true;
+
+                        CupPoints += (9 - RacePosition);
+                    }
+
                     if (IsPlayerControlled)
                     {
                         IsPlayerControlled = false;
@@ -315,7 +380,7 @@ namespace Psuedo3DRacer.Common
 
             RaceDistanceToGo = ((LapsToGo + (StartedFirstLap?0:1)) * track.Length) - (currentTrackPos);
 
-            debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition;
+            //debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition;
         }
 
         public void Draw(GraphicsDevice gd, AlphaTestEffect effect, Camera gameCamera)
@@ -379,21 +444,7 @@ namespace Psuedo3DRacer.Common
 
                 if (currentPositionOnTrack > 0.5f || currentPositionOnTrack < -0.5f) offRoad = true;
 
-                foreach (Car c in gameCars)
-                {
-                    if(c==this) continue;
-
-                    if ((c.Position - Position).Length() < 0.2f && c.Speed<=Speed)
-                    { 
-                        int trackDist = Helper.WrapInt(c.currentTrackPos - currentTrackPos, track.Length-1);
-                        if (trackDist > 0)
-                        {
-                            spinTime = 1600;
-                            spinSpeed = Speed;
-                        }
-                    }
-
-                }
+                
                 
             }
             else
@@ -416,12 +467,12 @@ namespace Psuedo3DRacer.Common
                         if (currentPositionOnTrack < c.currentPositionOnTrack)
                         {
                             targetPositionOnTrack = c.currentPositionOnTrack - (0.4f);
-                            if (targetPositionOnTrack < -0.45f) targetPositionOnTrack = c.currentPositionOnTrack + (0.3f);
+                            if (targetPositionOnTrack < -0.45f) targetPositionOnTrack = c.currentPositionOnTrack + (0.35f);
                         }
                         else
                         {
                             targetPositionOnTrack = c.currentPositionOnTrack + (0.4f);
-                            if (targetPositionOnTrack > 0.45f) targetPositionOnTrack = c.currentPositionOnTrack - (0.3f);
+                            if (targetPositionOnTrack > 0.45f) targetPositionOnTrack = c.currentPositionOnTrack - (0.35f);
                         }
                         //if (c.currentPositionOnTrack <= 0f) targetPositionOnTrack = c.currentPositionOnTrack + (0.4f);// * (3f - (c.Position - Position).Length()));
                         //else targetPositionOnTrack = c.currentPositionOnTrack - (0.4f);// * (3f - (c.Position - Position).Length()));
@@ -432,7 +483,25 @@ namespace Psuedo3DRacer.Common
                     }
                 }
 
-                debug += foundCarDistance;
+                //debug += foundCarDistance;
+            }
+
+            foreach (Car c in gameCars)
+            {
+                if (c == this) continue;
+
+                if ((c.Position - Position).Length() < 0.15f && c.Speed <= Speed && c.spinTime<=0 && spinTime<=0)
+                {
+                    int trackDist = Helper.WrapInt(c.currentTrackPos - currentTrackPos, track.Length - 1);
+                    if (trackDist > 0)
+                    {
+                        spinTime = 1600;
+                        spinSpeed = 0.03f;
+                        c.spinTime = 800;
+                        c.spinSpeed = 1f;
+                    }
+                }
+
             }
 
             if (offRoad && collScenery == SceneryType.Wall)
@@ -450,7 +519,6 @@ namespace Psuedo3DRacer.Common
 
             Vector3 drivingLineTarget = track.TrackSegments[Helper.WrapInt(courseTrackPos + 50, track.TrackSegments.Count - 1)].Normal;
             float targetAngle = Helper.WrapAngle((float)Math.Atan2(drivingLineTarget.X, drivingLineTarget.Z) - Yaw);
-
             //debug = targetAngle + " | " + targetPositionOnTrack.ToString();
 
            

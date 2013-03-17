@@ -81,7 +81,7 @@
     <Compile Include="ScreenManager\ScreenManager.cs" />
     <Compile Include="Screens\BackgroundScreen.cs" />
     <Compile Include="Screens\SelectionScreen.cs" />
-    <Compile Include="Screens\GameOverScreen.cs" />
+    <Compile Include="Screens\StandingsScreen.cs" />
     <Compile Include="Screens\GameplayScreen.cs" />
     <Compile Include="Screens\LoadingScreen.cs" />
     <Compile Include="Screens\MainMenuScreen.cs" />

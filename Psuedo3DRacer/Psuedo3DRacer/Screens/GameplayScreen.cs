@@ -68,6 +68,8 @@ namespace Psuedo3DRacer
 
         RenderTarget2D mapRenderTarget;
 
+        bool standingsShown = false;
+
         #endregion
 
         #region Initialization
@@ -83,12 +85,16 @@ namespace Psuedo3DRacer
 
             IsStubbourn = true;
 
+            
+
 #if WINRT || WINDOWS_PHONE || TOUCH
             EnabledGestures = Microsoft.Xna.Framework.Input.Touch.GestureType.Hold;
 #endif
             Cup = cup;
             playerColor = color;
             currentTrack = 0;
+
+            
         }
 
 
@@ -107,7 +113,7 @@ namespace Psuedo3DRacer
             gameHud = new HUD(ScreenManager.Viewport);
             gameHud.LoadContent(content);
 
-            gameCamera = new Camera(ScreenManager.GraphicsDevice);
+            gameCamera = new Camera(ScreenManager.GraphicsDevice, ScreenManager.Viewport);
             gameCamera.AttachedToCar = true;
 
             gameTrack = Track.Load("track" + ((Cup * 3) + currentTrack).ToString("000"), content, parallaxManager, false);
@@ -115,18 +121,38 @@ namespace Psuedo3DRacer
             gameFont = content.Load<SpriteFont>("font");
             texBlank = content.Load<Texture2D>("blank");
 
-            gameCars.Clear();
-            gameCars.Add(new Car(gameTrack.Length - 10, -0.2f, gameTrack, Color.Red));
-            gameCars.Add(new Car(gameTrack.Length - 20, 0.2f, gameTrack, Color.Blue));
-            gameCars.Add(new Car(gameTrack.Length - 30, -0.2f, gameTrack, Color.Green));
-            gameCars.Add(new Car(gameTrack.Length - 40, 0.2f, gameTrack, Color.Gold));
-            gameCars.Add(new Car(gameTrack.Length - 50, -0.2f, gameTrack, Color.Pink));
-            gameCars.Add(new Car(gameTrack.Length - 60, 0.2f, gameTrack, Color.Purple));
-            gameCars.Add(new Car(gameTrack.Length - 70, -0.2f, gameTrack, Color.Orange));
-            gameCars.Add(new Car(gameTrack.Length - 80, 0.2f, gameTrack, playerColor));
-            foreach (Car c in gameCars) c.LoadContent(content, 0);
+            if (gameCars.Count == 0)
+            {
+                gameCars.Add(new Car(gameTrack.Length - 10, -0.2f, gameTrack, Color.Red));
+                gameCars.Add(new Car(gameTrack.Length - 20, 0.2f, gameTrack, Color.Blue));
+                gameCars.Add(new Car(gameTrack.Length - 30, -0.2f, gameTrack, Color.Green));
+                gameCars.Add(new Car(gameTrack.Length - 40, 0.2f, gameTrack, Color.Gold));
+                gameCars.Add(new Car(gameTrack.Length - 50, -0.2f, gameTrack, Color.Pink));
+                gameCars.Add(new Car(gameTrack.Length - 60, 0.2f, gameTrack, Color.Purple));
+                gameCars.Add(new Car(gameTrack.Length - 70, -0.2f, gameTrack, Color.Orange));
+                gameCars.Add(new Car(gameTrack.Length - 80, 0.2f, gameTrack, playerColor));
+            }
+            else
+            {
+                gameCars[0].Reset(gameTrack.Length - 10, -0.2f, gameTrack);
+                gameCars[1].Reset(gameTrack.Length - 20, 0.2f, gameTrack);
+                gameCars[2].Reset(gameTrack.Length - 30, -0.2f, gameTrack);
+                gameCars[3].Reset(gameTrack.Length - 40, 0.2f, gameTrack);
+                gameCars[4].Reset(gameTrack.Length - 50, -0.2f, gameTrack);
+                gameCars[5].Reset(gameTrack.Length - 60, 0.2f, gameTrack);
+                gameCars[6].Reset(gameTrack.Length - 70, -0.2f, gameTrack);
+                gameCars[7].Reset(gameTrack.Length - 80, 0.2f, gameTrack);
+            }
 
             gameCars[7].IsPlayerControlled = true;
+
+            foreach (Car c in gameCars)
+            {
+                c.LoadContent(content, 0);
+                c.Update(new GameTime(), gameTrack, gameCars);
+            }
+            foreach (Car c in gameCars) c.Update(new GameTime(), gameTrack, gameCars);
+
 
             drawEffect = new BasicEffect(ScreenManager.GraphicsDevice)
             {
@@ -155,6 +181,10 @@ namespace Psuedo3DRacer
             for (int i = 0; i < 8; i++) finishingPositions[i] = -1;
 
             mapRenderTarget = new RenderTarget2D(ScreenManager.GraphicsDevice, 300, 300, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+
+            steeringAmount = 0f;
+
+            standingsShown = false;
         }
 
 
@@ -225,15 +255,30 @@ namespace Psuedo3DRacer
 
                         if (finishDelay <= 0)
                         {
-                            trackFade -= 0.01f;
-
-                            if (trackFade <= 0f)
+                            if (!standingsShown)
                             {
-                                currentTrack++;
-                                if (currentTrack == 3)
-                                    LoadingScreen.Load(ScreenManager, false, null, new SelectionScreen());
-                                else
-                                    LoadContent();
+                                ScreenManager.AddScreen(new StandingsScreen(gameCars, currentTrack), null);
+                                standingsShown = true;
+                            }
+                            else
+                            {
+                                bool found=false;
+                                foreach (GameScreen s in ScreenManager.GetScreens()) if (s.GetType() == typeof(StandingsScreen)) found = true;
+
+                                if (!found)
+                                {
+                                    trackFade -= 0.01f;
+
+                                    if (trackFade <= 0f)
+                                    {
+                                        currentTrack++;
+                                        if (currentTrack == 3)
+                                            LoadingScreen.Load(ScreenManager, false, null, new SelectionScreen());
+                                        else
+                                            LoadContent();
+                                    }
+                                }
+                                else if (trackFade > 0.5f) trackFade -= 0.01f;
                             }
                         }
                     }
@@ -302,30 +347,30 @@ namespace Psuedo3DRacer
                 if (input.CurrentKeyboardStates[0].IsKeyDown(Keys.A) ||
                    input.CurrentKeyboardStates[0].IsKeyDown(Keys.Left))
                 {
-                    if (steeringAmount > 0f) steeringAmount -= 0.02f;
-                    steeringAmount -= 0.02f;
+                    if (steeringAmount > 0f) steeringAmount -= 0.015f;
+                    steeringAmount -= 0.01f;
                     steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f);
                 }
                 else if (input.CurrentKeyboardStates[0].IsKeyDown(Keys.D) ||
                         input.CurrentKeyboardStates[0].IsKeyDown(Keys.Right))
                 {
-                    if (steeringAmount < 0f) steeringAmount += 0.02f;
-                    steeringAmount += 0.02f;
+                    if (steeringAmount < 0f) steeringAmount += 0.015f;
+                    steeringAmount += 0.01f;
                     steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f);
                 }
-                else if (input.CurrentGamePadStates[0].ThumbSticks.Left.X < -0.1f)
+                else if (input.CurrentGamePadStates[0].ThumbSticks.Left.X < -0.05f)
                 {
-                    if (steeringAmount > 0f) steeringAmount -= 0.02f;
-                    steeringAmount -= 0.02f;
+                    if (steeringAmount > 0f) steeringAmount -= 0.015f;
+                    steeringAmount -= 0.01f;
                     steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f * ((float)Math.Abs(input.CurrentGamePadStates[0].ThumbSticks.Left.X)), 0.5f);
                 }
-                else if (input.CurrentGamePadStates[0].ThumbSticks.Left.X > 0.1f)
+                else if (input.CurrentGamePadStates[0].ThumbSticks.Left.X > 0.05f)
                 {
-                    if (steeringAmount < 0f) steeringAmount += 0.02f;
-                    steeringAmount += 0.02f;
+                    if (steeringAmount < 0f) steeringAmount += 0.015f;
+                    steeringAmount += 0.01f;
                     steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f * ((float)Math.Abs(input.CurrentGamePadStates[0].ThumbSticks.Left.X)));
                 }
-                else steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.25f);
+                else steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.15f);
 
                 if (input.CurrentGamePadStates[0].Triggers.Right > 0.05f)
                 {
@@ -379,7 +424,14 @@ namespace Psuedo3DRacer
            
             if (gameTrack.HasLoaded)
             {
+                ScreenManager.GraphicsDevice.SetRenderTarget(mapRenderTarget);
                 gameTrack.DrawMap(ScreenManager.GraphicsDevice, ScreenManager.SpriteBatch, mapRenderTarget, gameCars);
+#if !WINDOWS_PHONE
+                ScreenManager.GraphicsDevice.SetRenderTarget(null);
+#else
+                ScreenManager.GraphicsDevice.SetRenderTarget(Psuedo3DRacer.renderTarget);
+                
+#endif
 
                 ScreenManager.GraphicsDevice.Clear(gameTrack.SkyColor);
 
@@ -407,8 +459,8 @@ namespace Psuedo3DRacer
 
 
             ScreenManager.SpriteBatch.Begin();
-            gameHud.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.Draw(mapRenderTarget, new Vector2(ScreenManager.Viewport.Width - 320f, 20f), Color.White*0.75f);
+            gameHud.Draw(ScreenManager.SpriteBatch, gameCars[7]);
+            if (!gameCars[7].Finished) ScreenManager.SpriteBatch.Draw(mapRenderTarget, new Vector2(ScreenManager.Viewport.Width - 320f, 20f), Color.White * 0.75f);
             
             if(gameCars[7].debug!=null) ScreenManager.SpriteBatch.DrawString(gameFont, gameCars[7].debug, Vector2.One * 10f, Color.White);
             ScreenManager.SpriteBatch.End();

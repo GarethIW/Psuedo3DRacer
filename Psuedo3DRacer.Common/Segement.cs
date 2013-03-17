@@ -21,7 +21,8 @@ namespace Psuedo3DRacer.Common
     public enum RoadBrush
     {
         Road,
-        Wood
+        Wood,
+        Crossroad
     }
 
     public enum AboveBrush
@@ -43,6 +44,9 @@ namespace Psuedo3DRacer.Common
         LowerWall,
         SignLeft,
         SignRight,
+        Building,
+        BuildingCorner,
+        Crossroad,
         Ground
     }
 
@@ -94,6 +98,14 @@ namespace Psuedo3DRacer.Common
                     TrackSurface = SurfaceType.Road;
                     if (trackPos % 2 == 0) Tint = Color.DarkGray.ToVector3();
                     else Tint = Color.White.ToVector3();
+                    break;
+                case RoadBrush.Crossroad:
+                    Offset = new Vector3(0f, 0f, 0f);
+                    Size = new Vector2(1f, 0.05f);
+                    TextureName = "crossroad";
+                    TrackSurface = SurfaceType.Road;
+                    //if (trackPos % 2 == 0) Tint = Color.DarkGray.ToVector3();
+                    Tint = Color.White.ToVector3();
                     break;
                
             }
@@ -188,6 +200,34 @@ namespace Psuedo3DRacer.Common
                     LeftScenery = SceneryType.Offroad;
                     LeftTint = Color.White.ToVector3();
                     break;
+                case SceneryBrush.Building:
+                    if (trackPos % 15 == 0)
+                    {
+                        LeftOffset = (leftV * 1f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
+                        LeftSize = new Vector2(2.5f, 2.5f);
+                        LeftTextureName = "building";
+                        LeftScenery = SceneryType.Wall;
+                        LeftTint = Color.White.ToVector3();
+                    }
+                    break;
+                case SceneryBrush.BuildingCorner:
+                    if (trackPos % 5 == 0)
+                    {
+                        LeftOffset = (leftV * 2f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
+                        LeftSize = new Vector2(2f, 2.5f);
+                        LeftTextureName = "buildingcorner";
+                        LeftScenery = SceneryType.Wall;
+                        LeftTint = Color.White.ToVector3();
+                    }
+                    break;
+                case SceneryBrush.Crossroad:
+                    LeftOffset = (leftV * 3f) + new Vector3(0f, 0f, 0f);
+                    LeftSize = new Vector2(5f, 0.05f);
+                    LeftTextureName = "crossroad";
+                    LeftScenery = SceneryType.Offroad;
+                    if (trackPos % 20 == 0) LeftTint = Color.Red.ToVector3();
+                    else LeftTint = Color.White.ToVector3();
+                    break;
                 case SceneryBrush.Erase:
                     LeftTextureName = "";
                     break;
@@ -247,6 +287,34 @@ namespace Psuedo3DRacer.Common
                     RightTextureName = "ground";
                     RightScenery = SceneryType.Offroad;
                     RightTint = Color.White.ToVector3();
+                    break;
+                case SceneryBrush.Building:
+                    if (trackPos % 20 == 0)
+                    {
+                        RightOffset = (rightV * 1f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
+                        RightSize = new Vector2(2.5f, 2.5f);
+                        RightTextureName = "building";
+                        RightScenery = SceneryType.Wall;
+                        RightTint = Color.White.ToVector3();
+                    }
+                    break;
+                case SceneryBrush.BuildingCorner:
+                    if (trackPos % 5 == 0)
+                    {
+                        RightOffset = (rightV * 2f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
+                        RightSize = new Vector2(2f, 2.5f);
+                        RightTextureName = "buildingcorner";
+                        RightScenery = SceneryType.Wall;
+                        RightTint = Color.White.ToVector3();
+                    }
+                    break;
+                case SceneryBrush.Crossroad:
+                    RightOffset = (rightV * 3f) + new Vector3(0f, 0f, 0f);
+                    RightSize = new Vector2(5f, 0.05f);
+                    RightTextureName = "crossroad";
+                    RightScenery = SceneryType.Offroad;
+                    if (trackPos % 20 == 0) RightTint = Color.Red.ToVector3();
+                    else RightTint = Color.White.ToVector3();
                     break;
                 case SceneryBrush.Erase:
                     RightTextureName = "";

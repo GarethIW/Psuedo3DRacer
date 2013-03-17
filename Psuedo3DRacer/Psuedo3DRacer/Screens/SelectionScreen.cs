@@ -149,7 +149,7 @@ namespace Psuedo3DRacer
             }
 
             Parallax = new ParallaxManager(ScreenManager.Viewport);
-            Camera = new Camera(ScreenManager.GraphicsDevice);
+            Camera = new Camera(ScreenManager.GraphicsDevice, ScreenManager.Viewport);
             Track = Track.Load("track000", content, Parallax, false);
 
             drawEffect = new BasicEffect(ScreenManager.GraphicsDevice)
@@ -213,8 +213,9 @@ namespace Psuedo3DRacer
             for (int i = 0; i < 3; i++)
             {
                 cupTrackPM[i] = new ParallaxManager(new Viewport(cupTrackRT[i].Bounds));
-                cupTracks[i] = Track.Load("track" +  i.ToString("000"), content, cupTrackPM[i], true);
-                //cupTracks[i] = Track.Load("track" + ((selectedCup * 3) + i).ToString("000"), content, cupTrackPM[i], true);
+                //cupTrackPM[i].Scale = 108f / 720f;
+                //cupTracks[i] = Track.Load("track" +  i.ToString("000"), content, cupTrackPM[i], true);
+                cupTracks[i] = Track.Load("track" + ((selectedCup * 3) + i).ToString("000"), content, cupTrackPM[i], true);
 
                 trackPos[i] = cupTracks[i].Length - 50;
             }
@@ -565,15 +566,16 @@ namespace Psuedo3DRacer
                     drawAlphaEffect.View = Camera.viewMatrix;
                     drawAlphaEffect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 16f / 9f, 0.001f, 100f);
 
+
                     cupTrackPM[i].Update(gameTime, new Vector2(((1280 * 4) / MathHelper.TwoPi) * Camera.Yaw, 0f));
 
                     horizV = new Vector3(0, 0f, -200);
                     horiz = ScreenManager.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
                     horizHeight = horiz.Y - (25f * cupTrackPM[i].Scale);
                     ScreenManager.SpriteBatch.Begin();
-                    ScreenManager.SpriteBatch.Draw(texList["blank"], new Rectangle(cupTrackRT[i].Width / 2, (int)horizHeight, cupTrackRT[i].Width * 2, (cupTrackRT[i].Height - (int)horizHeight) + 400), null, cupTracks[i].GroundColor, 0f, new Vector2(0.5f, 0), SpriteEffects.None, 1);
+                    ScreenManager.SpriteBatch.Draw(texList["blank"], new Rectangle(cupTrackRT[i].Width / 2, (int)(horizHeight * cupTrackPM[i].Scale), cupTrackRT[i].Width * 2, (cupTrackRT[i].Height - (int)(horizHeight*cupTrackPM[i].Scale)) + 400), null, cupTracks[i].GroundColor, 0f, new Vector2(0.5f, 0), SpriteEffects.None, 1);
                     ScreenManager.SpriteBatch.End();
-                    ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(cupTrackPM[i].Scale, cupTrackPM[i].Scale, 1f)) * Matrix.CreateTranslation(new Vector3(cupTrackRT[i].Width / 2, horizHeight, 0f)));
+                    ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(cupTrackPM[i].Scale, cupTrackPM[i].Scale, 1f)) * Matrix.CreateTranslation(new Vector3(cupTrackRT[i].Width / 2, horizHeight * cupTrackPM[i].Scale, 0f)));
                     cupTrackPM[i].Draw(ScreenManager.SpriteBatch);
                     ScreenManager.SpriteBatch.End();
 
@@ -584,7 +586,12 @@ namespace Psuedo3DRacer
 
                     cupTracks[i].DrawBatches(ScreenManager.GraphicsDevice, drawEffect, drawAlphaEffect);
 
+#if !WINDOWS_PHONE
                     ScreenManager.GraphicsDevice.SetRenderTarget(null);
+#else
+                    ScreenManager.GraphicsDevice.SetRenderTarget(Psuedo3DRacer.renderTarget);
+               
+#endif
                 }
 
                 

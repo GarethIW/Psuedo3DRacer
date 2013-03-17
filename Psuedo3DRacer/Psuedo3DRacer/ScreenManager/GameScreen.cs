@@ -58,6 +58,14 @@ namespace Psuedo3DRacer
 
         bool isPopup = false;
 
+        public bool IsNonBlocking
+        {
+            get { return isNonBlocking; }
+            protected set { isNonBlocking = value; }
+        }
+
+        bool isNonBlocking = false;
+
         public bool IsStubbourn
         {
             get { return isStubbourn; }

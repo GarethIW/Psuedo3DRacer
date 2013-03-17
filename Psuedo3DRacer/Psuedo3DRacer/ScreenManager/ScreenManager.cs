@@ -206,7 +206,7 @@ namespace Psuedo3DRacer
                     {
                         screen.HandleInput(input);
 
-                        otherScreenHasFocus = true;
+                        if(!screen.IsNonBlocking) otherScreenHasFocus = true;
                     }
 
                     // If this is an active non-popup, inform any subsequent

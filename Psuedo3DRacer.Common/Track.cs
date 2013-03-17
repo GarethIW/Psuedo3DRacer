@@ -22,6 +22,7 @@ namespace Psuedo3DRacer.Common
         CityDay,
         CityNight,
         Island,
+        Urban,
         Arctic
     }
 
@@ -95,6 +96,10 @@ namespace Psuedo3DRacer.Common
             textDict.Add("wall", content.Load<Texture2D>("scenery/wall"));
             textDict.Add("tunnel-upper", content.Load<Texture2D>("scenery/tunnel-upper"));
             textDict.Add("ground", content.Load<Texture2D>("scenery/blank-ground"));
+            textDict.Add("building", content.Load<Texture2D>("scenery/building"));
+            textDict.Add("buildingcorner", content.Load<Texture2D>("scenery/building"));
+            textDict.Add("crossroad", content.Load<Texture2D>("scenery/crossroad"));
+
 
             mapSegment = content.Load<Texture2D>("map-segment");
         }
@@ -141,6 +146,16 @@ namespace Psuedo3DRacer.Common
                     
                     GroundColor = new Color(183, 159, 0);
                     SkyColor = new Color(0, 175, 219);
+                    break;
+                case Horizon.Urban:
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/urban/sky"), new Vector2(0, -100f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/urban/clouds1"), new Vector2(-1280f, -290f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/urban/clouds2"), new Vector2(2560f, -200f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/urban/clouds2"), new Vector2(-2560f, -200f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/urban/clouds3"), new Vector2(0f, -250f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/urban/city"), new Vector2(0f, -80f), 1f, false, false));
+                    GroundColor = Color.Gray;
+                    SkyColor = Color.CornflowerBlue;
                     break;
             }
         }
@@ -225,6 +240,8 @@ namespace Psuedo3DRacer.Common
                         //norm = Vector3.Transform(TrackSegments[pos].Normal, Matrix.CreateRotationX(MathHelper.PiOver4));
                         //up = TrackSegments[pos].Normal;
                     }
+                    if (TrackSegments[pos].LeftTextureName == "building")
+                        norm = Vector3.Transform(norm, Matrix.CreateRotationY(MathHelper.PiOver2));
 
                     quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].LeftOffset, norm, up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
                     Drawing.DrawQuad(effect, quad, gd);
@@ -260,7 +277,10 @@ namespace Psuedo3DRacer.Common
                         //up = TrackSegments[pos].Normal;
                     }
 
-                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, norm, up, TrackSegments[pos].LeftSize.X, TrackSegments[pos].LeftSize.Y);
+                    if (TrackSegments[pos].RightTextureName == "building")
+                        norm = Vector3.Transform(norm, Matrix.CreateRotationY(MathHelper.PiOver2));
+
+                    quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, norm, up, TrackSegments[pos].RightSize.X, TrackSegments[pos].RightSize.Y);
                     Drawing.DrawQuad(effect, quad, gd);
                     //quad = new Quad(TrackSegments[pos].Position + TrackSegments[pos].RightOffset, -TrackSegments[pos].Normal, Vector3.Up, TrackSegments[pos].RightSize.X, TrackSegments[pos].RightSize.Y);
                     //Drawing.DrawQuad(effect, quad, gd);
@@ -302,7 +322,7 @@ namespace Psuedo3DRacer.Common
 
             
 
-            gd.SetRenderTarget(rt);
+            //gd.SetRenderTarget(rt);
 
             gd.Clear(Color.Black * 0f);
 
@@ -329,7 +349,7 @@ namespace Psuedo3DRacer.Common
             }
             sb.End();
 
-            gd.SetRenderTarget(null);
+            //gd.SetRenderTarget(null);
         }
 
         public void DrawBatches(GraphicsDevice gd, BasicEffect basicEffect, AlphaTestEffect alphaEffect)
@@ -375,7 +395,10 @@ namespace Psuedo3DRacer.Common
 
                 if (!string.IsNullOrEmpty(seg.LeftTextureName))
                 {
-                    quad = new Quad(seg.Position + seg.LeftOffset, seg.Normal, Vector3.Up, seg.LeftSize.X, seg.LeftSize.Y);
+                    Vector3 norm = seg.Normal;
+                    if (seg.LeftTextureName == "building")
+                        norm = Vector3.Transform(norm, Matrix.CreateRotationY(MathHelper.PiOver2));
+                    quad = new Quad(seg.Position + seg.LeftOffset, norm, Vector3.Up, seg.LeftSize.X, seg.LeftSize.Y);
                     AddToBatch(BatchEffectType.Alpha, seg.LeftTextureName!="ground"?seg.LeftTint:GroundColor.ToVector3(), seg.LeftTextureName, quad);
                 }
 
@@ -387,7 +410,10 @@ namespace Psuedo3DRacer.Common
 
                 if (!string.IsNullOrEmpty(seg.RightTextureName))
                 {
-                    quad = new Quad(seg.Position + seg.RightOffset, seg.Normal, Vector3.Up, seg.RightSize.X, seg.RightSize.Y);
+                    Vector3 norm = seg.Normal;
+                    if (seg.RightTextureName == "building")
+                        norm = Vector3.Transform(norm, Matrix.CreateRotationY(MathHelper.PiOver2));
+                    quad = new Quad(seg.Position + seg.RightOffset, norm, Vector3.Up, seg.RightSize.X, seg.RightSize.Y);
                     AddToBatch(BatchEffectType.Alpha, seg.RightTextureName != "ground" ? seg.RightTint : GroundColor.ToVector3(), seg.RightTextureName, quad);
                 }
             }
