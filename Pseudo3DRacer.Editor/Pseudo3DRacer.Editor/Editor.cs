@@ -64,6 +64,8 @@ namespace Pseudo3DRacer
 
         int currentTrackLoaded = 0;
 
+        float steeringAmount = 0f;
+
         public Editor()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -415,29 +417,40 @@ namespace Pseudo3DRacer
                 }
                 else
                 {
-                    if (cks.IsKeyDown(Keys.Up) || cks.IsKeyDown(Keys.W))
-                        Cars[7].ApplyThrottle(1f);
-                    else
-                        Cars[7].ApplyThrottle(0f);
+                    Cars[7].ApplyThrottle(0f);
+                    Cars[7].ApplyBrake(false);
 
-                    if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
+                    if(cks.IsKeyDown(Keys.W) ||
+                       cks.IsKeyDown(Keys.Up))
+                    {
+                        Cars[7].ApplyThrottle(1f);
+                    }
+                    else Cars[7].ApplyThrottle(0f);
+
+                    if (cks.IsKeyDown(Keys.S) ||
+                       cks.IsKeyDown(Keys.Down))
+                    {
                         Cars[7].ApplyBrake(true);
-                    else
-                        Cars[7].ApplyBrake(false);
-                    //if (cks.IsKeyDown(Keys.Down) || cks.IsKeyDown(Keys.S))
-                    //    moveVector += new Vector3(0, 0, 1);
-                    bool steering = false;
-                    if (cks.IsKeyDown(Keys.Right) || cks.IsKeyDown(Keys.D))
-                    {
-                        Cars[7].Steer(1);
-                        steering = true;
                     }
-                    if (cks.IsKeyDown(Keys.Left) || cks.IsKeyDown(Keys.A))
+                    else Cars[7].ApplyBrake(false);
+
+                    if (cks.IsKeyDown(Keys.A) ||
+                       cks.IsKeyDown(Keys.Left))
                     {
-                        steering = true;
-                        Cars[7].Steer(-1);
+                        if (steeringAmount > 0f) steeringAmount -= 0.015f;
+                        steeringAmount -= 0.01f;
+                        steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f);
                     }
-                    if (!steering) Cars[7].Steer(0);
+                    else if (cks.IsKeyDown(Keys.D) ||
+                            cks.IsKeyDown(Keys.Right))
+                    {
+                        if (steeringAmount < 0f) steeringAmount += 0.015f;
+                        steeringAmount += 0.01f;
+                        steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f);
+                    }
+                    else steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.15f);
+
+                    Cars[7].Steer(steeringAmount);
                 }
 
                 if (cks.IsKeyDown(Keys.Space) && !lks.IsKeyDown(Keys.Space))
