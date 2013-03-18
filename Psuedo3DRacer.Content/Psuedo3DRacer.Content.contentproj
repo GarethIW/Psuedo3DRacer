@@ -562,6 +562,7 @@
     <Compile Include="tracks\track003.trk">
       <Name>track003</Name>
       <Importer>XmlImporter</Importer>
+      <SubType>Designer</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>

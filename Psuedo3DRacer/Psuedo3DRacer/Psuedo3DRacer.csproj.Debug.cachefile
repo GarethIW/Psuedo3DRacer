@@ -74,6 +74,9 @@ Psuedo3DRacer.Content\selectionscreen\cuptitle3.xnb
 Psuedo3DRacer.Content\hud\countdown.xnb
 Psuedo3DRacer.Content\map-segment.xnb
 Psuedo3DRacer.Content\selectionscreen\arrow.xnb
+Psuedo3DRacer.Content\tracks\track000.xnb
+Psuedo3DRacer.Content\tracks\track001.xnb
+Psuedo3DRacer.Content\tracks\track002.xnb
 Psuedo3DRacer.Content\standings-banner.xnb
 Psuedo3DRacer.Content\standings-cup.xnb
 Psuedo3DRacer.Content\standings-race.xnb
@@ -86,9 +89,6 @@ Psuedo3DRacer.Content\horizons\urban\clouds3.xnb
 Psuedo3DRacer.Content\horizons\urban\sky.xnb
 Psuedo3DRacer.Content\scenery\building.xnb
 Psuedo3DRacer.Content\scenery\crossroad.xnb
-Psuedo3DRacer.Content\tracks\track000.xnb
-Psuedo3DRacer.Content\tracks\track001.xnb
-Psuedo3DRacer.Content\tracks\track002.xnb
-Psuedo3DRacer.Content\tracks\track003.xnb
 Psuedo3DRacer.Content\tracks\track004.xnb
+Psuedo3DRacer.Content\tracks\track003.xnb
 Psuedo3DRacer.Content\tracks\track005.xnb
