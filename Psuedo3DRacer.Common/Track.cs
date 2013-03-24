@@ -89,6 +89,7 @@ namespace Psuedo3DRacer.Common
             textDict.Add("road-wood", content.Load<Texture2D>("scenery/road-wood"));
             textDict.Add("tunnel", content.Load<Texture2D>("scenery/tunnel"));
             textDict.Add("tree", content.Load<Texture2D>("scenery/tree"));
+            textDict.Add("palmtree", content.Load<Texture2D>("scenery/palmtree"));
             textDict.Add("girder", content.Load<Texture2D>("scenery/girder"));
             textDict.Add("sign-left", content.Load<Texture2D>("scenery/sign-left"));
             textDict.Add("sign-right", content.Load<Texture2D>("scenery/sign-right"));
@@ -99,6 +100,8 @@ namespace Psuedo3DRacer.Common
             textDict.Add("building", content.Load<Texture2D>("scenery/building"));
             textDict.Add("buildingcorner", content.Load<Texture2D>("scenery/building"));
             textDict.Add("crossroad", content.Load<Texture2D>("scenery/crossroad"));
+            textDict.Add("lamppost-left", content.Load<Texture2D>("scenery/lamppost-left"));
+            textDict.Add("lamppost-right", content.Load<Texture2D>("scenery/lamppost-right"));
 
 
             mapSegment = content.Load<Texture2D>("map-segment");
@@ -137,6 +140,10 @@ namespace Psuedo3DRacer.Common
                     break;
                 case Horizon.Island:
                     parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/sky"), new Vector2(0f, -150f), 1f, false, false));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds1"), new Vector2(-1280f, -290f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(2560f, -200f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds2"), new Vector2(-2560f, -200f), 1f, false, true));
+                    parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/cityday/clouds3"), new Vector2(0f, -250f), 1f, false, true));
                     parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/boat"), new Vector2(0f, -85f), 1f, false, true));
                     parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/beach"), new Vector2(0f, 0f), 1f, false, true));
                     parallaxManager.Layers.Add(new ParallaxLayer(content.Load<Texture2D>("horizons/island/beach"), new Vector2(1280f, 0f), 1f, false, true));
@@ -233,6 +240,12 @@ namespace Psuedo3DRacer.Common
 
                     effect.Texture = textDict[TrackSegments[pos].LeftTextureName];
                     effect.DiffuseColor = TrackSegments[pos].LeftTint;
+
+                    if (Horizon == Common.Horizon.Island)
+                    {
+                        if (TrackSegments[pos].LeftTextureName == "tree") TrackSegments[pos].LeftTextureName = "palmtree";
+                        if (TrackSegments[pos].RightTextureName == "tree") TrackSegments[pos].RightTextureName = "palmtree";
+                    }
 
                     if (TrackSegments[pos].LeftTextureName == "ground")
                     {
@@ -398,6 +411,12 @@ namespace Psuedo3DRacer.Common
                     Vector3 norm = seg.Normal;
                     if (seg.LeftTextureName == "building")
                         norm = Vector3.Transform(norm, Matrix.CreateRotationY(MathHelper.PiOver2));
+
+                    if (Horizon == Common.Horizon.Island)
+                    {
+                        if (seg.LeftTextureName == "tree") seg.LeftTextureName = "palmtree";
+                    }
+
                     quad = new Quad(seg.Position + seg.LeftOffset, norm, Vector3.Up, seg.LeftSize.X, seg.LeftSize.Y);
                     AddToBatch(BatchEffectType.Alpha, seg.LeftTextureName!="ground"?seg.LeftTint:GroundColor.ToVector3(), seg.LeftTextureName, quad);
                 }
@@ -413,6 +432,12 @@ namespace Psuedo3DRacer.Common
                     Vector3 norm = seg.Normal;
                     if (seg.RightTextureName == "building")
                         norm = Vector3.Transform(norm, Matrix.CreateRotationY(MathHelper.PiOver2));
+
+                    if (Horizon == Common.Horizon.Island)
+                    {
+                        if (seg.RightTextureName == "tree") seg.RightTextureName = "palmtree";
+                    }
+
                     quad = new Quad(seg.Position + seg.RightOffset, norm, Vector3.Up, seg.RightSize.X, seg.RightSize.Y);
                     AddToBatch(BatchEffectType.Alpha, seg.RightTextureName != "ground" ? seg.RightTint : GroundColor.ToVector3(), seg.RightTextureName, quad);
                 }

@@ -25,6 +25,8 @@ namespace Psuedo3DRacer
 
         public static RenderTarget2D renderTarget;
 
+        public static Random rand = new Random();
+
         public Psuedo3DRacer()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -38,6 +40,8 @@ namespace Psuedo3DRacer
             //graphics.PreferredBackBufferHeight = 768;
             //graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
 #endif
+            IsMouseVisible = true;
+
             graphics.ApplyChanges();
 
             Content.RootDirectory = "Psuedo3DRacer.Content";
@@ -73,7 +77,8 @@ namespace Psuedo3DRacer
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //screenManager.AddScreen(new GameplayScreen(), null);
-            screenManager.AddScreen(new SelectionScreen(), null);
+            //screenManager.AddScreen(new SelectionScreen(), null);
+            screenManager.AddScreen(new MainMenuScreen(), null);
 
 #if WINDOWS_PHONE
             renderTarget = new RenderTarget2D(GraphicsDevice, 1280, 768, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);

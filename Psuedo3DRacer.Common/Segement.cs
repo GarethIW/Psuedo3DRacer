@@ -47,7 +47,8 @@ namespace Psuedo3DRacer.Common
         Building,
         BuildingCorner,
         Crossroad,
-        Ground
+        Ground,
+        LampPost
     }
 
     public class Segment
@@ -156,6 +157,16 @@ namespace Psuedo3DRacer.Common
                         LeftTint = Color.White.ToVector3();
                     }
                     break;
+                case SceneryBrush.LampPost:
+                    if (trackPos % 10 == 0)
+                    {
+                        LeftOffset = (leftV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
+                        LeftSize = new Vector2(0.5f, 1f);
+                        LeftTextureName = "lamppost-left";
+                        LeftScenery = SceneryType.Offroad;
+                        LeftTint = Color.White.ToVector3();
+                    }
+                    break;
                 case SceneryBrush.SignLeft:
                 case SceneryBrush.SignRight:
                     if (trackPos % 20 == 0)
@@ -163,7 +174,7 @@ namespace Psuedo3DRacer.Common
                         LeftOffset = (leftV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
                         LeftSize = new Vector2(0.5f, 1f);
                         LeftTextureName = left==SceneryBrush.SignLeft?"sign-left":"sign-right";
-                        LeftScenery = SceneryType.Offroad;
+                        LeftScenery = SceneryType.Wall;
                         LeftTint = Color.White.ToVector3();
                     }
                     break;
@@ -173,7 +184,7 @@ namespace Psuedo3DRacer.Common
                         LeftSize = new Vector2(0.25f, Position.Y + 1f);
                         LeftOffset = (leftV * 0.625f) + new Vector3(0f, (-Position.Y) + ((LeftSize.Y / 2)-0.1f), 0f);
                         LeftTextureName = "girder";
-                        LeftScenery = SceneryType.Offroad;
+                        LeftScenery = SceneryType.Wall;
                         LeftTint = Color.White.ToVector3();
                     }
                     break;
@@ -206,7 +217,7 @@ namespace Psuedo3DRacer.Common
                         LeftOffset = (leftV * 1f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
                         LeftSize = new Vector2(2.5f, 2.5f);
                         LeftTextureName = "building";
-                        LeftScenery = SceneryType.Wall;
+                        LeftScenery = SceneryType.Offroad;
                         LeftTint = Color.White.ToVector3();
                     }
                     break;
@@ -216,7 +227,7 @@ namespace Psuedo3DRacer.Common
                         LeftOffset = (leftV * 2f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
                         LeftSize = new Vector2(2f, 2.5f);
                         LeftTextureName = "buildingcorner";
-                        LeftScenery = SceneryType.Wall;
+                        LeftScenery = SceneryType.Offroad;
                         LeftTint = Color.White.ToVector3();
                     }
                     break;
@@ -244,6 +255,16 @@ namespace Psuedo3DRacer.Common
                         RightTint = Color.White.ToVector3();
                     }
                     break;
+                case SceneryBrush.LampPost:
+                    if (trackPos % 10 == 0)
+                    {
+                        LeftOffset = (rightV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
+                        LeftSize = new Vector2(0.5f, 1f);
+                        LeftTextureName = "lamppost-right";
+                        LeftScenery = SceneryType.Offroad;
+                        LeftTint = Color.White.ToVector3();
+                    }
+                    break;
                 case SceneryBrush.SignLeft:
                 case SceneryBrush.SignRight:
                     if (trackPos % 20 == 0)
@@ -251,7 +272,7 @@ namespace Psuedo3DRacer.Common
                         RightOffset = (rightV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
                         RightSize = new Vector2(0.5f, 1f);
                         RightTextureName = right == SceneryBrush.SignLeft ? "sign-left" : "sign-right";
-                        RightScenery = SceneryType.Offroad;
+                        RightScenery = SceneryType.Wall;
                         RightTint = Color.White.ToVector3();
                     }
                     break;
@@ -261,7 +282,7 @@ namespace Psuedo3DRacer.Common
                         RightSize = new Vector2(0.25f, Position.Y+1f);
                         RightOffset = (rightV * 0.625f) + new Vector3(0f, (-Position.Y) + ((RightSize.Y / 2)-0.1f), 0f);
                         RightTextureName = "girder";
-                        RightScenery = SceneryType.Offroad;
+                        RightScenery = SceneryType.Wall;
                         RightTint = Color.White.ToVector3();
                     }
                     break;
@@ -294,7 +315,7 @@ namespace Psuedo3DRacer.Common
                         RightOffset = (rightV * 1f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
                         RightSize = new Vector2(2.5f, 2.5f);
                         RightTextureName = "building";
-                        RightScenery = SceneryType.Wall;
+                        RightScenery = SceneryType.Offroad;
                         RightTint = Color.White.ToVector3();
                     }
                     break;
@@ -304,7 +325,7 @@ namespace Psuedo3DRacer.Common
                         RightOffset = (rightV * 2f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
                         RightSize = new Vector2(2f, 2.5f);
                         RightTextureName = "buildingcorner";
-                        RightScenery = SceneryType.Wall;
+                        RightScenery = SceneryType.Offroad;
                         RightTint = Color.White.ToVector3();
                     }
                     break;

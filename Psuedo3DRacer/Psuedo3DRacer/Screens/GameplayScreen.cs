@@ -131,6 +131,24 @@ namespace Psuedo3DRacer
                 gameCars.Add(new Car(gameTrack.Length - 60, 0.2f, gameTrack, Color.Purple));
                 gameCars.Add(new Car(gameTrack.Length - 70, -0.2f, gameTrack, Color.Orange));
                 gameCars.Add(new Car(gameTrack.Length - 80, 0.2f, gameTrack, playerColor));
+
+                // Select "awesome" driver
+                int sel = Psuedo3DRacer.rand.Next(7);
+                gameCars[sel].SpeedWhenTurning = 0.051f + (0.002f * Cup);
+                gameCars[sel].ConcentrationLevel = 1500 + (200 * Cup);
+                gameCars[sel].CorrectionTime = 900 - (200 * Cup);
+                gameCars[sel].ReactionTime = 100;
+
+                // and "bad" driver
+                int sel2 = sel;
+                while (sel2 == sel)
+                {
+                    sel2 = Psuedo3DRacer.rand.Next(7);
+                }
+                gameCars[sel2].SpeedWhenTurning = 0.04f + (0.001f * Cup);
+                gameCars[sel2].ConcentrationLevel = 50 + (200 * Cup);
+                gameCars[sel2].CorrectionTime = 5000 - (200 * Cup);
+                gameCars[sel2].ReactionTime = 2000 - (100 * Cup);
             }
             else
             {

@@ -62,6 +62,8 @@ namespace Psuedo3DRacer
 
         Rectangle leftRect;
         Rectangle rightRect;
+        Rectangle leftCupRect;
+        Rectangle rightCupRect;
 
         Color carColor = new Color(255, 255, 255);
 
@@ -75,6 +77,7 @@ namespace Psuedo3DRacer
         Vector2 cupPosition;
 
         bool loadedGameplay = false;
+
 
         class Cup
         {
@@ -136,6 +139,7 @@ namespace Psuedo3DRacer
             LoadTex("selectcup");
             LoadTex("triangles");
             LoadTex("cup-holder");
+            LoadTex("cuparrow");
 
             for (int i = 1; i <= 5; i++)
             {
@@ -180,8 +184,8 @@ namespace Psuedo3DRacer
             Cups.Add(new Cup());
             Cups.Add(new Cup());
             Cups.Add(new Cup());
-            Cups.Add(new Cup());
-            Cups.Add(new Cup());
+            //Cups.Add(new Cup());
+            //Cups.Add(new Cup());
 
             cupPosition = new Vector2(ScreenManager.Viewport.Width + 500, ScreenManager.Viewport.Height / 2);
             for (int i = selectedCup - 2; i <= selectedCup + 2; i++)
@@ -199,6 +203,9 @@ namespace Psuedo3DRacer
 
             leftRect = new Rectangle(0, ScreenManager.Viewport.Height - 75, 150, 50);
             rightRect = new Rectangle(ScreenManager.Viewport.Width-150, ScreenManager.Viewport.Height - 75, 150, 50);
+
+            leftCupRect = new Rectangle((int)cupPosition.X - 300, (int)cupPosition.Y - 100, 50, 200);
+            rightCupRect = new Rectangle((int)cupPosition.X + 250, (int)cupPosition.Y - 100, 50, 200);
 
             ScreenManager.Game.ResetElapsedTime();
         }
@@ -274,7 +281,8 @@ namespace Psuedo3DRacer
                 paintCarAlpha = MathHelper.Lerp(paintCarAlpha, 1f, 0.1f);
 
                 cupPosition = Vector2.Lerp(cupPosition, new Vector2(ScreenManager.Viewport.Width + 500, ScreenManager.Viewport.Height / 2), 0.1f);
-                
+                leftCupRect = new Rectangle((int)cupPosition.X - 350, (int)cupPosition.Y - 100, 50, 200);
+                rightCupRect = new Rectangle((int)cupPosition.X + 300, (int)cupPosition.Y - 100, 50, 200);
             }
             else
             {
@@ -292,6 +300,9 @@ namespace Psuedo3DRacer
 
 
                 cupPosition = Vector2.Lerp(cupPosition, new Vector2(500 + ((ScreenManager.Viewport.Width - 500)/2), ScreenManager.Viewport.Height / 2), 0.1f);
+
+                leftCupRect = new Rectangle((int)cupPosition.X - 350, (int)cupPosition.Y - 100, 50, 200);
+                rightCupRect = new Rectangle((int)cupPosition.X + 300, (int)cupPosition.Y - 100, 50, 200);
 
                 for (int i = 0; i < 3; i++)
                 {
@@ -328,7 +339,7 @@ namespace Psuedo3DRacer
             }
 
 
-            if (IsExiting)
+            if (IsExiting && selectionMode==1)
             {
                 if (TransitionPosition >= 0.95f)
                 {
@@ -410,6 +421,41 @@ namespace Psuedo3DRacer
                     LoadTracks(selectedCup);
                 }
 
+                if (input.MouseLeftClick)
+                {
+                    if(rightRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        selectionMode = 1;
+                        LoadTracks(selectedCup);
+                    }
+
+                    if (leftRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        LoadingScreen.Load(ScreenManager, false, null, new MainMenuScreen());
+                    }
+
+                    
+                }
+
+                if (input.MouseDragging)
+                {
+                    if (redRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        carColor.R = (byte)MathHelper.Clamp((25f + (230f / 400f) * ((input.CurrentMouseState.X - (float)redRect.Left))), 25f, 255f);
+                        selectedColor = 0;
+                    }
+                    if (greenRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        carColor.G = (byte)MathHelper.Clamp((25f + (230f / 400f) * ((input.CurrentMouseState.X - (float)greenRect.Left))), 25f, 255f);
+                        selectedColor = 1;
+                    }
+                    if (blueRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        carColor.B = (byte)MathHelper.Clamp((25f + (230f / 400f) * ((input.CurrentMouseState.X - (float)blueRect.Left))), 25f, 255f);
+                        selectedColor = 2;
+                    }
+                }
+
 #if WINRT || WINDOWS_PHONE || TOUCH
                 foreach (GestureSample gest in input.Gestures)
                 {
@@ -444,10 +490,19 @@ namespace Psuedo3DRacer
                         selectionMode = 1;
                         LoadTracks(selectedCup);
                     }
+
+#if WINDOWS_PHONE
+                    if (leftRect.Contains(new Point((int)input.TapGesture.Value.Position.Y, ScreenManager.Viewport.Height - (int)input.TapGesture.Value.Position.X)))
+#else
+                    if (leftRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
+#endif
+                    {
+                        LoadingScreen.Load(ScreenManager, false, null, new MainMenuScreen());
+                    }
                 }
 
 #endif
-
+                if (input.IsMenuCancel(null, out player)) LoadingScreen.Load(ScreenManager, false, null, new MainMenuScreen());
             }
             else
             {
@@ -485,6 +540,33 @@ namespace Psuedo3DRacer
                     //
                 }
 
+                if (input.MouseLeftClick)
+                {
+                    if (rightRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        ExitScreen();
+                    }
+
+                    if (leftRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        selectionMode = 0;
+                    }
+
+                    if (leftCupRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        selectedCup--;
+                        if (selectedCup == -1) selectedCup = 0;
+                        else LoadTracks(selectedCup);
+                    }
+
+                    if (rightCupRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
+                    {
+                        selectedCup++;
+                        if (selectedCup == Cups.Count) selectedCup = Cups.Count - 1;
+                        else LoadTracks(selectedCup);
+                    }
+                }
+
 #if WINRT || WINDOWS_PHONE || TOUCH
 
                 foreach (GestureSample gest in input.Gestures)
@@ -519,9 +601,36 @@ namespace Psuedo3DRacer
                     {
                         ExitScreen();
                     }
+
+#if WINDOWS_PHONE
+                    if (leftRect.Contains(new Point((int)input.TapGesture.Value.Position.Y, ScreenManager.Viewport.Height - (int)input.TapGesture.Value.Position.X)))
+#else
                     if (leftRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
+#endif
                     {
                         selectionMode = 0;
+                    }
+
+#if WINDOWS_PHONE
+                    if (rightCupRect.Contains(new Point((int)input.TapGesture.Value.Position.Y, ScreenManager.Viewport.Height - (int)input.TapGesture.Value.Position.X)))
+#else
+                    if (rightCupRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
+#endif
+                    {
+                        selectedCup++;
+                        if (selectedCup == Cups.Count) selectedCup = Cups.Count - 1;
+                        else LoadTracks(selectedCup);
+                    }
+
+#if WINDOWS_PHONE
+                    if (leftCupRect.Contains(new Point((int)input.TapGesture.Value.Position.Y, ScreenManager.Viewport.Height - (int)input.TapGesture.Value.Position.X)))
+#else
+                    if (leftCupRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
+#endif
+                    {
+                        selectedCup--;
+                        if (selectedCup == -1) selectedCup = 0;
+                        else LoadTracks(selectedCup);
                     }
                 }
 
@@ -645,6 +754,10 @@ namespace Psuedo3DRacer
 
             spriteBatch.Draw(texList["arrow"], new Vector2(leftRect.Center.X, leftRect.Center.Y), null, Color.LightGray, 0f, new Vector2(texList["arrow"].Width, texList["arrow"].Height) / 2, 1f, SpriteEffects.FlipHorizontally, 1);
             spriteBatch.Draw(texList["arrow"], new Vector2(rightRect.Center.X, rightRect.Center.Y), null, Color.LightGray, 0f, new Vector2(texList["arrow"].Width, texList["arrow"].Height) / 2, 1f, SpriteEffects.None, 1);
+
+            spriteBatch.Draw(texList["cuparrow"], new Vector2(leftCupRect.Center.X, leftCupRect.Center.Y), null, Color.LightGray * (selectedCup>0?1f:0.2f), 0f, new Vector2(texList["cuparrow"].Width, texList["cuparrow"].Height) / 2, 1f, SpriteEffects.None, 1);
+            spriteBatch.Draw(texList["cuparrow"], new Vector2(rightCupRect.Center.X, rightCupRect.Center.Y), null, Color.LightGray * (selectedCup < (Cups.Count-1) ? 1f : 0.2f), 0f, new Vector2(texList["cuparrow"].Width, texList["cuparrow"].Height) / 2, 1f, SpriteEffects.FlipHorizontally, 1);
+
 
             spriteBatch.End();
 
