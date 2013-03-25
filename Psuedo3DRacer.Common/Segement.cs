@@ -222,7 +222,7 @@ namespace Psuedo3DRacer.Common
                     }
                     break;
                 case SceneryBrush.BuildingCorner:
-                    if (trackPos % 5 == 0)
+                    if (trackPos % 1 == 0)
                     {
                         LeftOffset = (leftV * 2f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
                         LeftSize = new Vector2(2f, 2.5f);
@@ -258,11 +258,11 @@ namespace Psuedo3DRacer.Common
                 case SceneryBrush.LampPost:
                     if (trackPos % 10 == 0)
                     {
-                        LeftOffset = (rightV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
-                        LeftSize = new Vector2(0.5f, 1f);
-                        LeftTextureName = "lamppost-right";
-                        LeftScenery = SceneryType.Offroad;
-                        LeftTint = Color.White.ToVector3();
+                        RightOffset = (rightV * 1f) + new Vector3(0f, (-Position.Y) + 0.4f, 0f);
+                        RightSize = new Vector2(0.5f, 1f);
+                        RightTextureName = "lamppost-right";
+                        RightScenery = SceneryType.Offroad;
+                        RightTint = Color.White.ToVector3();
                     }
                     break;
                 case SceneryBrush.SignLeft:
@@ -320,7 +320,7 @@ namespace Psuedo3DRacer.Common
                     }
                     break;
                 case SceneryBrush.BuildingCorner:
-                    if (trackPos % 5 == 0)
+                    if (trackPos % 1 == 0)
                     {
                         RightOffset = (rightV * 2f) + new Vector3(0f, (-Position.Y) + 1.2f, 0f);
                         RightSize = new Vector2(2f, 2.5f);

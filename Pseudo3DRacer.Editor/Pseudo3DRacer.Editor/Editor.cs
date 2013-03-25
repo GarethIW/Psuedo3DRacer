@@ -385,6 +385,13 @@ namespace Pseudo3DRacer
                     if (paintPos > Track.TrackSegments.Count - 1) paintPos = 0;
                 }
 
+                if (cks.IsKeyDown(Keys.B) && !lks.IsKeyDown(Keys.B))
+                {
+                    Track.TrackSegments[paintPos].Paint(paintPos, RoadBrush, AboveBrush, LeftBrush, RightBrush);
+                    paintPos++;
+                    if (paintPos > Track.TrackSegments.Count - 1) paintPos = 0;
+                }
+
                 int nextpos = (currentTrackPos + 1);
                 if (nextpos >= Track.TrackSegments.Count) nextpos = nextpos - Track.TrackSegments.Count;
                 //Camera.viewMatrix = Matrix.CreateLookAt(Track.TrackSegments[currentTrackPos].Position + new Vector3(0, 0.5f, 0),
