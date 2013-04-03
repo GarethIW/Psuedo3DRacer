@@ -176,10 +176,15 @@ namespace Psuedo3DRacer
             if (input.IsMenuSelect(ControllingPlayer, out playerIndex) || input.IsMenuCancel(ControllingPlayer, out playerIndex) || input.TapPosition.HasValue || input.MouseLeftClick)
             {
               //  LoadingScreen.Load(ScreenManager, false, null, new GameplayScreen(), new MainMenuScreen());
+                AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
+
                 if (currentScreen == 0)
                     swappingScreens = true;
                 else
+                {
+                    AudioController.StopMusic();
                     ExitScreen();
+                }
             }
            
 

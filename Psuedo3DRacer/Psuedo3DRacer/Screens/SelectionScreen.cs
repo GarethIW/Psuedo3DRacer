@@ -51,6 +51,8 @@ namespace Psuedo3DRacer
         Vector2 CarPos;
         Vector2 SpotPos;
 
+        Vector2 trophyPos;
+
         float carScale = 1f;
 
         float paintCarAlpha = 1f;
@@ -65,7 +67,8 @@ namespace Psuedo3DRacer
         Rectangle leftCupRect;
         Rectangle rightCupRect;
 
-        Color carColor = new Color(255, 255, 255);
+        public static Color carColor = new Color(255, 255, 255);
+        public static List<int> trophies = new List<int> { 8, 8, 8 };
 
         Texture2D[] texCarDirections;
 
@@ -95,7 +98,7 @@ namespace Psuedo3DRacer
         int[] trackPos = new int[3];
         
 
-        int selectedCup = 0;
+        static int selectedCup = 0;
 
         #endregion
 
@@ -105,7 +108,7 @@ namespace Psuedo3DRacer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SelectionScreen()
+        public SelectionScreen(int page)
         {
             TransitionOnTime = TimeSpan.FromSeconds(1);
             TransitionOffTime = TimeSpan.FromSeconds(1);
@@ -113,6 +116,8 @@ namespace Psuedo3DRacer
 #if WINRT || WINDOWS_PHONE || TOUCH
             EnabledGestures = GestureType.Tap | GestureType.HorizontalDrag |GestureType.Flick;
 #endif
+
+            selectionMode = page;
         }
 
 
@@ -140,8 +145,9 @@ namespace Psuedo3DRacer
             LoadTex("triangles");
             LoadTex("cup-holder");
             LoadTex("cuparrow");
+            LoadTex("cup");
 
-            for (int i = 1; i <= 5; i++)
+            for (int i = 1; i <= 3; i++)
             {
                 LoadTex("cuptitle" + i.ToString());
             }
@@ -201,12 +207,16 @@ namespace Psuedo3DRacer
             cupTrackRT[1] = new RenderTarget2D(ScreenManager.GraphicsDevice, 193, 108, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             cupTrackRT[2] = new RenderTarget2D(ScreenManager.GraphicsDevice, 193, 108, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
 
+            trophyPos = new Vector2(- 400, (ScreenManager.Viewport.Height / 2) + 50);
+
             leftRect = new Rectangle(0, ScreenManager.Viewport.Height - 75, 150, 50);
             rightRect = new Rectangle(ScreenManager.Viewport.Width-150, ScreenManager.Viewport.Height - 75, 150, 50);
 
             leftCupRect = new Rectangle((int)cupPosition.X - 300, (int)cupPosition.Y - 100, 50, 200);
             rightCupRect = new Rectangle((int)cupPosition.X + 250, (int)cupPosition.Y - 100, 50, 200);
 
+            LoadTracks(selectedCup);
+            AudioController.PlayMusic("title");
             ScreenManager.Game.ResetElapsedTime();
         }
 
@@ -280,9 +290,12 @@ namespace Psuedo3DRacer
                 PaintPos = Vector2.Lerp(PaintPos, new Vector2(ScreenManager.Viewport.Width/2, ScreenManager.Viewport.Height - 150) , 0.1f);
                 paintCarAlpha = MathHelper.Lerp(paintCarAlpha, 1f, 0.1f);
 
+
                 cupPosition = Vector2.Lerp(cupPosition, new Vector2(ScreenManager.Viewport.Width + 500, ScreenManager.Viewport.Height / 2), 0.1f);
                 leftCupRect = new Rectangle((int)cupPosition.X - 350, (int)cupPosition.Y - 100, 50, 200);
                 rightCupRect = new Rectangle((int)cupPosition.X + 300, (int)cupPosition.Y - 100, 50, 200);
+                trophyPos = Vector2.Lerp(trophyPos, new Vector2(- 400, (ScreenManager.Viewport.Height / 2) + 50), 0.1f);
+
             }
             else
             {
@@ -300,6 +313,10 @@ namespace Psuedo3DRacer
 
 
                 cupPosition = Vector2.Lerp(cupPosition, new Vector2(500 + ((ScreenManager.Viewport.Width - 500)/2), ScreenManager.Viewport.Height / 2), 0.1f);
+
+                trophyPos = Vector2.Lerp(trophyPos, new Vector2(((ScreenManager.Viewport.Width/ 2)-300), (ScreenManager.Viewport.Height / 2) + 50), 0.1f);
+
+
 
                 leftCupRect = new Rectangle((int)cupPosition.X - 350, (int)cupPosition.Y - 100, 50, 200);
                 rightCupRect = new Rectangle((int)cupPosition.X + 300, (int)cupPosition.Y - 100, 50, 200);
@@ -345,6 +362,7 @@ namespace Psuedo3DRacer
                 {
                     if (!loadedGameplay)
                     {
+                        AudioController.StopMusic();
                         LoadingScreen.Load(ScreenManager, false, null, new GameplayScreen(selectedCup, carColor));
                         loadedGameplay = true;
                     }
@@ -417,6 +435,7 @@ namespace Psuedo3DRacer
                    input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Space, null, out player) ||
                     input.IsMenuSelect(null, out player))
                 {
+                    AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
                     selectionMode = 1;
                     LoadTracks(selectedCup);
                 }
@@ -425,12 +444,14 @@ namespace Psuedo3DRacer
                 {
                     if(rightRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
                     {
+                        AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
                         selectionMode = 1;
                         LoadTracks(selectedCup);
                     }
 
                     if (leftRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
                     {
+                        AudioController.StopMusic();
                         LoadingScreen.Load(ScreenManager, false, null, new MainMenuScreen());
                     }
 
@@ -487,6 +508,7 @@ namespace Psuedo3DRacer
                     if (rightRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
 #endif
                     {
+                        AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
                         selectionMode = 1;
                         LoadTracks(selectedCup);
                     }
@@ -497,12 +519,17 @@ namespace Psuedo3DRacer
                     if (leftRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
 #endif
                     {
+                        AudioController.StopMusic();
                         LoadingScreen.Load(ScreenManager, false, null, new MainMenuScreen());
                     }
                 }
 
 #endif
-                if (input.IsMenuCancel(null, out player)) LoadingScreen.Load(ScreenManager, false, null, new MainMenuScreen());
+                if (input.IsMenuCancel(null, out player))
+                {
+                    AudioController.StopMusic();
+                    LoadingScreen.Load(ScreenManager, false, null, new MainMenuScreen());
+                }
             }
             else
             {
@@ -536,6 +563,7 @@ namespace Psuedo3DRacer
                    input.IsNewKeyPress(Microsoft.Xna.Framework.Input.Keys.Space, null, out player) ||
                     input.IsMenuSelect(null, out player))
                 {
+                    AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
                     ExitScreen();
                     //
                 }
@@ -544,6 +572,7 @@ namespace Psuedo3DRacer
                 {
                     if (rightRect.Contains(new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y)))
                     {
+                        AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
                         ExitScreen();
                     }
 
@@ -599,6 +628,7 @@ namespace Psuedo3DRacer
                     if (rightRect.Contains(new Point((int)input.TapGesture.Value.Position.X, (int)input.TapGesture.Value.Position.Y)))
 #endif
                     {
+                        AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
                         ExitScreen();
                     }
 
@@ -668,6 +698,7 @@ namespace Psuedo3DRacer
 
                     int nextpos = (trackPos[i] + 1);
                     if (nextpos >= cupTracks[i].TrackSegments.Count) nextpos = nextpos - cupTracks[i].TrackSegments.Count;
+                    Camera.projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (193f/108f), 0.001f, 100f);
                     Camera.Position = cupTracks[i].TrackSegments[trackPos[i]].Position + new Vector3(0, 0.5f, 0);
                     Camera.LookAt(cupTracks[i].TrackSegments[nextpos].Position + new Vector3(0, 0.5f, 0), 0f);
                     drawEffect.View = Camera.viewMatrix;
@@ -677,14 +708,14 @@ namespace Psuedo3DRacer
 
 
                     cupTrackPM[i].Update(gameTime, new Vector2(((1280 * 4) / MathHelper.TwoPi) * Camera.Yaw, 0f));
-
-                    horizV = new Vector3(0, 0f, -200);
-                    horiz = ScreenManager.Viewport.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
+                    Viewport testVP = new Viewport(0, 0, 193, 108);
+                    horizV = new Vector3(0, 0f, -100);
+                    horiz = testVP.Project(horizV, Camera.projectionMatrix, Camera.ViewMatrixUpDownOnly(), Camera.worldMatrix);
                     horizHeight = horiz.Y - (25f * cupTrackPM[i].Scale);
                     ScreenManager.SpriteBatch.Begin();
-                    ScreenManager.SpriteBatch.Draw(texList["blank"], new Rectangle(cupTrackRT[i].Width / 2, (int)(horizHeight * cupTrackPM[i].Scale), cupTrackRT[i].Width * 2, (cupTrackRT[i].Height - (int)(horizHeight*cupTrackPM[i].Scale)) + 400), null, cupTracks[i].GroundColor, 0f, new Vector2(0.5f, 0), SpriteEffects.None, 1);
+                    ScreenManager.SpriteBatch.Draw(texList["blank"], new Rectangle(cupTrackRT[i].Width / 2, (int)(horizHeight), cupTrackRT[i].Width * 2, (cupTrackRT[i].Height - (int)(horizHeight)) + 400), null, cupTracks[i].GroundColor, 0f, new Vector2(0.5f, 0), SpriteEffects.None, 1);
                     ScreenManager.SpriteBatch.End();
-                    ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(cupTrackPM[i].Scale, cupTrackPM[i].Scale, 1f)) * Matrix.CreateTranslation(new Vector3(cupTrackRT[i].Width / 2, horizHeight * cupTrackPM[i].Scale, 0f)));
+                    ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(cupTrackPM[i].Scale, cupTrackPM[i].Scale, 1f)) * Matrix.CreateTranslation(new Vector3(cupTrackRT[i].Width / 2, horizHeight, 0f)));
                     cupTrackPM[i].Draw(ScreenManager.SpriteBatch);
                     ScreenManager.SpriteBatch.End();
 
@@ -706,6 +737,7 @@ namespace Psuedo3DRacer
                 
             }
 
+            Camera.projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, ScreenManager.Viewport.AspectRatio, 0.001f, 100f);
             Camera.Position = new Vector3(3f, 0.2f, 16f);
             Camera.LookAt(new Vector3(0f, 0.5f, 25f) + lookAtOffset, 0f);
 
@@ -751,6 +783,21 @@ namespace Psuedo3DRacer
             spriteBatch.Draw(texList["triangles"], new Vector2(redRect.Left+4, redRect.Top + 24) + new Vector2((400f/230f) * (float)(carColor.R-25),0f), null, selectedColor==0?Color.White:Color.Black, 0f, new Vector2(texList["triangles"].Width, texList["triangles"].Height) / 2, 1f, SpriteEffects.None, 1);
             spriteBatch.Draw(texList["triangles"], new Vector2(greenRect.Left + 4, greenRect.Top + 24) + new Vector2((400f / 230f) * (float)(carColor.G - 25), 0f), null, selectedColor == 1 ? Color.White : Color.Black, 0f, new Vector2(texList["triangles"].Width, texList["triangles"].Height) / 2, 1f, SpriteEffects.None, 1);
             spriteBatch.Draw(texList["triangles"], new Vector2(blueRect.Left + 4, blueRect.Top + 24) + new Vector2((400f / 230f) * (float)(carColor.B - 25), 0f), null, selectedColor == 2 ? Color.White : Color.Black, 0f, new Vector2(texList["triangles"].Width, texList["triangles"].Height) / 2, 1f, SpriteEffects.None, 1);
+
+            Color trophyColor = Color.Black * 0.5f;
+            switch (trophies[selectedCup])
+            {
+                case 3:
+                    trophyColor = Color.SaddleBrown;
+                    break;
+                case 2:
+                    trophyColor = Color.Silver;
+                    break;
+                case 1:
+                    trophyColor = Color.Gold;
+                    break;
+            }
+            spriteBatch.Draw(texList["cup"], trophyPos, null, trophyColor, 0f, new Vector2(texList["cup"].Width, texList["cup"].Height) / 2, 1f, SpriteEffects.None, 1);
 
             spriteBatch.Draw(texList["arrow"], new Vector2(leftRect.Center.X, leftRect.Center.Y), null, Color.LightGray, 0f, new Vector2(texList["arrow"].Width, texList["arrow"].Height) / 2, 1f, SpriteEffects.FlipHorizontally, 1);
             spriteBatch.Draw(texList["arrow"], new Vector2(rightRect.Center.X, rightRect.Center.Y), null, Color.LightGray, 0f, new Vector2(texList["arrow"].Width, texList["arrow"].Height) / 2, 1f, SpriteEffects.None, 1);

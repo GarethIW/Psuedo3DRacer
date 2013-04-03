@@ -84,7 +84,7 @@ namespace Psuedo3DRacer
             gameCamera.AttachedToCar = true;
 
             // + ((Cup * 3) + currentTrack).ToString("000")
-            gameTrack = Track.Load("track" + (rand.Next(4)).ToString("000"), content, parallaxManager, false);
+            gameTrack = Track.Load("track" + (rand.Next(9)).ToString("000"), content, parallaxManager, false);
 
           
             gameCars.Add(new Car(gameTrack.Length - 10, -0.2f, gameTrack, Color.Red));
@@ -124,9 +124,21 @@ namespace Psuedo3DRacer
 
             };
 
+            AudioController.RestartMusic("title");
+
             base.LoadContent();
         }
 
+
+        public override void UnloadContent()
+        {
+            base.UnloadContent();
+
+            foreach (Car c in gameCars)
+            {
+                c.Dispose();
+            }
+        }
 
         #endregion
 
@@ -138,11 +150,13 @@ namespace Psuedo3DRacer
          
             if (camTime >= 5000)
             {
+                gameCars[followCar].camAttached = false;
                 followCar = rand.Next(8);
+                gameCars[followCar].camAttached = true;
                 camTime = 0;
             }
 
-            if (flashTime > 5000)
+            if (flashTime > 7800)
             {
                 if (!hasFlashed)
                 {
@@ -160,7 +174,7 @@ namespace Psuedo3DRacer
                 c.Update(gameTime, gameTrack, gameCars);
             }
             gameCamera.Position = gameCars[followCar].CameraPosition;
-            gameCamera.LookAt(gameCars[followCar].CameraLookat, (gameCars[7].steeringAmount * 0.5f));
+            gameCamera.LookAt(gameCars[followCar].CameraLookat, (gameCars[followCar].steeringAmount * 0.5f));
             
 
             drawEffect.View = gameCamera.viewMatrix;
@@ -174,7 +188,8 @@ namespace Psuedo3DRacer
                 {
                     if (!loadedSelect)
                     {
-                        LoadingScreen.Load(ScreenManager, false, null, new SelectionScreen());
+                        
+                        LoadingScreen.Load(ScreenManager, false, null, new SelectionScreen(0));
                         loadedSelect = true;
                     }
                 }
@@ -190,20 +205,26 @@ namespace Psuedo3DRacer
 
             if (IsActive)
             {
-                if (input.IsMenuSelect(null, out pi) || input.MouseLeftClick) ExitScreen();
+                if (input.IsMenuSelect(null, out pi) || input.MouseLeftClick)
+                {
+                    AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
+                    ExitScreen();
+                }
                
 #if WINRT || WINDOWS_PHONE || TOUCH
                 foreach (GestureSample gest in input.Gestures)
                 {
                     if (gest.GestureType == GestureType.Tap)
                     {
+                        AudioController.PlaySFX("select", 0.5f, 0f, 0f); 
                         ExitScreen();
                     }
                 }
 #endif
             }
 
-            
+            if (input.IsMenuCancel(null, out pi))
+                ScreenManager.Game.Exit();
 
             base.HandleInput(input);
         }
@@ -218,9 +239,9 @@ namespace Psuedo3DRacer
             Vector3 horiz = ScreenManager.Viewport.Project(horizV, gameCamera.projectionMatrix, gameCamera.ViewMatrixUpDownOnly(), gameCamera.worldMatrix);
             horizHeight = horiz.Y - (25f * parallaxManager.Scale);
             ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.Draw(texBlank, new Rectangle(ScreenManager.Viewport.Width / 2, (int)horizHeight, ScreenManager.Viewport.Width * 2, (ScreenManager.Viewport.Height - (int)horizHeight) + 400), null, gameTrack.GroundColor, (gameCars[7].steeringAmount * 0.5f), new Vector2(0.5f, 0), SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.Draw(texBlank, new Rectangle(ScreenManager.Viewport.Width / 2, (int)horizHeight, ScreenManager.Viewport.Width * 2, (ScreenManager.Viewport.Height - (int)horizHeight) + 400), null, gameTrack.GroundColor, (gameCars[followCar].steeringAmount * 0.5f), new Vector2(0.5f, 0), SpriteEffects.None, 1);
             ScreenManager.SpriteBatch.End();
-            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(parallaxManager.Scale, parallaxManager.Scale, 1f)) * Matrix.CreateRotationZ(gameCars[7].steeringAmount * 0.5f) * Matrix.CreateTranslation(new Vector3(ScreenManager.Viewport.Width / 2, horizHeight, 0f)));
+            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateScale(new Vector3(parallaxManager.Scale, parallaxManager.Scale, 1f)) * Matrix.CreateRotationZ(gameCars[followCar].steeringAmount * 0.5f) * Matrix.CreateTranslation(new Vector3(ScreenManager.Viewport.Width / 2, horizHeight, 0f)));
             parallaxManager.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
 
@@ -250,7 +271,14 @@ namespace Psuedo3DRacer
             //ScreenManager.SpriteBatch.DrawString(gameFont, "Control with WASD/Cursor, Xbox Pad or Touch/Tilt", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 300), Color.White * TransitionAlpha, 0f, gameFont.MeasureString("Control with WASD/Cursor, Xbox Pad or Touch/Tilt") / 2, 0.75f, SpriteEffects.None, 1);
 
             ShadowText(ScreenManager.SpriteBatch, "onegameamonth.com/garethiw", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 250), Color.White, gameFont.MeasureString("onegameamonth.com/garethiw") / 2, 0.75f);
+ 
+#if WINRT
             ShadowText(ScreenManager.SpriteBatch, "Control with WASD/Cursor, Xbox Pad or Touch/Tilt", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 300), Color.LightGray, gameFont.MeasureString("Control with WASD/Cursor, Xbox Pad or Touch/Tilt") / 2, 0.6f);
+#else
+            ShadowText(ScreenManager.SpriteBatch, "Control with WASD/Cursor or Xbox Pad", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 300), Color.LightGray, gameFont.MeasureString("Control with WASD/Cursor or Xbox Pad") / 2, 0.6f);
+#endif
+
+            ShadowText(ScreenManager.SpriteBatch, "Music by Ken Snyder (http://coda.s3m.us)", new Vector2(ScreenManager.Viewport.Width / 2, ScreenManager.Viewport.Height / 3) + new Vector2(0, 350), Color.LightGray, gameFont.MeasureString("Music by Ken Snyder (http://coda.s3m.us)") / 2, 0.6f);
 
 
             ScreenManager.SpriteBatch.End();

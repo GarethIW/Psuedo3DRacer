@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace Psuedo3DRacer.Common
 {
-    public class Car
+    public class Car : IDisposable
     {
         static Random randomNumber = new Random();
 
@@ -41,10 +42,12 @@ namespace Psuedo3DRacer.Common
 
         double correctionCountdown = 0;
 
+        public double immuneTime = 0;
+
         bool hasStarted = false;
 
         float applyingThrottle = 0f;
-        bool applyingBrake = false;
+        public bool applyingBrake = false;
         float applyingSteering = 0;
 
         public float steeringAmount;
@@ -58,6 +61,8 @@ namespace Psuedo3DRacer.Common
         bool offRoad = false;
 
         bool overtaking = false;
+
+        public bool camAttached = false;
 
         double spinTime = 0;
         float spinSpeed = 0f;
@@ -81,6 +86,10 @@ namespace Psuedo3DRacer.Common
         int animFrame = 0;
         double animTime = 0;
 
+        public SoundEffectInstance engineSound;
+        public SoundEffectInstance tyreSound;
+        public SoundEffectInstance crashSound;
+        public AudioEmitter emitter;
 
         public Car(int trackPos, float offset, Track track, Color tint)
         {
@@ -118,6 +127,24 @@ namespace Psuedo3DRacer.Common
                 texTurnRight[turn+3] = content.Load<Texture2D>("cars/" + carnum + "-turnr" + turn + "-1");
             }
 
+            AudioListener listener = new AudioListener();
+            emitter = new AudioEmitter();
+            //emitter.DopplerScale = 100f;
+            //emitter.Velocity = Vector3.One;
+            engineSound = content.Load<SoundEffect>("audio/sfx/engine_01").CreateInstance();
+            tyreSound = content.Load<SoundEffect>("audio/sfx/screech").CreateInstance();
+            crashSound = content.Load<SoundEffect>("audio/sfx/crash").CreateInstance();
+            engineSound.IsLooped = true;
+            engineSound.Volume = 0f;
+            //engineSound.Apply3D(listener, emitter);
+            engineSound.Play();
+            tyreSound.IsLooped = true;
+            tyreSound.Volume = 0f;
+            //tyreSound.Apply3D(listener, emitter);
+
+            crashSound.IsLooped = false;
+            crashSound.Volume = 0f;
+            
         }
 
         public void Reset(int trackPos, float offset, Track track)
@@ -171,8 +198,8 @@ namespace Psuedo3DRacer.Common
                     currentTrackPos = i;
                 }
 
-            
 
+            if (immuneTime > 0) immuneTime -= gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (!IsPlayerControlled)
             {
@@ -186,6 +213,8 @@ namespace Psuedo3DRacer.Common
 
                         correctionCountdown = ReactionTime;
                     }
+
+                   
                 }
 
 
@@ -202,6 +231,8 @@ namespace Psuedo3DRacer.Common
                 {
                     if (Math.Abs(currentPositionOnTrack - targetPositionOnTrack) > 0.02f)
                     {
+                        //if(currentPositionOnTrack-targetPositionOnTrack<0f) steeringAmount +=0.001f;
+                        //if(currentPositionOnTrack-targetPositionOnTrack>0f) steeringAmount -=0.001f;
                         if (Speed > SpeedWhenTurning) applyingThrottle = 0f;
                         else
                             applyingThrottle = 1f;
@@ -211,6 +242,8 @@ namespace Psuedo3DRacer.Common
 
                 if (correctionCountdown > 0) correctionCountdown -= gameTime.ElapsedGameTime.TotalMilliseconds;
 
+                lastYaw = Yaw;
+
                 Vector3 targetnorm = Position - target;
                 Normal = targetnorm;
                 Normal.Normalize();
@@ -218,6 +251,21 @@ namespace Psuedo3DRacer.Common
                 Yaw = (float)Math.Atan2(targetnorm.X, targetnorm.Z);
                 Pitch = (float)Math.Atan2(-targetnorm.Y, targetDist);
 
+                //if (lastYaw > Yaw) steeringAmount += 0.01f;
+                //if (lastYaw == Yaw)
+                //{
+                //    steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.01f);
+                //}
+                //if (lastYaw < Yaw) steeringAmount -= 0.01f;
+
+                //if (camAttached)
+                //{
+                    steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.1f);
+                    steeringAmount = MathHelper.Lerp(steeringAmount, steeringAmount + ((Yaw - lastYaw) * 2f), 0.5f);
+                //}
+
+
+                steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f);
             }
             else
             {
@@ -236,8 +284,10 @@ namespace Psuedo3DRacer.Common
 
                     steeringAmount = MathHelper.Clamp(steeringAmount, -0.5f, 0.5f);
                     Yaw += steeringAmount * 0.05f;// *Speed;
-                   
+
+
                 }
+                else steeringAmount = MathHelper.Lerp(steeringAmount, 0f, 0.1f);
 
                 //Vector3 trackNormal = track.TrackSegments[currentTrackPos].Normal;
                 //float trackYaw = MathHelper.WrapAngle((float)Math.Atan2(trackNormal.X, trackNormal.Z));
@@ -380,6 +430,8 @@ namespace Psuedo3DRacer.Common
 
             RaceDistanceToGo = ((LapsToGo + (StartedFirstLap?0:1)) * track.Length) - (currentTrackPos);
 
+            
+
             //debug = "Lap: " + (4 - LapsToGo) + " | Pos: " + RacePosition;
         }
 
@@ -490,15 +542,18 @@ namespace Psuedo3DRacer.Common
             {
                 if (c == this) continue;
 
-                if ((c.Position - Position).Length() < 0.15f && c.Speed <= Speed && c.spinTime<=0 && spinTime<=0)
+                if ((c.Position - Position).Length() < 0.15f && c.Speed <= Speed && c.spinTime<=0 && spinTime<=0 && c.immuneTime<=0 && immuneTime<=0)
                 {
                     int trackDist = Helper.WrapInt(c.currentTrackPos - currentTrackPos, track.Length - 1);
                     if (trackDist > 0)
                     {
+                        crashSound.Play();
                         spinTime = 1600;
                         spinSpeed = 0.03f;
+                        immuneTime = 3000;
                         c.spinTime = 800;
                         c.spinSpeed = 1f;
+                        c.immuneTime = 3000;
                     }
                 }
 
@@ -506,6 +561,7 @@ namespace Psuedo3DRacer.Common
 
             if (offRoad && collScenery == SceneryType.Wall)
             {
+                crashSound.Play();
                 spinTime = 1600;
                 spinSpeed = Speed;
             }
@@ -513,15 +569,16 @@ namespace Psuedo3DRacer.Common
             
         }
 
+        float lastYaw;
         void PlotCourse(Track track)
         {
+            
             target = track.TrackSegments[Helper.WrapInt(courseTrackPos, track.TrackSegments.Count - 1)].Position;
 
             Vector3 drivingLineTarget = track.TrackSegments[Helper.WrapInt(courseTrackPos + 50, track.TrackSegments.Count - 1)].Normal;
             float targetAngle = Helper.WrapAngle((float)Math.Atan2(drivingLineTarget.X, drivingLineTarget.Z) - Yaw);
             //debug = targetAngle + " | " + targetPositionOnTrack.ToString();
-
-           
+            
 
             if (correctionCountdown <= 0)
             {
@@ -569,7 +626,7 @@ namespace Psuedo3DRacer.Common
                 return texDirections1[spinAnimFrame];
             }
 
-            if (!attachedToCar || !IsPlayerControlled)
+            if (!camAttached)// || !IsPlayerControlled)
             {
                 float normAngle = Helper.WrapAngle((float)Math.Atan2(Normal.X, Normal.Z));
                 float camAngle = Helper.WrapAngle((float)Math.Atan2(direction.X, direction.Z));
@@ -660,6 +717,19 @@ namespace Psuedo3DRacer.Common
             applyingSteering = direction;
         }
 
-        
+
+
+        public void Dispose()
+        {
+            if (engineSound.State == SoundState.Paused || engineSound.State == SoundState.Playing)
+            {
+                engineSound.Stop();
+            }
+            if (tyreSound.State == SoundState.Paused || engineSound.State == SoundState.Playing)
+                tyreSound.Stop();
+
+            engineSound.Dispose();
+            tyreSound.Dispose();
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace Psuedo3DRacer
     {
         #region Fields
 
-        public const int MaxInputs = 4;
+        public const int MaxInputs = 1;
 
         public readonly KeyboardState[] CurrentKeyboardStates;
         public readonly GamePadState[] CurrentGamePadStates;
@@ -197,10 +197,10 @@ namespace Psuedo3DRacer
             else
             {
                 // Accept input from any player.
-                return (IsNewKeyPress(key, PlayerIndex.One, out playerIndex) ||
-                        IsNewKeyPress(key, PlayerIndex.Two, out playerIndex) ||
-                        IsNewKeyPress(key, PlayerIndex.Three, out playerIndex) ||
-                        IsNewKeyPress(key, PlayerIndex.Four, out playerIndex));
+                return (IsNewKeyPress(key, PlayerIndex.One, out playerIndex));// ||
+                        //IsNewKeyPress(key, PlayerIndex.Two, out playerIndex) ||
+                        //IsNewKeyPress(key, PlayerIndex.Three, out playerIndex) ||
+                        //IsNewKeyPress(key, PlayerIndex.Four, out playerIndex));
             }
         }
 
@@ -227,10 +227,10 @@ namespace Psuedo3DRacer
             else
             {
                 // Accept input from any player.
-                return (IsNewButtonPress(button, PlayerIndex.One, out playerIndex) ||
-                        IsNewButtonPress(button, PlayerIndex.Two, out playerIndex) ||
-                        IsNewButtonPress(button, PlayerIndex.Three, out playerIndex) ||
-                        IsNewButtonPress(button, PlayerIndex.Four, out playerIndex));
+                return (IsNewButtonPress(button, PlayerIndex.One, out playerIndex));// ||
+                        //IsNewButtonPress(button, PlayerIndex.Two, out playerIndex) ||
+                        //IsNewButtonPress(button, PlayerIndex.Three, out playerIndex) ||
+                        //IsNewButtonPress(button, PlayerIndex.Four, out playerIndex));
             }
         }
 
@@ -276,7 +276,7 @@ namespace Psuedo3DRacer
 
             return IsNewKeyPress(Keys.Up, controllingPlayer, out playerIndex) ||
                    IsNewButtonPress(Buttons.DPadUp, controllingPlayer, out playerIndex) ||
-                   IsNewButtonPress(Buttons.LeftThumbstickUp, controllingPlayer, out playerIndex);
+                   IsNewButtonPress(Buttons.LeftThumbstickDown, controllingPlayer, out playerIndex);
         }
 
 
@@ -291,7 +291,7 @@ namespace Psuedo3DRacer
 
             return IsNewKeyPress(Keys.Down, controllingPlayer, out playerIndex) ||
                    IsNewButtonPress(Buttons.DPadDown, controllingPlayer, out playerIndex) ||
-                   IsNewButtonPress(Buttons.LeftThumbstickDown, controllingPlayer, out playerIndex);
+                   IsNewButtonPress(Buttons.LeftThumbstickUp, controllingPlayer, out playerIndex);
         }
 
 

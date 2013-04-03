@@ -38,9 +38,11 @@ namespace Psuedo3DRacer
 #if WINRT || WINDOWS_PHONE
             //graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 768;
-            //graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+            graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
 #endif
             IsMouseVisible = true;
+
+            
 
             graphics.ApplyChanges();
 
@@ -76,6 +78,8 @@ namespace Psuedo3DRacer
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            AudioController.LoadContent(Content);
+
             //screenManager.AddScreen(new GameplayScreen(), null);
             //screenManager.AddScreen(new SelectionScreen(), null);
             screenManager.AddScreen(new MainMenuScreen(), null);
@@ -106,6 +110,8 @@ namespace Psuedo3DRacer
             //    this.Exit();
 
             // TODO: Add your update logic here
+
+            AudioController.Update(gameTime);
 
             base.Update(gameTime);
         }

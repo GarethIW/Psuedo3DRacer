@@ -107,6 +107,20 @@ namespace Psuedo3DRacer
                 OnCancel(player);
             }
 
+            if (input.IsMenuCancel(null, out player))
+            {
+                OnCancel(player);
+            }
+
+            if (input.IsMenuUp(null))
+                if(selectedEntry>0) selectedEntry--;
+
+            if (input.IsMenuDown(null))
+                if (selectedEntry < menuEntries.Count-1) selectedEntry++;
+
+            if (input.IsMenuSelect(null, out player))
+                OnSelectEntry(selectedEntry, PlayerIndex.One);
+
 #if WINDOWS_PHONE || WINRT || TOUCH
             // look for any taps that occurred and select any entries that were tapped
             foreach (GestureSample gesture in input.Gestures)

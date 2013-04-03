@@ -79,6 +79,11 @@ namespace Psuedo3DRacer.Common
         [XmlIgnore]
         public bool HasLoaded;
 
+        [XmlIgnore]
+        float mapscale = 7f;
+        [XmlIgnore]
+        Vector2 mapoffset = Vector2.Zero;
+
 #if !WINRT
         BackgroundWorker bgW = new BackgroundWorker();
 #endif
@@ -303,12 +308,12 @@ namespace Psuedo3DRacer.Common
            
         }
 
-        public void DrawMap(GraphicsDevice gd, SpriteBatch sb, RenderTarget2D rt, List<Car> cars)
+        public void DrawMap(GraphicsDevice gd, SpriteBatch sb, RenderTarget2D rt)
         {
-            float scale = 7f;
+            mapscale = 7f;
             Vector2 center = new Vector2(rt.Width, rt.Height) / 2;
 
-            Vector2 offset = Vector2.Zero;
+            mapoffset = Vector2.Zero;
 
             float top = 1000f, left = 1000f;
             float bottom = -1000f, right = -1000f;
@@ -324,11 +329,11 @@ namespace Psuedo3DRacer.Common
             while (!fits)
             {
                 //offset = ((new Vector2(right - left, bottom - top) * scale) / 2);
-                offset = new Vector2(150, 150) - ((new Vector2((right + left)/2, (bottom + top)/2)) *scale);
+                mapoffset = new Vector2(150, 150) - ((new Vector2((right + left) / 2, (bottom + top) / 2)) * mapscale);
 
-                if (offset.Y + (top * scale) < 7 || offset.X + (left * scale) < 7 || offset.Y + (bottom * scale) > 293 || offset.X + (right * scale) > 293)
+                if (mapoffset.Y + (top * mapscale) < 7 || mapoffset.X + (left * mapscale) < 7 || mapoffset.Y + (bottom * mapscale) > 293 || mapoffset.X + (right * mapscale) > 293)
                 {
-                    scale-=0.2f;
+                    mapscale -= 0.2f;
                 }
                 else fits = true;
             }
@@ -342,27 +347,32 @@ namespace Psuedo3DRacer.Common
             sb.Begin(SpriteSortMode.BackToFront, null);
             foreach (Segment seg in TrackSegments)
             {
-                sb.Draw(mapSegment, offset+ (new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.White, 0f, new Vector2(7,7), 1.0f, SpriteEffects.None, 0.9f);
-                sb.Draw(mapSegment, offset +(new Vector2(seg.Position.X, seg.Position.Z) * scale), null, Color.Black, 0f, new Vector2(7,7), 0.8f, SpriteEffects.None, 0.1f);
+                sb.Draw(mapSegment, mapoffset + (new Vector2(seg.Position.X, seg.Position.Z) * mapscale), null, Color.White, 0f, new Vector2(7, 7), 1.0f, SpriteEffects.None, 0.9f);
+                sb.Draw(mapSegment, mapoffset + (new Vector2(seg.Position.X, seg.Position.Z) * mapscale), null, Color.Black, 0f, new Vector2(7, 7), 0.8f, SpriteEffects.None, 0.1f);
                 if (TrackSegments.IndexOf(seg) == 0)
                 {
                     float angle = Helper.WrapAngle((float)Math.Atan2(-seg.Normal.X, seg.Normal.Z));
-                    sb.Draw(mapSegment, offset + (new Vector2(seg.Position.X, seg.Position.Z) * scale), new Rectangle(0,6,15,3), Color.White, angle, new Vector2(8, 1), 1.1f, SpriteEffects.None, 0f);
+                    sb.Draw(mapSegment, mapoffset + (new Vector2(seg.Position.X, seg.Position.Z) * mapscale), new Rectangle(0, 6, 15, 3), Color.White, angle, new Vector2(8, 1), 1.1f, SpriteEffects.None, 0f);
                 }
             }
             sb.End();
 
+            
+
+            //gd.SetRenderTarget(null);
+        }
+
+        public void DrawMapCars(SpriteBatch sb, Vector2 mapposition, List<Car> cars)
+        {
             sb.Begin(SpriteSortMode.BackToFront, null);
             foreach (Car c in cars.OrderByDescending(car => car.RacePosition))
             {
-                if(!c.IsPlayerControlled)
-                    sb.Draw(mapSegment, offset + (new Vector2(c.Position.X, c.Position.Z) * scale), null, c.Tint, 0f, new Vector2(7, 7), 0.4f, SpriteEffects.None, 1);
+                if (!c.IsPlayerControlled)
+                    sb.Draw(mapSegment, mapposition + mapoffset + (new Vector2(c.Position.X, c.Position.Z) * mapscale), null, c.Tint, 0f, new Vector2(7, 7), 0.4f, SpriteEffects.None, 1);
                 else
-                    sb.Draw(mapSegment, offset + (new Vector2(c.Position.X, c.Position.Z) * scale), null, c.Tint, 0f, new Vector2(7, 7), 0.6f, SpriteEffects.None, 0);
+                    sb.Draw(mapSegment, mapposition + mapoffset + (new Vector2(c.Position.X, c.Position.Z) * mapscale), null, c.Tint, 0f, new Vector2(7, 7), 0.6f, SpriteEffects.None, 0);
             }
             sb.End();
-
-            //gd.SetRenderTarget(null);
         }
 
         public void DrawBatches(GraphicsDevice gd, BasicEffect basicEffect, AlphaTestEffect alphaEffect)

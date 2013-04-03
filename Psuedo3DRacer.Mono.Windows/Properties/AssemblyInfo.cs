@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Psuedo3DRacer.Mono.Windows")]
-[assembly: AssemblyProduct("Psuedo3DRacer.Mono.Windows")]
+[assembly: AssemblyTitle("Super Turbo Racer '89")]
+[assembly: AssemblyProduct("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Team Mango")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

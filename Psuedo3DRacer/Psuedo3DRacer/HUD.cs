@@ -27,6 +27,7 @@ namespace Psuedo3DRacer
         float countdownScale;
         int countdownNumber;
         bool countdownFadingIn = false;
+        int beepPlayed = 0;
 
         static Random randomNumber = new Random();
 
@@ -51,36 +52,42 @@ namespace Psuedo3DRacer
         {
             if (countdownTime > 3400 && countdownTime < 3500)
             {
+                if (beepPlayed == 0) { AudioController.PlaySFX("countdown", 0.4f, 0f, 0f); beepPlayed++; } 
                 countdownFade = 0f;
                 countdownScale = 3f;
                 countdownNumber = 3;
                 countdownFadingIn = true;
             }
-            if (countdownNumber == 3 && countdownTime < 3000) countdownFadingIn = false;
+            if (countdownNumber == 3 && countdownTime < 3000)
+            { countdownFadingIn = false; }
             if (countdownTime > 2400 && countdownTime < 2500)
             {
+                if (beepPlayed == 1) { AudioController.PlaySFX("countdown", 0.4f, 0f, 0f); beepPlayed++; }
                 countdownFade = 0f;
                 countdownScale = 3f;
                 countdownNumber = 2;
                 countdownFadingIn = true;
             }
-            if (countdownNumber == 2 && countdownTime < 2000) countdownFadingIn = false;
+            if (countdownNumber == 2 && countdownTime < 2000) { countdownFadingIn = false;  }
             if (countdownTime > 1400 && countdownTime < 1500)
             {
+                if (beepPlayed == 2) { AudioController.PlaySFX("countdown", 0.4f, 0f, 0f); beepPlayed++; }
                 countdownFade = 0f;
                 countdownScale = 3f;
                 countdownNumber = 1;
                 countdownFadingIn = true;
             }
-            if (countdownNumber == 1 && countdownTime < 1000) countdownFadingIn = false;
+            if (countdownNumber == 1 && countdownTime < 1000) { countdownFadingIn = false;  }
             if (countdownTime > 400 && countdownTime < 500)
             {
+                if (beepPlayed == 3) { AudioController.PlaySFX("countdown", 0.4f, 1f, 0f); beepPlayed++; }
                 countdownFade = 0f;
                 countdownScale = 3f;
                 countdownNumber = 0;
                 countdownFadingIn = true;
             }
-            if (countdownNumber == 0 && countdownTime <= 0) countdownFadingIn = false;
+            if (countdownNumber == 0 && countdownTime <= 0) { countdownFadingIn = false;  }
+            
 
             if (countdownFadingIn && countdownFade < 1f) countdownFade += 0.1f;
             if ((!countdownFadingIn) && countdownFade > 0f) countdownFade -= 0.1f;
@@ -115,7 +122,7 @@ namespace Psuedo3DRacer
                 spriteBatch.Draw(texList["lappos"], new Vector2(195, 40), new Rectangle(0, 30 + (posFix * 37), 75, 38), Color.White, 0f, Vector2.Zero, 0.75f, SpriteEffects.None, 1);
 
 
-                float lapOffset = vp.Width - 500;
+                float lapOffset = vp.Width - 550;
                 float lapScale = 0.8f;
                 spriteBatch.Draw(texList["lappos"], new Vector2(lapOffset + (50*lapScale), 71), new Rectangle(0, 0, 75, 25), Color.White, 0f, Vector2.Zero, lapScale, SpriteEffects.None, 1);
                 spriteBatch.Draw(texList["numbers"], new Vector2(lapOffset + (130*lapScale), 40), new Rectangle(64 + ((4-(playerCar.LapsToGo>0?playerCar.LapsToGo:3)) * 64), 0, 64, 64), Color.White, 0f, Vector2.Zero, 1f * lapScale, SpriteEffects.None, 1);

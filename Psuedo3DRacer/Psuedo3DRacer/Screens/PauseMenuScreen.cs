@@ -21,7 +21,8 @@ namespace Psuedo3DRacer
         #region Initialization
 
         PauseBackgroundScreen BGScreen;
-
+        MenuEntry sfxMenuEntry;
+        MenuEntry musicMenuEntry;
         /// <summary>
         /// Constructor fills in the menu contents.
         /// </summary>
@@ -38,16 +39,21 @@ namespace Psuedo3DRacer
             resumeGameMenuEntry = new MenuEntry("Resume");
 
             MenuEntry optionsMenuEntry = new MenuEntry("Options");
-            MenuEntry exitMenuEntry = new MenuEntry("Exit to Title");
+            sfxMenuEntry = new MenuEntry("SFX: "+ (AudioController.sfx ? "On" : "Off"));
+            musicMenuEntry = new MenuEntry("Music: "+ (AudioController.music ? "On" : "Off"));
+            MenuEntry exitMenuEntry = new MenuEntry("Quit Race");
 
             // Hook up menu event handlers.
             resumeGameMenuEntry.Selected += ResumeGameMenuEntrySelected;
             optionsMenuEntry.Selected += OptionsMenuEntrySelected;
+            sfxMenuEntry.Selected += SfxMenuEntrySelected;
+            musicMenuEntry.Selected += MusicMenuEntrySelected;
             exitMenuEntry.Selected += ExitMenuEntrySelected;
 
             // Add entries to the menu.
             MenuEntries.Add(resumeGameMenuEntry);
-            //MenuEntries.Add(optionsMenuEntry);
+            MenuEntries.Add(sfxMenuEntry);
+            MenuEntries.Add(musicMenuEntry);
             MenuEntries.Add(exitMenuEntry);
 
             base.LoadContent();
@@ -76,13 +82,32 @@ namespace Psuedo3DRacer
             //ScreenManager.AddScreen(new OptionsMenuScreen(), e.PlayerIndex);
         }
 
+        void SfxMenuEntrySelected(object sender, PlayerIndexEventArgs e)
+        {
+            //ScreenManager.AddScreen(new OptionsMenuScreen(), e.PlayerIndex);
+            AudioController.sfx = !AudioController.sfx;
+            if (AudioController.sfx) AudioController.sfxvolume = 1f;
+            else AudioController.sfxvolume = 0f;
+            sfxMenuEntry.Text = "SFX: " + (AudioController.sfx ? "On" : "Off");
+        }
+
+        void MusicMenuEntrySelected(object sender, PlayerIndexEventArgs e)
+        {
+            //ScreenManager.AddScreen(new OptionsMenuScreen(), e.PlayerIndex);
+            AudioController.music = !AudioController.music;
+            if (AudioController.music) AudioController.musicvolume = 0.3f;
+            else AudioController.musicvolume = 0f;
+            musicMenuEntry.Text = "Music: " + (AudioController.music ? "On" : "Off");
+
+        }
+
         /// <summary>
         /// Event handler for when the Options menu entry is selected.
         /// </summary>
         void ExitMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-           // LoadingScreen.Load(ScreenManager, false, e.PlayerIndex, new GameplayScreen(),
-             //                  new MainMenuScreen());
+            AudioController.StopMusic();
+           LoadingScreen.Load(ScreenManager, false, e.PlayerIndex, new SelectionScreen(1));
         }
 
 
