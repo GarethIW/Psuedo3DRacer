@@ -632,31 +632,26 @@
       <Name>urban</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
-      <ProcessorParameters_Quality>Low</ProcessorParameters_Quality>
     </Compile>
     <Compile Include="audio\music\island.wav">
       <Name>island</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
-      <ProcessorParameters_Quality>Low</ProcessorParameters_Quality>
     </Compile>
     <Compile Include="audio\music\cityday.wav">
       <Name>cityday</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
-      <ProcessorParameters_Quality>Low</ProcessorParameters_Quality>
     </Compile>
     <Compile Include="audio\music\citynight.wav">
       <Name>citynight</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
-      <ProcessorParameters_Quality>Low</ProcessorParameters_Quality>
     </Compile>
     <Compile Include="audio\music\title.wav">
       <Name>title</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
-      <ProcessorParameters_Quality>Low</ProcessorParameters_Quality>
     </Compile>
   </ItemGroup>
   <ItemGroup>

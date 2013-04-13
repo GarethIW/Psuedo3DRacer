@@ -31,7 +31,11 @@ namespace Psuedo3DRacer
         {
             graphics = new GraphicsDeviceManager(this);
 
-#if WINDOWS
+#if LINUX
+            TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 60.0);
+#endif
+
+#if WINDOWS || LINUX
             graphics.PreferredBackBufferWidth = 1280;
             graphics.PreferredBackBufferHeight = 720;
 #endif
